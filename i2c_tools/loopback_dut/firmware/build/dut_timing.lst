@@ -1,0 +1,1265 @@
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 1
+
+
+   1              		.cpu cortex-m33
+   2              		.arch armv8-m.main
+   3              		.fpu fpv5-sp-d16
+   4              		.arch_extension dsp
+   5              		.eabi_attribute 27, 1
+   6              		.eabi_attribute 28, 1
+   7              		.eabi_attribute 20, 1
+   8              		.eabi_attribute 21, 1
+   9              		.eabi_attribute 23, 3
+  10              		.eabi_attribute 24, 1
+  11              		.eabi_attribute 25, 1
+  12              		.eabi_attribute 26, 1
+  13              		.eabi_attribute 30, 1
+  14              		.eabi_attribute 34, 1
+  15              		.eabi_attribute 18, 4
+  16              		.file	"dut_timing.c"
+  17              		.text
+  18              	.Ltext0:
+  19              		.cfi_sections	.debug_frame
+  20              		.file 1 "App/Src/dut_timing.c"
+  21              		.section	.text.div_round,"ax",%progbits
+  22              		.align	1
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	div_round:
+  28              	.LVL0:
+  29              	.LFB0:
+   1:App/Src/dut_timing.c **** /**
+   2:App/Src/dut_timing.c ****  * [v0.1]
+   3:App/Src/dut_timing.c ****  * @file    dut_timing.c
+   4:App/Src/dut_timing.c ****  * @brief   TIMINGR calculator (see dut_timing.h for the model and limits).
+   5:App/Src/dut_timing.c ****  *          All arithmetic in picoseconds, 64-bit.
+   6:App/Src/dut_timing.c ****  */
+   7:App/Src/dut_timing.c **** #include "dut_timing.h"
+   8:App/Src/dut_timing.c **** 
+   9:App/Src/dut_timing.c **** #define PS_PER_NS   1000ULL
+  10:App/Src/dut_timing.c **** #define PS_PER_S    1000000000000ULL
+  11:App/Src/dut_timing.c **** 
+  12:App/Src/dut_timing.c **** static uint64_t div_round(uint64_t n, uint64_t d) { return (n + d / 2U) / d; }
+  30              		.loc 1 12 51 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 12 51 is_stmt 0 view .LVU1
+  35 0000 08B5     		push	{r3, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 3, -8
+  39              		.cfi_offset 14, -4
+  40              		.loc 1 12 53 is_stmt 1 view .LVU2
+  41              		.loc 1 12 67 is_stmt 0 view .LVU3
+  42 0002 4FEA520C 		lsr	ip, r2, #1
+  43 0006 4CEAC37C 		orr	ip, ip, r3, lsl #31
+  44              		.loc 1 12 63 view .LVU4
+  45 000a 1CEB0000 		adds	r0, ip, r0
+  46              	.LVL1:
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 2
+
+
+  47              		.loc 1 12 73 view .LVU5
+  48 000e 41EB5301 		adc	r1, r1, r3, lsr #1
+  49 0012 FFF7FEFF 		bl	__aeabi_uldivmod
+  50              	.LVL2:
+  51              		.loc 1 12 78 view .LVU6
+  52 0016 08BD     		pop	{r3, pc}
+  53              		.cfi_endproc
+  54              	.LFE0:
+  56              		.section	.text.div_ceil,"ax",%progbits
+  57              		.align	1
+  58              		.syntax unified
+  59              		.thumb
+  60              		.thumb_func
+  62              	div_ceil:
+  63              	.LVL3:
+  64              	.LFB1:
+  13:App/Src/dut_timing.c **** static uint64_t div_ceil(uint64_t n, uint64_t d)  { return (n + d - 1U) / d; }
+  65              		.loc 1 13 51 is_stmt 1 view -0
+  66              		.cfi_startproc
+  67              		@ args = 0, pretend = 0, frame = 0
+  68              		@ frame_needed = 0, uses_anonymous_args = 0
+  69              		.loc 1 13 51 is_stmt 0 view .LVU8
+  70 0000 08B5     		push	{r3, lr}
+  71              	.LCFI1:
+  72              		.cfi_def_cfa_offset 8
+  73              		.cfi_offset 3, -8
+  74              		.cfi_offset 14, -4
+  75              		.loc 1 13 53 is_stmt 1 view .LVU9
+  76              		.loc 1 13 63 is_stmt 0 view .LVU10
+  77 0002 8018     		adds	r0, r0, r2
+  78              	.LVL4:
+  79              		.loc 1 13 63 view .LVU11
+  80 0004 41EB0301 		adc	r1, r1, r3
+  81              		.loc 1 13 67 view .LVU12
+  82 0008 0138     		subs	r0, r0, #1
+  83              		.loc 1 13 73 view .LVU13
+  84 000a 41F1FF31 		adc	r1, r1, #-1
+  85 000e FFF7FEFF 		bl	__aeabi_uldivmod
+  86              	.LVL5:
+  87              		.loc 1 13 78 view .LVU14
+  88 0012 08BD     		pop	{r3, pc}
+  89              		.cfi_endproc
+  90              	.LFE1:
+  92              		.section	.text.sync_ps,"ax",%progbits
+  93              		.align	1
+  94              		.syntax unified
+  95              		.thumb
+  96              		.thumb_func
+  98              	sync_ps:
+  99              	.LVL6:
+ 100              	.LFB2:
+  14:App/Src/dut_timing.c **** 
+  15:App/Src/dut_timing.c **** /* t_SYNC1 + t_SYNC2 in ps */
+  16:App/Src/dut_timing.c **** static uint64_t sync_ps(const dut_timing_env_t *env, uint64_t tk)
+  17:App/Src/dut_timing.c **** {
+ 101              		.loc 1 17 1 is_stmt 1 view -0
+ 102              		.cfi_startproc
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 3
+
+
+ 103              		@ args = 0, pretend = 0, frame = 0
+ 104              		@ frame_needed = 0, uses_anonymous_args = 0
+ 105              		.loc 1 17 1 is_stmt 0 view .LVU16
+ 106 0000 30B5     		push	{r4, r5, lr}
+ 107              	.LCFI2:
+ 108              		.cfi_def_cfa_offset 12
+ 109              		.cfi_offset 4, -12
+ 110              		.cfi_offset 5, -8
+ 111              		.cfi_offset 14, -4
+ 112 0002 0146     		mov	r1, r0
+  18:App/Src/dut_timing.c ****     return ((uint64_t)env->fall_ns + env->rise_ns + 2ULL * env->taf_ns) * PS_PER_NS
+ 113              		.loc 1 18 5 is_stmt 1 view .LVU17
+ 114              		.loc 1 18 13 is_stmt 0 view .LVU18
+ 115 0004 0020     		movs	r0, #0
+ 116              	.LVL7:
+ 117              		.loc 1 18 36 view .LVU19
+ 118 0006 8C68     		ldr	r4, [r1, #8]
+ 119 0008 4D68     		ldr	r5, [r1, #4]
+ 120 000a 14EB050C 		adds	ip, r4, r5
+ 121 000e 40EB000E 		adc	lr, r0, r0
+ 122              		.loc 1 18 63 view .LVU20
+ 123 0012 C968     		ldr	r1, [r1, #12]
+ 124              	.LVL8:
+ 125              		.loc 1 18 58 view .LVU21
+ 126 0014 4918     		adds	r1, r1, r1
+ 127 0016 4041     		adcs	r0, r0, r0
+ 128              		.loc 1 18 51 view .LVU22
+ 129 0018 1CEB010C 		adds	ip, ip, r1
+ 130 001c 4EEB000E 		adc	lr, lr, r0
+ 131              		.loc 1 18 73 view .LVU23
+ 132 0020 4FEA4E11 		lsl	r1, lr, #5
+ 133 0024 41EADC61 		orr	r1, r1, ip, lsr #27
+ 134 0028 4FEA4C10 		lsl	r0, ip, #5
+ 135 002c B0EB0C00 		subs	r0, r0, ip
+ 136 0030 61EB0E01 		sbc	r1, r1, lr
+ 137 0034 8900     		lsls	r1, r1, #2
+ 138 0036 41EA9071 		orr	r1, r1, r0, lsr #30
+ 139 003a 8000     		lsls	r0, r0, #2
+ 140 003c 10EB0C00 		adds	r0, r0, ip
+ 141 0040 4EEB010E 		adc	lr, lr, r1
+ 142 0044 4FEACE0E 		lsl	lr, lr, #3
+ 143 0048 4EEA507E 		orr	lr, lr, r0, lsr #29
+ 144 004c C000     		lsls	r0, r0, #3
+  19:App/Src/dut_timing.c ****            + 6ULL * tk;
+ 145              		.loc 1 19 19 view .LVU24
+ 146 004e 12EB020C 		adds	ip, r2, r2
+ 147 0052 43EB0301 		adc	r1, r3, r3
+ 148 0056 1CEB0202 		adds	r2, ip, r2
+ 149              	.LVL9:
+ 150              		.loc 1 19 19 view .LVU25
+ 151 005a 43EB0103 		adc	r3, r3, r1
+ 152 005e 9218     		adds	r2, r2, r2
+ 153 0060 5B41     		adcs	r3, r3, r3
+ 154              		.loc 1 19 12 view .LVU26
+ 155 0062 8018     		adds	r0, r0, r2
+  20:App/Src/dut_timing.c **** }
+ 156              		.loc 1 20 1 view .LVU27
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 4
+
+
+ 157 0064 4EEB0301 		adc	r1, lr, r3
+ 158 0068 30BD     		pop	{r4, r5, pc}
+ 159              		.cfi_endproc
+ 160              	.LFE2:
+ 162              		.section	.text.dut_timing_predict_hz,"ax",%progbits
+ 163              		.align	1
+ 164              		.global	dut_timing_predict_hz
+ 165              		.syntax unified
+ 166              		.thumb
+ 167              		.thumb_func
+ 169              	dut_timing_predict_hz:
+ 170              	.LVL10:
+ 171              	.LFB3:
+  21:App/Src/dut_timing.c **** 
+  22:App/Src/dut_timing.c **** uint32_t dut_timing_predict_hz(const dut_timing_env_t *env, uint32_t timingr)
+  23:App/Src/dut_timing.c **** {
+ 172              		.loc 1 23 1 is_stmt 1 view -0
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+  24:App/Src/dut_timing.c ****     if ((env == 0) || (env->kernel_hz == 0U))
+ 176              		.loc 1 24 5 view .LVU29
+ 177              		.loc 1 24 8 is_stmt 0 view .LVU30
+ 178 0000 C0B3     		cbz	r0, .L11
+  23:App/Src/dut_timing.c ****     if ((env == 0) || (env->kernel_hz == 0U))
+ 179              		.loc 1 23 1 view .LVU31
+ 180 0002 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 181              	.LCFI3:
+ 182              		.cfi_def_cfa_offset 24
+ 183              		.cfi_offset 3, -24
+ 184              		.cfi_offset 4, -20
+ 185              		.cfi_offset 5, -16
+ 186              		.cfi_offset 6, -12
+ 187              		.cfi_offset 7, -8
+ 188              		.cfi_offset 14, -4
+ 189 0004 0D46     		mov	r5, r1
+ 190 0006 0446     		mov	r4, r0
+ 191              		.loc 1 24 27 discriminator 1 view .LVU32
+ 192 0008 0068     		ldr	r0, [r0]
+ 193              	.LVL11:
+ 194              		.loc 1 24 20 discriminator 1 view .LVU33
+ 195 000a 90B3     		cbz	r0, .L7
+  25:App/Src/dut_timing.c ****     {
+  26:App/Src/dut_timing.c ****         return 0U;
+  27:App/Src/dut_timing.c ****     }
+  28:App/Src/dut_timing.c ****     const uint64_t tk    = PS_PER_S / env->kernel_hz;
+ 196              		.loc 1 28 5 is_stmt 1 view .LVU34
+ 197              		.loc 1 28 20 is_stmt 0 view .LVU35
+ 198 000c 0246     		mov	r2, r0
+ 199 000e 0023     		movs	r3, #0
+ 200 0010 19A1     		adr	r1, .L14
+ 201 0012 D1E90001 		ldrd	r0, [r1]
+ 202 0016 FFF7FEFF 		bl	__aeabi_uldivmod
+ 203              	.LVL12:
+ 204              		.loc 1 28 20 view .LVU36
+ 205 001a 0746     		mov	r7, r0
+ 206 001c 0B46     		mov	r3, r1
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 5
+
+
+ 207              	.LVL13:
+  29:App/Src/dut_timing.c ****     const uint64_t presc = (timingr >> 28) & 0xFU;
+ 208              		.loc 1 29 5 is_stmt 1 view .LVU37
+ 209              		.loc 1 29 37 is_stmt 0 view .LVU38
+ 210 001e 4FEA157E 		lsr	lr, r5, #28
+ 211              	.LVL14:
+  30:App/Src/dut_timing.c ****     const uint64_t sclh  = (timingr >> 8) & 0xFFU;
+ 212              		.loc 1 30 5 is_stmt 1 view .LVU39
+ 213              		.loc 1 30 20 is_stmt 0 view .LVU40
+ 214 0022 C5F3072C 		ubfx	ip, r5, #8, #8
+ 215              	.LVL15:
+  31:App/Src/dut_timing.c ****     const uint64_t scll  = timingr & 0xFFU;
+ 216              		.loc 1 31 5 is_stmt 1 view .LVU41
+ 217              		.loc 1 31 20 is_stmt 0 view .LVU42
+ 218 0026 E9B2     		uxtb	r1, r5
+ 219              	.LVL16:
+  32:App/Src/dut_timing.c ****     const uint64_t tp    = (presc + 1U) * tk;
+ 220              		.loc 1 32 5 is_stmt 1 view .LVU43
+ 221              		.loc 1 32 35 is_stmt 0 view .LVU44
+ 222 0028 0EF10100 		add	r0, lr, #1
+ 223              	.LVL17:
+ 224              		.loc 1 32 20 view .LVU45
+ 225 002c 0EFB033E 		mla	lr, lr, r3, r3
+ 226              	.LVL18:
+ 227              		.loc 1 32 20 view .LVU46
+ 228 0030 A0FB0702 		umull	r0, r2, r0, r7
+ 229              	.LVL19:
+ 230              		.loc 1 32 20 view .LVU47
+ 231 0034 9644     		add	lr, lr, r2
+ 232              	.LVL20:
+  33:App/Src/dut_timing.c ****     const uint64_t t_scl = (scll + 1U + sclh + 1U) * tp + sync_ps(env, tk);
+ 233              		.loc 1 33 5 is_stmt 1 view .LVU48
+ 234              		.loc 1 33 39 is_stmt 0 view .LVU49
+ 235 0036 1CEB010C 		adds	ip, ip, r1
+ 236              	.LVL21:
+ 237              		.loc 1 33 39 view .LVU50
+ 238 003a 4FF00002 		mov	r2, #0
+ 239 003e 42EB0201 		adc	r1, r2, r2
+ 240              	.LVL22:
+ 241              		.loc 1 33 46 view .LVU51
+ 242 0042 1CF1020C 		adds	ip, ip, #2
+ 243 0046 41F10001 		adc	r1, r1, #0
+ 244              		.loc 1 33 52 view .LVU52
+ 245 004a 0CFB0EFE 		mul	lr, ip, lr
+ 246              	.LVL23:
+ 247              		.loc 1 33 52 view .LVU53
+ 248 004e 00FB01EE 		mla	lr, r0, r1, lr
+ 249 0052 ACFB005C 		umull	r5, ip, ip, r0
+ 250              	.LVL24:
+ 251              		.loc 1 33 52 view .LVU54
+ 252 0056 0EEB0C06 		add	r6, lr, ip
+ 253              		.loc 1 33 59 view .LVU55
+ 254 005a 3A46     		mov	r2, r7
+ 255 005c 2046     		mov	r0, r4
+ 256              	.LVL25:
+ 257              		.loc 1 33 59 view .LVU56
+ 258 005e FFF7FEFF 		bl	sync_ps
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 6
+
+
+ 259              	.LVL26:
+ 260              		.loc 1 33 20 discriminator 1 view .LVU57
+ 261 0062 2A18     		adds	r2, r5, r0
+ 262              	.LVL27:
+  34:App/Src/dut_timing.c ****     return (uint32_t)div_round(PS_PER_S, t_scl);
+ 263              		.loc 1 34 5 is_stmt 1 view .LVU58
+ 264              		.loc 1 34 22 is_stmt 0 view .LVU59
+ 265 0064 46EB0103 		adc	r3, r6, r1
+ 266              	.LVL28:
+ 267              		.loc 1 34 22 view .LVU60
+ 268 0068 03A1     		adr	r1, .L14
+ 269 006a D1E90001 		ldrd	r0, [r1]
+ 270 006e FFF7FEFF 		bl	div_round
+ 271              	.LVL29:
+ 272              	.L7:
+  35:App/Src/dut_timing.c **** }
+ 273              		.loc 1 35 1 view .LVU61
+ 274 0072 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 275              	.LVL30:
+ 276              	.L11:
+ 277              	.LCFI4:
+ 278              		.cfi_def_cfa_offset 0
+ 279              		.cfi_restore 3
+ 280              		.cfi_restore 4
+ 281              		.cfi_restore 5
+ 282              		.cfi_restore 6
+ 283              		.cfi_restore 7
+ 284              		.cfi_restore 14
+ 285              		.loc 1 35 1 view .LVU62
+ 286 0074 7047     		bx	lr
+ 287              	.L15:
+ 288 0076 00BF     		.align	3
+ 289              	.L14:
+ 290 0078 0010A5D4 		.word	-727379968
+ 291 007c E8000000 		.word	232
+ 292              		.cfi_endproc
+ 293              	.LFE3:
+ 295              		.section	.text.dut_timing_compute,"ax",%progbits
+ 296              		.align	1
+ 297              		.global	dut_timing_compute
+ 298              		.syntax unified
+ 299              		.thumb
+ 300              		.thumb_func
+ 302              	dut_timing_compute:
+ 303              	.LVL31:
+ 304              	.LFB4:
+  36:App/Src/dut_timing.c **** 
+  37:App/Src/dut_timing.c **** int dut_timing_compute(const dut_timing_env_t *env, uint32_t scl_hz,
+  38:App/Src/dut_timing.c ****                        dut_timing_t *out)
+  39:App/Src/dut_timing.c **** {
+ 305              		.loc 1 39 1 is_stmt 1 view -0
+ 306              		.cfi_startproc
+ 307              		@ args = 0, pretend = 0, frame = 80
+ 308              		@ frame_needed = 0, uses_anonymous_args = 0
+ 309              		.loc 1 39 1 is_stmt 0 view .LVU64
+ 310 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 311              	.LCFI5:
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 7
+
+
+ 312              		.cfi_def_cfa_offset 36
+ 313              		.cfi_offset 4, -36
+ 314              		.cfi_offset 5, -32
+ 315              		.cfi_offset 6, -28
+ 316              		.cfi_offset 7, -24
+ 317              		.cfi_offset 8, -20
+ 318              		.cfi_offset 9, -16
+ 319              		.cfi_offset 10, -12
+ 320              		.cfi_offset 11, -8
+ 321              		.cfi_offset 14, -4
+ 322 0004 95B0     		sub	sp, sp, #84
+ 323              	.LCFI6:
+ 324              		.cfi_def_cfa_offset 120
+  40:App/Src/dut_timing.c ****     if ((env == 0) || (out == 0) || (env->kernel_hz == 0U) ||
+ 325              		.loc 1 40 5 is_stmt 1 view .LVU65
+ 326              		.loc 1 40 8 is_stmt 0 view .LVU66
+ 327 0006 0B90     		str	r0, [sp, #44]
+ 328 0008 0028     		cmp	r0, #0
+ 329 000a 00F0CE81 		beq	.L23
+ 330 000e 0C46     		mov	r4, r1
+ 331 0010 9046     		mov	r8, r2
+ 332              		.loc 1 40 20 discriminator 1 view .LVU67
+ 333 0012 002A     		cmp	r2, #0
+ 334 0014 00F0CC81 		beq	.L24
+ 335              		.loc 1 40 41 discriminator 2 view .LVU68
+ 336 0018 0268     		ldr	r2, [r0]
+ 337              	.LVL32:
+ 338              		.loc 1 40 34 discriminator 2 view .LVU69
+ 339 001a 002A     		cmp	r2, #0
+ 340 001c 00F0CB81 		beq	.L25
+ 341              		.loc 1 40 60 discriminator 3 view .LVU70
+ 342 0020 B1F57A7F 		cmp	r1, #1000
+ 343 0024 C0F0CA81 		bcc	.L26
+  41:App/Src/dut_timing.c ****         (scl_hz < 1000U) || (scl_hz > 1000000U))
+ 344              		.loc 1 41 26 view .LVU71
+ 345 0028 374B     		ldr	r3, .L42+16
+ 346 002a 9942     		cmp	r1, r3
+ 347 002c 00F2C981 		bhi	.L27
+  42:App/Src/dut_timing.c ****     {
+  43:App/Src/dut_timing.c ****         return -1;
+  44:App/Src/dut_timing.c ****     }
+  45:App/Src/dut_timing.c **** 
+  46:App/Src/dut_timing.c ****     uint64_t tlow_min, thigh_min, tsu_min, low_frac_x1000;
+ 348              		.loc 1 46 5 is_stmt 1 view .LVU72
+  47:App/Src/dut_timing.c ****     if (scl_hz <= 100000U)
+ 349              		.loc 1 47 5 view .LVU73
+ 350              		.loc 1 47 8 is_stmt 0 view .LVU74
+ 351 0030 364B     		ldr	r3, .L42+20
+ 352 0032 9942     		cmp	r1, r3
+ 353 0034 12D9     		bls	.L28
+  48:App/Src/dut_timing.c ****     {
+  49:App/Src/dut_timing.c ****         tlow_min = 4700000U; thigh_min = 4000000U; tsu_min = 250000U;
+  50:App/Src/dut_timing.c ****         low_frac_x1000 = 500U;
+  51:App/Src/dut_timing.c ****     }
+  52:App/Src/dut_timing.c ****     else if (scl_hz <= 400000U)
+ 354              		.loc 1 52 10 is_stmt 1 view .LVU75
+ 355              		.loc 1 52 13 is_stmt 0 view .LVU76
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 8
+
+
+ 356 0036 364B     		ldr	r3, .L42+24
+ 357 0038 9942     		cmp	r1, r3
+ 358 003a 47D8     		bhi	.L29
+  53:App/Src/dut_timing.c ****     {
+  54:App/Src/dut_timing.c ****         tlow_min = 1300000U; thigh_min = 600000U;  tsu_min = 100000U;
+  55:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 359              		.loc 1 55 24 view .LVU77
+ 360 003c 4FF41673 		mov	r3, #600
+ 361 0040 0993     		str	r3, [sp, #36]
+ 362 0042 0023     		movs	r3, #0
+ 363 0044 0A93     		str	r3, [sp, #40]
+  54:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 364              		.loc 1 54 60 view .LVU78
+ 365 0046 3149     		ldr	r1, .L42+20
+ 366              	.LVL33:
+  54:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 367              		.loc 1 54 60 view .LVU79
+ 368 0048 1191     		str	r1, [sp, #68]
+ 369 004a 1293     		str	r3, [sp, #72]
+  54:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 370              		.loc 1 54 40 view .LVU80
+ 371 004c 3149     		ldr	r1, .L42+28
+ 372 004e 0C91     		str	r1, [sp, #48]
+ 373 0050 0D93     		str	r3, [sp, #52]
+  54:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 374              		.loc 1 54 18 view .LVU81
+ 375 0052 3148     		ldr	r0, .L42+32
+ 376              	.LVL34:
+  54:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 377              		.loc 1 54 18 view .LVU82
+ 378 0054 0021     		movs	r1, #0
+ 379 0056 CDE90601 		strd	r0, [sp, #24]
+ 380 005a 0FE0     		b	.L18
+ 381              	.LVL35:
+ 382              	.L28:
+  50:App/Src/dut_timing.c ****     }
+ 383              		.loc 1 50 24 view .LVU83
+ 384 005c 4FF4FA73 		mov	r3, #500
+ 385 0060 0993     		str	r3, [sp, #36]
+ 386 0062 0023     		movs	r3, #0
+ 387 0064 0A93     		str	r3, [sp, #40]
+  49:App/Src/dut_timing.c ****         low_frac_x1000 = 500U;
+ 388              		.loc 1 49 60 view .LVU84
+ 389 0066 2D49     		ldr	r1, .L42+36
+ 390              	.LVL36:
+  49:App/Src/dut_timing.c ****         low_frac_x1000 = 500U;
+ 391              		.loc 1 49 60 view .LVU85
+ 392 0068 1191     		str	r1, [sp, #68]
+ 393 006a 1293     		str	r3, [sp, #72]
+  49:App/Src/dut_timing.c ****         low_frac_x1000 = 500U;
+ 394              		.loc 1 49 40 view .LVU86
+ 395 006c 2C49     		ldr	r1, .L42+40
+ 396 006e 0C91     		str	r1, [sp, #48]
+ 397 0070 0D93     		str	r3, [sp, #52]
+  49:App/Src/dut_timing.c ****         low_frac_x1000 = 500U;
+ 398              		.loc 1 49 18 view .LVU87
+ 399 0072 21A1     		adr	r1, .L42
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 9
+
+
+ 400 0074 D1E90001 		ldrd	r0, [r1]
+ 401              	.LVL37:
+  49:App/Src/dut_timing.c ****         low_frac_x1000 = 500U;
+ 402              		.loc 1 49 18 view .LVU88
+ 403 0078 CDE90601 		strd	r0, [sp, #24]
+ 404              	.L18:
+ 405              	.LVL38:
+  56:App/Src/dut_timing.c ****     }
+  57:App/Src/dut_timing.c ****     else
+  58:App/Src/dut_timing.c ****     {
+  59:App/Src/dut_timing.c ****         tlow_min = 500000U;  thigh_min = 260000U;  tsu_min = 50000U;
+  60:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+  61:App/Src/dut_timing.c ****     }
+  62:App/Src/dut_timing.c ****     const uint64_t thd_target = 300000U;               /* SMBus tHD;DAT     */
+ 406              		.loc 1 62 5 is_stmt 1 view .LVU89
+  63:App/Src/dut_timing.c **** 
+  64:App/Src/dut_timing.c ****     const uint64_t tk     = PS_PER_S / env->kernel_hz;
+ 407              		.loc 1 64 5 view .LVU90
+ 408              		.loc 1 64 43 is_stmt 0 view .LVU91
+ 409 007c 0027     		movs	r7, #0
+ 410              		.loc 1 64 20 view .LVU92
+ 411 007e 3B46     		mov	r3, r7
+ 412 0080 1FA1     		adr	r1, .L42+8
+ 413 0082 D1E90001 		ldrd	r0, [r1]
+ 414 0086 FFF7FEFF 		bl	__aeabi_uldivmod
+ 415              	.LVL39:
+ 416 008a 0646     		mov	r6, r0
+ 417 008c 0D46     		mov	r5, r1
+ 418 008e 0490     		str	r0, [sp, #16]
+ 419 0090 0391     		str	r1, [sp, #12]
+ 420              	.LVL40:
+  65:App/Src/dut_timing.c ****     const uint64_t t_scl  = div_round(PS_PER_S, scl_hz);
+ 421              		.loc 1 65 5 is_stmt 1 view .LVU93
+ 422              		.loc 1 65 29 is_stmt 0 view .LVU94
+ 423 0092 2246     		mov	r2, r4
+ 424 0094 3B46     		mov	r3, r7
+ 425 0096 1AA1     		adr	r1, .L42+8
+ 426 0098 D1E90001 		ldrd	r0, [r1]
+ 427              	.LVL41:
+ 428              		.loc 1 65 29 view .LVU95
+ 429 009c FFF7FEFF 		bl	div_round
+ 430              	.LVL42:
+ 431              		.loc 1 65 29 view .LVU96
+ 432 00a0 0746     		mov	r7, r0
+ 433 00a2 0C46     		mov	r4, r1
+ 434              	.LVL43:
+  66:App/Src/dut_timing.c ****     const uint64_t t_sync = sync_ps(env, tk);
+ 435              		.loc 1 66 5 is_stmt 1 view .LVU97
+ 436              		.loc 1 66 29 is_stmt 0 view .LVU98
+ 437 00a4 3246     		mov	r2, r6
+ 438 00a6 2B46     		mov	r3, r5
+ 439 00a8 0B98     		ldr	r0, [sp, #44]
+ 440              	.LVL44:
+ 441              		.loc 1 66 29 view .LVU99
+ 442 00aa FFF7FEFF 		bl	sync_ps
+ 443              	.LVL45:
+  67:App/Src/dut_timing.c ****     if (t_scl <= t_sync)
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 10
+
+
+ 444              		.loc 1 67 5 is_stmt 1 view .LVU100
+ 445              		.loc 1 67 8 is_stmt 0 view .LVU101
+ 446 00ae B842     		cmp	r0, r7
+ 447 00b0 71EB0403 		sbcs	r3, r1, r4
+ 448 00b4 80F08881 		bcs	.L30
+  68:App/Src/dut_timing.c ****     {
+  69:App/Src/dut_timing.c ****         return -2;
+  70:App/Src/dut_timing.c ****     }
+  71:App/Src/dut_timing.c ****     const uint64_t budget = t_scl - t_sync;             /* (L+1 + H+1) * tp  */
+ 449              		.loc 1 71 5 is_stmt 1 view .LVU102
+ 450              		.loc 1 71 20 is_stmt 0 view .LVU103
+ 451 00b8 3B1A     		subs	r3, r7, r0
+ 452 00ba 0593     		str	r3, [sp, #20]
+ 453 00bc 64EB0103 		sbc	r3, r4, r1
+ 454 00c0 0893     		str	r3, [sp, #32]
+ 455              	.LVL46:
+  72:App/Src/dut_timing.c **** 
+  73:App/Src/dut_timing.c ****     for (uint32_t presc = 0U; presc <= 15U; presc++)
+ 456              		.loc 1 73 5 is_stmt 1 view .LVU104
+ 457              	.LBB2:
+ 458              		.loc 1 73 10 view .LVU105
+ 459              		.loc 1 73 19 is_stmt 0 view .LVU106
+ 460 00c2 4FF00009 		mov	r9, #0
+ 461 00c6 CDF84C80 		str	r8, [sp, #76]
+ 462              		.loc 1 73 5 view .LVU107
+ 463 00ca 31E0     		b	.L19
+ 464              	.LVL47:
+ 465              	.L29:
+ 466              		.loc 1 73 5 view .LVU108
+ 467              	.LBE2:
+  60:App/Src/dut_timing.c ****     }
+ 468              		.loc 1 60 24 view .LVU109
+ 469 00cc 4FF41673 		mov	r3, #600
+ 470 00d0 0993     		str	r3, [sp, #36]
+ 471 00d2 0023     		movs	r3, #0
+ 472 00d4 0A93     		str	r3, [sp, #40]
+  59:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 473              		.loc 1 59 60 view .LVU110
+ 474 00d6 4CF25031 		movw	r1, #50000
+ 475              	.LVL48:
+  59:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 476              		.loc 1 59 60 view .LVU111
+ 477 00da 1191     		str	r1, [sp, #68]
+ 478 00dc 1293     		str	r3, [sp, #72]
+  59:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 479              		.loc 1 59 40 view .LVU112
+ 480 00de 1149     		ldr	r1, .L42+44
+ 481 00e0 0C91     		str	r1, [sp, #48]
+ 482 00e2 0D93     		str	r3, [sp, #52]
+  59:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 483              		.loc 1 59 18 view .LVU113
+ 484 00e4 1048     		ldr	r0, .L42+48
+ 485              	.LVL49:
+  59:App/Src/dut_timing.c ****         low_frac_x1000 = 600U;
+ 486              		.loc 1 59 18 view .LVU114
+ 487 00e6 0021     		movs	r1, #0
+ 488 00e8 CDE90601 		strd	r0, [sp, #24]
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 11
+
+
+ 489 00ec C6E7     		b	.L18
+ 490              	.LVL50:
+ 491              	.L36:
+ 492              	.LBB5:
+ 493              	.LBB3:
+  74:App/Src/dut_timing.c ****     {
+  75:App/Src/dut_timing.c ****         const uint64_t tp    = (uint64_t)(presc + 1U) * tk;
+  76:App/Src/dut_timing.c ****         const uint64_t total = div_round(budget, tp);   /* L+1 + H+1 ticks   */
+  77:App/Src/dut_timing.c ****         if (total < 2U)
+  78:App/Src/dut_timing.c ****         {
+  79:App/Src/dut_timing.c ****             continue;
+  80:App/Src/dut_timing.c ****         }
+  81:App/Src/dut_timing.c ****         uint64_t low = div_round(total * low_frac_x1000, 1000U);
+  82:App/Src/dut_timing.c ****         const uint64_t low_min = div_ceil(tlow_min, tp);
+  83:App/Src/dut_timing.c ****         if (low < low_min) { low = low_min; }
+  84:App/Src/dut_timing.c ****         if (low >= total)  { continue; }
+  85:App/Src/dut_timing.c ****         const uint64_t high = total - low;
+  86:App/Src/dut_timing.c ****         if ((high * tp) < thigh_min)                    { continue; }
+  87:App/Src/dut_timing.c ****         if ((low > 256U) || (high > 256U))              { continue; }
+  88:App/Src/dut_timing.c **** 
+  89:App/Src/dut_timing.c ****         /* SCLDEL: setup after SDA settles; must cover rise + tSU;DAT       */
+  90:App/Src/dut_timing.c ****         uint64_t scldel_t = div_ceil((uint64_t)env->rise_ns * PS_PER_NS + tsu_min, tp);
+  91:App/Src/dut_timing.c ****         uint64_t scldel   = (scldel_t > 0U) ? (scldel_t - 1U) : 0U;
+  92:App/Src/dut_timing.c ****         /* SDADEL: hold after SCL falls, minus the fixed detection delay    */
+  93:App/Src/dut_timing.c ****         const uint64_t fixed = (uint64_t)env->taf_ns * PS_PER_NS + 3U * tk;
+  94:App/Src/dut_timing.c ****         const uint64_t hold  = (uint64_t)env->fall_ns * PS_PER_NS + thd_target;
+  95:App/Src/dut_timing.c ****         uint64_t sdadel = (hold > fixed) ? div_ceil(hold - fixed, tp) : 0U;
+ 494              		.loc 1 95 18 discriminator 2 view .LVU115
+ 495 00ee 0022     		movs	r2, #0
+ 496              	.LVL51:
+ 497              		.loc 1 95 18 discriminator 2 view .LVU116
+ 498 00f0 1146     		mov	r1, r2
+ 499              	.LVL52:
+ 500              		.loc 1 95 18 discriminator 2 view .LVU117
+ 501 00f2 E3E0     		b	.L21
+ 502              	.L43:
+ 503 00f4 AFF30080 		.align	3
+ 504              	.L42:
+ 505 00f8 60B74700 		.word	4700000
+ 506 00fc 00000000 		.word	0
+ 507 0100 0010A5D4 		.word	-727379968
+ 508 0104 E8000000 		.word	232
+ 509 0108 40420F00 		.word	1000000
+ 510 010c A0860100 		.word	100000
+ 511 0110 801A0600 		.word	400000
+ 512 0114 C0270900 		.word	600000
+ 513 0118 20D61300 		.word	1300000
+ 514 011c 90D00300 		.word	250000
+ 515 0120 00093D00 		.word	4000000
+ 516 0124 A0F70300 		.word	260000
+ 517 0128 20A10700 		.word	500000
+ 518              	.LVL53:
+ 519              	.L31:
+ 520              		.loc 1 95 18 discriminator 2 view .LVU118
+ 521 012c DDF80490 		ldr	r9, [sp, #4]
+ 522              	.LVL54:
+ 523              	.L19:
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 12
+
+
+ 524              		.loc 1 95 18 discriminator 2 view .LVU119
+ 525              	.LBE3:
+  73:App/Src/dut_timing.c ****     {
+ 526              		.loc 1 73 37 is_stmt 1 discriminator 1 view .LVU120
+ 527 0130 B9F10F0F 		cmp	r9, #15
+ 528 0134 00F23481 		bhi	.L41
+ 529              	.LBB4:
+  75:App/Src/dut_timing.c ****         const uint64_t total = div_round(budget, tp);   /* L+1 + H+1 ticks   */
+ 530              		.loc 1 75 9 view .LVU121
+  75:App/Src/dut_timing.c ****         const uint64_t total = div_round(budget, tp);   /* L+1 + H+1 ticks   */
+ 531              		.loc 1 75 49 is_stmt 0 view .LVU122
+ 532 0138 09F10102 		add	r2, r9, #1
+ 533 013c 0192     		str	r2, [sp, #4]
+  75:App/Src/dut_timing.c ****         const uint64_t total = div_round(budget, tp);   /* L+1 + H+1 ticks   */
+ 534              		.loc 1 75 24 view .LVU123
+ 535 013e 039B     		ldr	r3, [sp, #12]
+ 536 0140 09FB0333 		mla	r3, r9, r3, r3
+ 537 0144 0499     		ldr	r1, [sp, #16]
+ 538 0146 A2FB0176 		umull	r7, r6, r2, r1
+ 539 014a 1E44     		add	r6, r6, r3
+ 540              	.LVL55:
+  76:App/Src/dut_timing.c ****         if (total < 2U)
+ 541              		.loc 1 76 9 is_stmt 1 view .LVU124
+  76:App/Src/dut_timing.c ****         if (total < 2U)
+ 542              		.loc 1 76 32 is_stmt 0 view .LVU125
+ 543 014c 3A46     		mov	r2, r7
+ 544 014e 3346     		mov	r3, r6
+ 545 0150 0598     		ldr	r0, [sp, #20]
+ 546 0152 0899     		ldr	r1, [sp, #32]
+ 547 0154 FFF7FEFF 		bl	div_round
+ 548              	.LVL56:
+ 549 0158 0446     		mov	r4, r0
+ 550 015a 0D46     		mov	r5, r1
+ 551              	.LVL57:
+  77:App/Src/dut_timing.c ****         {
+ 552              		.loc 1 77 9 is_stmt 1 view .LVU126
+  77:App/Src/dut_timing.c ****         {
+ 553              		.loc 1 77 12 is_stmt 0 view .LVU127
+ 554 015c 0228     		cmp	r0, #2
+ 555 015e 71F10003 		sbcs	r3, r1, #0
+ 556 0162 E3D3     		bcc	.L31
+  81:App/Src/dut_timing.c ****         const uint64_t low_min = div_ceil(tlow_min, tp);
+ 557              		.loc 1 81 9 is_stmt 1 view .LVU128
+  81:App/Src/dut_timing.c ****         const uint64_t low_min = div_ceil(tlow_min, tp);
+ 558              		.loc 1 81 24 is_stmt 0 view .LVU129
+ 559 0164 099B     		ldr	r3, [sp, #36]
+ 560 0166 03FB01F1 		mul	r1, r3, r1
+ 561              	.LVL58:
+  81:App/Src/dut_timing.c ****         const uint64_t low_min = div_ceil(tlow_min, tp);
+ 562              		.loc 1 81 24 view .LVU130
+ 563 016a 0A9A     		ldr	r2, [sp, #40]
+ 564 016c 04FB0211 		mla	r1, r4, r2, r1
+ 565 0170 A3FB040C 		umull	r0, ip, r3, r4
+ 566              	.LVL59:
+  81:App/Src/dut_timing.c ****         const uint64_t low_min = div_ceil(tlow_min, tp);
+ 567              		.loc 1 81 24 view .LVU131
+ 568 0174 4FF47A72 		mov	r2, #1000
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 13
+
+
+ 569 0178 0023     		movs	r3, #0
+ 570 017a 6144     		add	r1, r1, ip
+ 571 017c FFF7FEFF 		bl	div_round
+ 572              	.LVL60:
+ 573 0180 8346     		mov	fp, r0
+ 574 0182 0291     		str	r1, [sp, #8]
+ 575              	.LVL61:
+  82:App/Src/dut_timing.c ****         if (low < low_min) { low = low_min; }
+ 576              		.loc 1 82 9 is_stmt 1 view .LVU132
+  82:App/Src/dut_timing.c ****         if (low < low_min) { low = low_min; }
+ 577              		.loc 1 82 34 is_stmt 0 view .LVU133
+ 578 0184 3A46     		mov	r2, r7
+ 579 0186 3346     		mov	r3, r6
+ 580 0188 DDE90601 		ldrd	r0, [sp, #24]
+ 581              	.LVL62:
+  82:App/Src/dut_timing.c ****         if (low < low_min) { low = low_min; }
+ 582              		.loc 1 82 34 view .LVU134
+ 583 018c FFF7FEFF 		bl	div_ceil
+ 584              	.LVL63:
+  82:App/Src/dut_timing.c ****         if (low < low_min) { low = low_min; }
+ 585              		.loc 1 82 34 view .LVU135
+ 586 0190 8246     		mov	r10, r0
+ 587 0192 8846     		mov	r8, r1
+ 588              	.LVL64:
+  83:App/Src/dut_timing.c ****         if (low >= total)  { continue; }
+ 589              		.loc 1 83 9 is_stmt 1 view .LVU136
+  83:App/Src/dut_timing.c ****         if (low >= total)  { continue; }
+ 590              		.loc 1 83 12 is_stmt 0 view .LVU137
+ 591 0194 8345     		cmp	fp, r0
+ 592 0196 029A     		ldr	r2, [sp, #8]
+ 593 0198 72EB0103 		sbcs	r3, r2, r1
+ 594 019c 01D3     		bcc	.L20
+  81:App/Src/dut_timing.c ****         const uint64_t low_min = div_ceil(tlow_min, tp);
+ 595              		.loc 1 81 24 view .LVU138
+ 596 019e DA46     		mov	r10, fp
+ 597 01a0 9046     		mov	r8, r2
+ 598              	.LVL65:
+ 599              	.L20:
+  84:App/Src/dut_timing.c ****         const uint64_t high = total - low;
+ 600              		.loc 1 84 9 is_stmt 1 view .LVU139
+  84:App/Src/dut_timing.c ****         const uint64_t high = total - low;
+ 601              		.loc 1 84 12 is_stmt 0 view .LVU140
+ 602 01a2 A245     		cmp	r10, r4
+ 603 01a4 78EB0503 		sbcs	r3, r8, r5
+ 604 01a8 80F0E580 		bcs	.L32
+  85:App/Src/dut_timing.c ****         if ((high * tp) < thigh_min)                    { continue; }
+ 605              		.loc 1 85 9 is_stmt 1 view .LVU141
+  85:App/Src/dut_timing.c ****         if ((high * tp) < thigh_min)                    { continue; }
+ 606              		.loc 1 85 24 is_stmt 0 view .LVU142
+ 607 01ac B4EB0A04 		subs	r4, r4, r10
+ 608              	.LVL66:
+  85:App/Src/dut_timing.c ****         if ((high * tp) < thigh_min)                    { continue; }
+ 609              		.loc 1 85 24 view .LVU143
+ 610 01b0 65EB0805 		sbc	r5, r5, r8
+ 611              	.LVL67:
+  86:App/Src/dut_timing.c ****         if ((low > 256U) || (high > 256U))              { continue; }
+ 612              		.loc 1 86 9 is_stmt 1 view .LVU144
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 14
+
+
+  86:App/Src/dut_timing.c ****         if ((low > 256U) || (high > 256U))              { continue; }
+ 613              		.loc 1 86 19 is_stmt 0 view .LVU145
+ 614 01b4 07FB05F3 		mul	r3, r7, r5
+ 615 01b8 04FB0633 		mla	r3, r4, r6, r3
+ 616 01bc A7FB042B 		umull	r2, fp, r7, r4
+ 617 01c0 0292     		str	r2, [sp, #8]
+ 618 01c2 9B44     		add	fp, fp, r3
+  86:App/Src/dut_timing.c ****         if ((low > 256U) || (high > 256U))              { continue; }
+ 619              		.loc 1 86 12 view .LVU146
+ 620 01c4 0C9B     		ldr	r3, [sp, #48]
+ 621 01c6 9A42     		cmp	r2, r3
+ 622 01c8 0D9B     		ldr	r3, [sp, #52]
+ 623 01ca 7BEB0303 		sbcs	r3, fp, r3
+ 624 01ce C0F0D580 		bcc	.L33
+  87:App/Src/dut_timing.c **** 
+ 625              		.loc 1 87 9 is_stmt 1 view .LVU147
+  87:App/Src/dut_timing.c **** 
+ 626              		.loc 1 87 12 is_stmt 0 view .LVU148
+ 627 01d2 40F20113 		movw	r3, #257
+ 628 01d6 9A45     		cmp	r10, r3
+ 629 01d8 78F10003 		sbcs	r3, r8, #0
+ 630 01dc 80F0D180 		bcs	.L34
+  87:App/Src/dut_timing.c **** 
+ 631              		.loc 1 87 26 discriminator 2 view .LVU149
+ 632 01e0 40F20113 		movw	r3, #257
+ 633 01e4 9C42     		cmp	r4, r3
+ 634 01e6 75F10005 		sbcs	r5, r5, #0
+ 635              	.LVL68:
+  87:App/Src/dut_timing.c **** 
+ 636              		.loc 1 87 26 discriminator 2 view .LVU150
+ 637 01ea 80F0CD80 		bcs	.L35
+  90:App/Src/dut_timing.c ****         uint64_t scldel   = (scldel_t > 0U) ? (scldel_t - 1U) : 0U;
+ 638              		.loc 1 90 9 is_stmt 1 view .LVU151
+  90:App/Src/dut_timing.c ****         uint64_t scldel   = (scldel_t > 0U) ? (scldel_t - 1U) : 0U;
+ 639              		.loc 1 90 51 is_stmt 0 view .LVU152
+ 640 01ee 0B9D     		ldr	r5, [sp, #44]
+ 641 01f0 6B68     		ldr	r3, [r5, #4]
+  90:App/Src/dut_timing.c ****         uint64_t scldel   = (scldel_t > 0U) ? (scldel_t - 1U) : 0U;
+ 642              		.loc 1 90 61 view .LVU153
+ 643 01f2 D90E     		lsrs	r1, r3, #27
+ 644              	.LVL69:
+  90:App/Src/dut_timing.c ****         uint64_t scldel   = (scldel_t > 0U) ? (scldel_t - 1U) : 0U;
+ 645              		.loc 1 90 61 view .LVU154
+ 646 01f4 5801     		lsls	r0, r3, #5
+  90:App/Src/dut_timing.c ****         uint64_t scldel   = (scldel_t > 0U) ? (scldel_t - 1U) : 0U;
+ 647              		.loc 1 90 61 view .LVU155
+ 648 01f6 C01A     		subs	r0, r0, r3
+ 649 01f8 61F10001 		sbc	r1, r1, #0
+ 650 01fc 8900     		lsls	r1, r1, #2
+ 651 01fe 41EA9071 		orr	r1, r1, r0, lsr #30
+ 652 0202 8000     		lsls	r0, r0, #2
+ 653 0204 C018     		adds	r0, r0, r3
+ 654 0206 41F10001 		adc	r1, r1, #0
+ 655 020a C900     		lsls	r1, r1, #3
+ 656 020c 41EA5071 		orr	r1, r1, r0, lsr #29
+ 657 0210 C000     		lsls	r0, r0, #3
+  90:App/Src/dut_timing.c ****         uint64_t scldel   = (scldel_t > 0U) ? (scldel_t - 1U) : 0U;
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 15
+
+
+ 658              		.loc 1 90 73 view .LVU156
+ 659 0212 119B     		ldr	r3, [sp, #68]
+ 660 0214 C018     		adds	r0, r0, r3
+  90:App/Src/dut_timing.c ****         uint64_t scldel   = (scldel_t > 0U) ? (scldel_t - 1U) : 0U;
+ 661              		.loc 1 90 29 view .LVU157
+ 662 0216 3A46     		mov	r2, r7
+ 663 0218 3346     		mov	r3, r6
+ 664 021a 129D     		ldr	r5, [sp, #72]
+ 665 021c 45EB0101 		adc	r1, r5, r1
+ 666 0220 FFF7FEFF 		bl	div_ceil
+ 667              	.LVL70:
+  91:App/Src/dut_timing.c ****         /* SDADEL: hold after SCL falls, minus the fixed detection delay    */
+ 668              		.loc 1 91 9 is_stmt 1 view .LVU158
+  91:App/Src/dut_timing.c ****         /* SDADEL: hold after SCL falls, minus the fixed detection delay    */
+ 669              		.loc 1 91 39 is_stmt 0 view .LVU159
+ 670 0224 50EA0103 		orrs	r3, r0, r1
+ 671 0228 14BF     		ite	ne
+ 672 022a 0123     		movne	r3, #1
+ 673 022c 0023     		moveq	r3, #0
+  91:App/Src/dut_timing.c ****         /* SDADEL: hold after SCL falls, minus the fixed detection delay    */
+ 674              		.loc 1 91 18 view .LVU160
+ 675 022e C31A     		subs	r3, r0, r3
+ 676 0230 0E93     		str	r3, [sp, #56]
+ 677 0232 61F10003 		sbc	r3, r1, #0
+ 678 0236 0F93     		str	r3, [sp, #60]
+ 679              	.LVL71:
+  93:App/Src/dut_timing.c ****         const uint64_t hold  = (uint64_t)env->fall_ns * PS_PER_NS + thd_target;
+ 680              		.loc 1 93 9 is_stmt 1 view .LVU161
+  93:App/Src/dut_timing.c ****         const uint64_t hold  = (uint64_t)env->fall_ns * PS_PER_NS + thd_target;
+ 681              		.loc 1 93 45 is_stmt 0 view .LVU162
+ 682 0238 0B9D     		ldr	r5, [sp, #44]
+ 683 023a E968     		ldr	r1, [r5, #12]
+ 684              	.LVL72:
+  93:App/Src/dut_timing.c ****         const uint64_t hold  = (uint64_t)env->fall_ns * PS_PER_NS + thd_target;
+ 685              		.loc 1 93 54 view .LVU163
+ 686 023c CA0E     		lsrs	r2, r1, #27
+ 687 023e 4B01     		lsls	r3, r1, #5
+ 688              	.LVL73:
+  93:App/Src/dut_timing.c ****         const uint64_t hold  = (uint64_t)env->fall_ns * PS_PER_NS + thd_target;
+ 689              		.loc 1 93 54 view .LVU164
+ 690 0240 5B1A     		subs	r3, r3, r1
+ 691 0242 62F10002 		sbc	r2, r2, #0
+ 692 0246 9200     		lsls	r2, r2, #2
+ 693 0248 42EA9372 		orr	r2, r2, r3, lsr #30
+ 694 024c 9B00     		lsls	r3, r3, #2
+ 695 024e 5B18     		adds	r3, r3, r1
+ 696 0250 42F10002 		adc	r2, r2, #0
+ 697 0254 D200     		lsls	r2, r2, #3
+ 698 0256 42EA5372 		orr	r2, r2, r3, lsr #29
+ 699 025a DB00     		lsls	r3, r3, #3
+  93:App/Src/dut_timing.c ****         const uint64_t hold  = (uint64_t)env->fall_ns * PS_PER_NS + thd_target;
+ 700              		.loc 1 93 71 view .LVU165
+ 701 025c 049D     		ldr	r5, [sp, #16]
+ 702 025e 6919     		adds	r1, r5, r5
+ 703 0260 0398     		ldr	r0, [sp, #12]
+  93:App/Src/dut_timing.c ****         const uint64_t hold  = (uint64_t)env->fall_ns * PS_PER_NS + thd_target;
+ 704              		.loc 1 93 71 view .LVU166
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 16
+
+
+ 705 0262 4041     		adcs	r0, r0, r0
+ 706 0264 4919     		adds	r1, r1, r5
+ 707 0266 039D     		ldr	r5, [sp, #12]
+ 708 0268 45EB0000 		adc	r0, r5, r0
+  93:App/Src/dut_timing.c ****         const uint64_t hold  = (uint64_t)env->fall_ns * PS_PER_NS + thd_target;
+ 709              		.loc 1 93 24 view .LVU167
+ 710 026c 5918     		adds	r1, r3, r1
+ 711 026e 1091     		str	r1, [sp, #64]
+ 712 0270 42EB0005 		adc	r5, r2, r0
+ 713              	.LVL74:
+  94:App/Src/dut_timing.c ****         uint64_t sdadel = (hold > fixed) ? div_ceil(hold - fixed, tp) : 0U;
+ 714              		.loc 1 94 9 is_stmt 1 view .LVU168
+  94:App/Src/dut_timing.c ****         uint64_t sdadel = (hold > fixed) ? div_ceil(hold - fixed, tp) : 0U;
+ 715              		.loc 1 94 45 is_stmt 0 view .LVU169
+ 716 0274 0B9B     		ldr	r3, [sp, #44]
+ 717 0276 9A68     		ldr	r2, [r3, #8]
+  94:App/Src/dut_timing.c ****         uint64_t sdadel = (hold > fixed) ? div_ceil(hold - fixed, tp) : 0U;
+ 718              		.loc 1 94 55 view .LVU170
+ 719 0278 D30E     		lsrs	r3, r2, #27
+ 720 027a 5001     		lsls	r0, r2, #5
+ 721 027c 801A     		subs	r0, r0, r2
+ 722 027e 63F10003 		sbc	r3, r3, #0
+ 723 0282 9B00     		lsls	r3, r3, #2
+ 724 0284 43EA9073 		orr	r3, r3, r0, lsr #30
+ 725 0288 8000     		lsls	r0, r0, #2
+ 726 028a 8018     		adds	r0, r0, r2
+ 727 028c 43F10003 		adc	r3, r3, #0
+ 728 0290 DB00     		lsls	r3, r3, #3
+ 729 0292 43EA5073 		orr	r3, r3, r0, lsr #29
+ 730 0296 C000     		lsls	r0, r0, #3
+  94:App/Src/dut_timing.c ****         uint64_t sdadel = (hold > fixed) ? div_ceil(hold - fixed, tp) : 0U;
+ 731              		.loc 1 94 24 view .LVU171
+ 732 0298 4D4A     		ldr	r2, .L44
+ 733 029a 8018     		adds	r0, r0, r2
+ 734 029c 43F10001 		adc	r1, r3, #0
+ 735              	.LVL75:
+ 736              		.loc 1 95 9 is_stmt 1 view .LVU172
+ 737              		.loc 1 95 71 is_stmt 0 view .LVU173
+ 738 02a0 109A     		ldr	r2, [sp, #64]
+ 739 02a2 8242     		cmp	r2, r0
+ 740 02a4 75EB0103 		sbcs	r3, r5, r1
+ 741 02a8 BFF421AF 		bcs	.L36
+ 742              		.loc 1 95 44 discriminator 1 view .LVU174
+ 743 02ac 801A     		subs	r0, r0, r2
+ 744              	.LVL76:
+ 745              		.loc 1 95 44 discriminator 1 view .LVU175
+ 746 02ae 3A46     		mov	r2, r7
+ 747 02b0 3346     		mov	r3, r6
+ 748 02b2 61EB0501 		sbc	r1, r1, r5
+ 749              	.LVL77:
+ 750              		.loc 1 95 44 discriminator 1 view .LVU176
+ 751 02b6 FFF7FEFF 		bl	div_ceil
+ 752              	.LVL78:
+ 753              		.loc 1 95 44 discriminator 1 view .LVU177
+ 754 02ba 0246     		mov	r2, r0
+ 755              	.LVL79:
+ 756              	.L21:
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 17
+
+
+  96:App/Src/dut_timing.c ****         if ((scldel > 15U) || (sdadel > 15U))           { continue; }
+ 757              		.loc 1 96 9 is_stmt 1 view .LVU178
+ 758              		.loc 1 96 12 is_stmt 0 view .LVU179
+ 759 02bc 0E98     		ldr	r0, [sp, #56]
+ 760 02be 1028     		cmp	r0, #16
+ 761 02c0 0F9B     		ldr	r3, [sp, #60]
+ 762 02c2 73F10003 		sbcs	r3, r3, #0
+ 763 02c6 62D2     		bcs	.L37
+ 764              		.loc 1 96 28 discriminator 2 view .LVU180
+ 765 02c8 102A     		cmp	r2, #16
+ 766 02ca 71F10003 		sbcs	r3, r1, #0
+ 767 02ce 61D2     		bcs	.L38
+  97:App/Src/dut_timing.c ****         /* hold delay + setup delay must both fit inside the low period     */
+  98:App/Src/dut_timing.c ****         if ((sdadel * tp + fixed + (scldel + 1U) * tp) > (low * tp))
+ 768              		.loc 1 98 9 is_stmt 1 view .LVU181
+ 769              		.loc 1 98 34 is_stmt 0 view .LVU182
+ 770 02d0 1318     		adds	r3, r2, r0
+ 771 02d2 0F98     		ldr	r0, [sp, #60]
+ 772 02d4 41EB0001 		adc	r1, r1, r0
+ 773              	.LVL80:
+ 774              		.loc 1 98 34 view .LVU183
+ 775 02d8 0133     		adds	r3, r3, #1
+ 776 02da 41F10001 		adc	r1, r1, #0
+ 777 02de 03FB06F0 		mul	r0, r3, r6
+ 778 02e2 07FB0101 		mla	r1, r7, r1, r0
+ 779 02e6 A3FB0730 		umull	r3, r0, r3, r7
+ 780 02ea 0144     		add	r1, r1, r0
+ 781 02ec 1098     		ldr	r0, [sp, #64]
+ 782 02ee 1B18     		adds	r3, r3, r0
+ 783 02f0 41EB0505 		adc	r5, r1, r5
+ 784              	.LVL81:
+ 785              		.loc 1 98 63 view .LVU184
+ 786 02f4 0AFB06F6 		mul	r6, r10, r6
+ 787              	.LVL82:
+ 788              		.loc 1 98 63 view .LVU185
+ 789 02f8 07FB0866 		mla	r6, r7, r8, r6
+ 790 02fc AAFB0701 		umull	r0, r1, r10, r7
+ 791 0300 3144     		add	r1, r1, r6
+ 792              		.loc 1 98 12 view .LVU186
+ 793 0302 9842     		cmp	r0, r3
+ 794 0304 71EB0505 		sbcs	r5, r1, r5
+ 795 0308 47D3     		bcc	.L39
+  99:App/Src/dut_timing.c ****         {
+ 100:App/Src/dut_timing.c ****             continue;
+ 101:App/Src/dut_timing.c ****         }
+ 102:App/Src/dut_timing.c **** 
+ 103:App/Src/dut_timing.c ****         out->presc  = (uint8_t)presc;
+ 796              		.loc 1 103 21 view .LVU187
+ 797 030a DDF84C80 		ldr	r8, [sp, #76]
+ 798              	.LVL83:
+ 799              		.loc 1 103 21 view .LVU188
+ 800 030e 2546     		mov	r5, r4
+ 801              		.loc 1 103 9 is_stmt 1 view .LVU189
+ 802              		.loc 1 103 21 is_stmt 0 view .LVU190
+ 803 0310 88F80490 		strb	r9, [r8, #4]
+ 104:App/Src/dut_timing.c ****         out->scll   = (uint8_t)(low - 1U);
+ 804              		.loc 1 104 9 is_stmt 1 view .LVU191
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 18
+
+
+ 805              		.loc 1 104 23 is_stmt 0 view .LVU192
+ 806 0314 0AF1FF33 		add	r3, r10, #-1
+ 807              		.loc 1 104 21 view .LVU193
+ 808 0318 88F80530 		strb	r3, [r8, #5]
+ 105:App/Src/dut_timing.c ****         out->sclh   = (uint8_t)(high - 1U);
+ 809              		.loc 1 105 9 is_stmt 1 view .LVU194
+ 810              		.loc 1 105 23 is_stmt 0 view .LVU195
+ 811 031c 631E     		subs	r3, r4, #1
+ 812              		.loc 1 105 21 view .LVU196
+ 813 031e 88F80630 		strb	r3, [r8, #6]
+ 106:App/Src/dut_timing.c ****         out->sdadel = (uint8_t)sdadel;
+ 814              		.loc 1 106 9 is_stmt 1 view .LVU197
+ 815              		.loc 1 106 21 is_stmt 0 view .LVU198
+ 816 0322 88F80720 		strb	r2, [r8, #7]
+ 107:App/Src/dut_timing.c ****         out->scldel = (uint8_t)scldel;
+ 817              		.loc 1 107 9 is_stmt 1 view .LVU199
+ 818              		.loc 1 107 21 is_stmt 0 view .LVU200
+ 819 0326 0E9B     		ldr	r3, [sp, #56]
+ 820 0328 88F80830 		strb	r3, [r8, #8]
+ 108:App/Src/dut_timing.c ****         out->timingr = ((uint32_t)presc << 28) | ((uint32_t)scldel << 20) |
+ 821              		.loc 1 108 9 is_stmt 1 view .LVU201
+ 822              		.loc 1 108 68 is_stmt 0 view .LVU202
+ 823 032c 1C05     		lsls	r4, r3, #20
+ 824              		.loc 1 108 48 view .LVU203
+ 825 032e 44EA0974 		orr	r4, r4, r9, lsl #28
+ 826              		.loc 1 108 75 view .LVU204
+ 827 0332 44EA0244 		orr	r4, r4, r2, lsl #16
+ 109:App/Src/dut_timing.c ****                        ((uint32_t)sdadel << 16) | ((uint32_t)(high - 1U) << 8) |
+ 828              		.loc 1 109 52 view .LVU205
+ 829 0336 6B1E     		subs	r3, r5, #1
+ 830              		.loc 1 109 49 view .LVU206
+ 831 0338 44EA0324 		orr	r4, r4, r3, lsl #8
+ 110:App/Src/dut_timing.c ****                        (uint32_t)(low - 1U);
+ 832              		.loc 1 110 24 view .LVU207
+ 833 033c 0AF1FF33 		add	r3, r10, #-1
+ 109:App/Src/dut_timing.c ****                        ((uint32_t)sdadel << 16) | ((uint32_t)(high - 1U) << 8) |
+ 834              		.loc 1 109 80 view .LVU208
+ 835 0340 1C43     		orrs	r4, r4, r3
+ 108:App/Src/dut_timing.c ****         out->timingr = ((uint32_t)presc << 28) | ((uint32_t)scldel << 20) |
+ 836              		.loc 1 108 22 view .LVU209
+ 837 0342 C8F80040 		str	r4, [r8]
+ 111:App/Src/dut_timing.c ****         out->tlow_ns  = (uint32_t)((low * tp) / PS_PER_NS);
+ 838              		.loc 1 111 9 is_stmt 1 view .LVU210
+ 839              		.loc 1 111 47 is_stmt 0 view .LVU211
+ 840 0346 4FF47A72 		mov	r2, #1000
+ 841              		.loc 1 111 47 view .LVU212
+ 842 034a 0023     		movs	r3, #0
+ 843 034c FFF7FEFF 		bl	__aeabi_uldivmod
+ 844              	.LVL84:
+ 845              		.loc 1 111 23 view .LVU213
+ 846 0350 C8F81000 		str	r0, [r8, #16]
+ 112:App/Src/dut_timing.c ****         out->thigh_ns = (uint32_t)((high * tp) / PS_PER_NS);
+ 847              		.loc 1 112 9 is_stmt 1 view .LVU214
+ 848              		.loc 1 112 48 is_stmt 0 view .LVU215
+ 849 0354 4FF47A72 		mov	r2, #1000
+ 850 0358 0023     		movs	r3, #0
+ 851 035a 0298     		ldr	r0, [sp, #8]
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 19
+
+
+ 852 035c 5946     		mov	r1, fp
+ 853 035e FFF7FEFF 		bl	__aeabi_uldivmod
+ 854              	.LVL85:
+ 855              		.loc 1 112 23 view .LVU216
+ 856 0362 C8F81400 		str	r0, [r8, #20]
+ 113:App/Src/dut_timing.c ****         out->predicted_hz = dut_timing_predict_hz(env, out->timingr);
+ 857              		.loc 1 113 9 is_stmt 1 view .LVU217
+ 858              		.loc 1 113 29 is_stmt 0 view .LVU218
+ 859 0366 2146     		mov	r1, r4
+ 860 0368 0B98     		ldr	r0, [sp, #44]
+ 861 036a FFF7FEFF 		bl	dut_timing_predict_hz
+ 862              	.LVL86:
+ 863              		.loc 1 113 27 discriminator 1 view .LVU219
+ 864 036e C8F80C00 		str	r0, [r8, #12]
+ 114:App/Src/dut_timing.c ****         return 0;
+ 865              		.loc 1 114 9 is_stmt 1 view .LVU220
+ 866              		.loc 1 114 16 is_stmt 0 view .LVU221
+ 867 0372 0020     		movs	r0, #0
+ 868 0374 16E0     		b	.L16
+ 869              	.LVL87:
+ 870              	.L32:
+ 871              		.loc 1 114 16 view .LVU222
+ 872 0376 DDF80490 		ldr	r9, [sp, #4]
+ 873              	.LVL88:
+ 874              		.loc 1 114 16 view .LVU223
+ 875 037a D9E6     		b	.L19
+ 876              	.LVL89:
+ 877              	.L33:
+ 878              		.loc 1 114 16 view .LVU224
+ 879 037c DDF80490 		ldr	r9, [sp, #4]
+ 880              	.LVL90:
+ 881              		.loc 1 114 16 view .LVU225
+ 882 0380 D6E6     		b	.L19
+ 883              	.LVL91:
+ 884              	.L34:
+ 885              		.loc 1 114 16 view .LVU226
+ 886 0382 DDF80490 		ldr	r9, [sp, #4]
+ 887              	.LVL92:
+ 888              		.loc 1 114 16 view .LVU227
+ 889 0386 D3E6     		b	.L19
+ 890              	.LVL93:
+ 891              	.L35:
+ 892              		.loc 1 114 16 view .LVU228
+ 893 0388 DDF80490 		ldr	r9, [sp, #4]
+ 894              	.LVL94:
+ 895              		.loc 1 114 16 view .LVU229
+ 896 038c D0E6     		b	.L19
+ 897              	.LVL95:
+ 898              	.L37:
+ 899              		.loc 1 114 16 view .LVU230
+ 900 038e DDF80490 		ldr	r9, [sp, #4]
+ 901              	.LVL96:
+ 902              		.loc 1 114 16 view .LVU231
+ 903 0392 CDE6     		b	.L19
+ 904              	.LVL97:
+ 905              	.L38:
+ 906              		.loc 1 114 16 view .LVU232
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 20
+
+
+ 907 0394 DDF80490 		ldr	r9, [sp, #4]
+ 908              	.LVL98:
+ 909              		.loc 1 114 16 view .LVU233
+ 910 0398 CAE6     		b	.L19
+ 911              	.LVL99:
+ 912              	.L39:
+ 913              		.loc 1 114 16 view .LVU234
+ 914 039a DDF80490 		ldr	r9, [sp, #4]
+ 915              	.LVL100:
+ 916              		.loc 1 114 16 view .LVU235
+ 917 039e C7E6     		b	.L19
+ 918              	.LVL101:
+ 919              	.L41:
+ 920              		.loc 1 114 16 view .LVU236
+ 921              	.LBE4:
+ 922              	.LBE5:
+ 115:App/Src/dut_timing.c ****     }
+ 116:App/Src/dut_timing.c ****     return -2;
+ 923              		.loc 1 116 12 view .LVU237
+ 924 03a0 6FF00100 		mvn	r0, #1
+ 925              	.LVL102:
+ 926              	.L16:
+ 117:App/Src/dut_timing.c **** }
+ 927              		.loc 1 117 1 view .LVU238
+ 928 03a4 15B0     		add	sp, sp, #84
+ 929              	.LCFI7:
+ 930              		.cfi_remember_state
+ 931              		.cfi_def_cfa_offset 36
+ 932              		@ sp needed
+ 933 03a6 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 934              	.LVL103:
+ 935              	.L23:
+ 936              	.LCFI8:
+ 937              		.cfi_restore_state
+  43:App/Src/dut_timing.c ****     }
+ 938              		.loc 1 43 16 view .LVU239
+ 939 03aa 4FF0FF30 		mov	r0, #-1
+ 940              	.LVL104:
+  43:App/Src/dut_timing.c ****     }
+ 941              		.loc 1 43 16 view .LVU240
+ 942 03ae F9E7     		b	.L16
+ 943              	.LVL105:
+ 944              	.L24:
+  43:App/Src/dut_timing.c ****     }
+ 945              		.loc 1 43 16 view .LVU241
+ 946 03b0 4FF0FF30 		mov	r0, #-1
+ 947              	.LVL106:
+  43:App/Src/dut_timing.c ****     }
+ 948              		.loc 1 43 16 view .LVU242
+ 949 03b4 F6E7     		b	.L16
+ 950              	.LVL107:
+ 951              	.L25:
+  43:App/Src/dut_timing.c ****     }
+ 952              		.loc 1 43 16 view .LVU243
+ 953 03b6 4FF0FF30 		mov	r0, #-1
+ 954              	.LVL108:
+  43:App/Src/dut_timing.c ****     }
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 21
+
+
+ 955              		.loc 1 43 16 view .LVU244
+ 956 03ba F3E7     		b	.L16
+ 957              	.LVL109:
+ 958              	.L26:
+  43:App/Src/dut_timing.c ****     }
+ 959              		.loc 1 43 16 view .LVU245
+ 960 03bc 4FF0FF30 		mov	r0, #-1
+ 961              	.LVL110:
+  43:App/Src/dut_timing.c ****     }
+ 962              		.loc 1 43 16 view .LVU246
+ 963 03c0 F0E7     		b	.L16
+ 964              	.LVL111:
+ 965              	.L27:
+  43:App/Src/dut_timing.c ****     }
+ 966              		.loc 1 43 16 view .LVU247
+ 967 03c2 4FF0FF30 		mov	r0, #-1
+ 968              	.LVL112:
+  43:App/Src/dut_timing.c ****     }
+ 969              		.loc 1 43 16 view .LVU248
+ 970 03c6 EDE7     		b	.L16
+ 971              	.LVL113:
+ 972              	.L30:
+  69:App/Src/dut_timing.c ****     }
+ 973              		.loc 1 69 16 view .LVU249
+ 974 03c8 6FF00100 		mvn	r0, #1
+ 975              	.LVL114:
+  69:App/Src/dut_timing.c ****     }
+ 976              		.loc 1 69 16 view .LVU250
+ 977 03cc EAE7     		b	.L16
+ 978              	.L45:
+ 979 03ce 00BF     		.align	2
+ 980              	.L44:
+ 981 03d0 E0930400 		.word	300000
+ 982              		.cfi_endproc
+ 983              	.LFE4:
+ 985              		.text
+ 986              	.Letext0:
+ 987              		.file 2 "/Applications/ArmGNUToolchain/15.2.rel1/arm-none-eabi/arm-none-eabi/include/machine/_defa
+ 988              		.file 3 "/Applications/ArmGNUToolchain/15.2.rel1/arm-none-eabi/arm-none-eabi/include/sys/_stdint.h
+ 989              		.file 4 "App/Inc/dut_timing.h"
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s 			page 22
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 dut_timing.c
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:22     .text.div_round:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:27     .text.div_round:00000000 div_round
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:57     .text.div_ceil:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:62     .text.div_ceil:00000000 div_ceil
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:93     .text.sync_ps:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:98     .text.sync_ps:00000000 sync_ps
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:163    .text.dut_timing_predict_hz:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:169    .text.dut_timing_predict_hz:00000000 dut_timing_predict_hz
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:290    .text.dut_timing_predict_hz:00000078 $d
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:296    .text.dut_timing_compute:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:302    .text.dut_timing_compute:00000000 dut_timing_compute
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:505    .text.dut_timing_compute:000000f8 $d
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:521    .text.dut_timing_compute:0000012c $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccQxel9j.s:981    .text.dut_timing_compute:000003d0 $d
+
+UNDEFINED SYMBOLS
+__aeabi_uldivmod

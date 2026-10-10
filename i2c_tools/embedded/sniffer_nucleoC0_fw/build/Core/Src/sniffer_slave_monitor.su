@@ -1,0 +1,4 @@
+Core/Src/sniffer_slave_monitor.c:46:6:smon_init	24	static
+Core/Src/sniffer_slave_monitor.c:83:6:smon_enable	0	static
+Core/Src/sniffer_slave_monitor.c:98:10:smon_bus_hz	0	static
+Core/Src/sniffer_slave_monitor.c:103:9:smon_poll	24	static

@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "qt_theme.schema.json",
+  "title": "Qt Theme File",
+  "description": "Theme file for the ion_i2c_tool PySide6 applications, produced by theme_editor.py and stored as ui/themes/<name>.qt_theme.json. 'palette' and 'settings' are the source of truth; 'generated_qss' is a reference snapshot only. Loaders must treat every field as optional and fall back to defaults (see ui/theme_config_loader.py).",
+  "type": "object",
+  "required": ["file_type", "file_version", "settings", "palette"],
+  "additionalProperties": true,
+  "properties": {
+    "file_type": {
+      "const": "pyside6-theme-playground",
+      "description": "File format discriminator."
+    },
+    "file_version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Format version. Current: 1."
+    },
+    "app_version": {
+      "type": "string",
+      "description": "Version of the editor that wrote the file (informational)."
+    },
+    "preset_name": {
+      "type": "string",
+      "description": "Human-readable theme name shown in the Preferences tab."
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "qt_style": {
+          "type": "string",
+          "description": "Qt widget style, e.g. 'Fusion'. Applied via QApplication.setStyle if available."
+        },
+        "document_mode": { "type": "boolean" },
+        "tab_draw_base": { "type": "boolean" },
+        "pane_border": { "type": "boolean" },
+        "tab_qss_mode": {
+          "type": "string",
+          "enum": ["Styled QSS", "Native / Unicode Finder"],
+          "description": "'Native / Unicode Finder' suppresses QTabWidget/QTabBar QSS so the platform style renders tabs."
+        },
+        "tab_pane_top_offset": { "type": "integer", "minimum": -20, "maximum": 20 },
+        "selected_tab_margin_bottom": { "type": "integer", "minimum": -10, "maximum": 10 },
+        "tab_position": { "type": "string", "enum": ["North", "South", "West", "East"] },
+        "tab_shape": { "type": "string", "enum": ["Rounded", "Triangular"] },
+        "button_layout": { "type": "string" },
+        "group_box_title_mode": { "type": "string", "enum": ["On Border", "Above Border"] },
+        "font_family": {
+          "type": "string",
+          "description": "Empty string = inherit system font."
+        },
+        "base_font_size": { "type": "integer", "minimum": 6, "maximum": 24 },
+        "control_radius": { "type": "integer", "minimum": 0, "maximum": 20 },
+        "input_min_height": { "type": "integer", "minimum": 16, "maximum": 64 },
+        "input_v_padding": { "type": "integer", "minimum": 0, "maximum": 16 },
+        "button_fixed_width": { "type": "integer", "minimum": 40, "maximum": 400 },
+        "tab_padding_v": { "type": "integer", "minimum": 0, "maximum": 24 },
+        "tab_padding_h": { "type": "integer", "minimum": 0, "maximum": 48 },
+        "table_row_height": { "type": "integer", "minimum": 14, "maximum": 64 },
+        "section_heading_size": { "type": "integer", "minimum": 8, "maximum": 32 },
+        "section_heading_weight": { "type": "integer", "minimum": 100, "maximum": 900 }
+      }
+    },
+    "palette": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/hexColor" },
+      "description": "Semantic color tokens. Any subset may be provided; missing tokens use loader defaults.",
+      "properties": {
+        "bg_primary":            { "$ref": "#/definitions/hexColor" },
+        "bg_secondary":          { "$ref": "#/definitions/hexColor" },
+        "bg_tertiary":           { "$ref": "#/definitions/hexColor" },
+        "bg_selected":           { "$ref": "#/definitions/hexColor" },
+        "border_primary":        { "$ref": "#/definitions/hexColor" },
+        "text_primary":          { "$ref": "#/definitions/hexColor" },
+        "text_muted":            { "$ref": "#/definitions/hexColor" },
+        "text_inverse":          { "$ref": "#/definitions/hexColor" },
+        "accent_primary":        { "$ref": "#/definitions/hexColor" },
+        "action_connect":        { "$ref": "#/definitions/hexColor" },
+        "action_disconnect":     { "$ref": "#/definitions/hexColor" },
+        "action_read":           { "$ref": "#/definitions/hexColor" },
+        "action_write":          { "$ref": "#/definitions/hexColor" },
+        "action_write_read":     { "$ref": "#/definitions/hexColor" },
+        "action_scan":           { "$ref": "#/definitions/hexColor" },
+        "action_apply":          { "$ref": "#/definitions/hexColor" },
+        "action_text":           { "$ref": "#/definitions/hexColor" },
+        "status_idle":           { "$ref": "#/definitions/hexColor" },
+        "status_active":         { "$ref": "#/definitions/hexColor" },
+        "status_error":          { "$ref": "#/definitions/hexColor" },
+        "status_warning":        { "$ref": "#/definitions/hexColor" },
+        "data_read":             { "$ref": "#/definitions/hexColor" },
+        "data_write":            { "$ref": "#/definitions/hexColor" },
+        "data_nak":              { "$ref": "#/definitions/hexColor" },
+        "data_pec_fail_bg":      { "$ref": "#/definitions/hexColor" },
+        "save_dirty_bg":         { "$ref": "#/definitions/hexColor" },
+        "save_dirty_hover":      { "$ref": "#/definitions/hexColor" },
+        "save_dirty_text":       { "$ref": "#/definitions/hexColor" },
+        "section_heading_color": { "$ref": "#/definitions/hexColor" }
+      }
+    },
+    "generated_qss": {
+      "type": "string",
+      "description": "QSS snapshot from the editor at save time. Reference/fallback only; the application regenerates QSS from palette+settings."
+    }
+  },
+  "definitions": {
+    "hexColor": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$",
+      "description": "#RRGGBB"
+    }
+  }
+}

@@ -1,0 +1,7422 @@
+{
+ "format": "loopback_expected",
+ "version": 1,
+ "generated": "2026-10-05T10:10:53.487-06:00",
+ "mode": "hardware",
+ "pattern": {
+  "name": "loopback_v1",
+  "path": "patterns/loopback_v1.json",
+  "sha256": "4fc68f7999eb16e67bdafc5b97b7bf66431ca6a93e6b35f8c77c8d9176de331b"
+ },
+ "rig": {
+  "rig": {
+   "name": "loopback-h533",
+   "default_scl_hz": 100000,
+   "rise_ns": 300,
+   "fall_ns": 30
+  },
+  "master": {
+   "peripheral": "I2C1",
+   "own_address": 8
+  },
+  "responder": [
+   {
+    "name": "R1",
+    "id": 1,
+    "peripheral": "I2C2",
+    "address": 107,
+    "enabled": true,
+    "word_base": 40960
+   },
+   {
+    "name": "R2",
+    "id": 2,
+    "peripheral": "I2C3",
+    "address": 85,
+    "enabled": true,
+    "word_base": 45056
+   }
+  ],
+  "nak": {
+   "name": "NAK",
+   "addresses": [
+    8
+   ]
+  },
+  "compare": {
+   "timestamp_skew_ms": 50,
+   "scl_tolerance_pct": 5
+  },
+  "ports": {
+   "dut": ""
+  }
+ },
+ "dut": {
+  "hello": "HELLO LBDUT proto=1 fw=0.2 kernel=64000000",
+  "port": "/dev/cu.usbmodem1403"
+ },
+ "cases": [
+  {
+   "id": "LB-01",
+   "description": "1-byte pointer write + repeated-START read of 2 bytes (baseline indexed_read pairing). Expect W [02], Sr R [02 A0].",
+   "review_ids": [
+    "B32"
+   ],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 2,
+    "scl_check": true
+   },
+   "path_status": {
+    "ad2": "xfail",
+    "ion": "expect_pass"
+   },
+   "xfail_reason": "B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+   "xfail_symptoms": [
+    "phase_extra",
+    "phase_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ad2": [
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.5151439,
+     "t_dut_us": 510176717,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        2
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        2,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-02",
+   "description": "1-byte pointer write + STOP, then a plain read (BQ25731 host style, stop-separated pointer). Expect W [04] P, S R [04 A0] P.",
+   "review_ids": [],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 2,
+    "scl_check": true
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.539115,
+     "t_dut_us": 510200754,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        4
+       ],
+       "pec": false
+      },
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        4,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-03",
+   "description": "Indexed write: register 0x10 + 2 data bytes (34 12). Expect one W phase [10 34 12] P.",
+   "review_ids": [],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 1,
+    "scl_check": true
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.5629828,
+     "t_dut_us": 510224796,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        16,
+        52,
+        18
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-04",
+   "description": "Single-byte write with STOP and no read following. With a loopback decoder that has a simple_write rule for register 0x20 on R1, the row must decode as that simple write.",
+   "review_ids": [
+    "B8"
+   ],
+   "status": "xfail",
+   "expect": {
+    "phases_per_iteration": 1,
+    "decode": {
+     "phase": 0,
+     "contains": "LB simple write = 0x20"
+    },
+    "note": "Raw bytes must still match exactly; only the decode check is xfail."
+   },
+   "xfail_reason": "B8: _is_pointer_write() is True for every 1-byte write, so the simple_write branch never runs; the W [20] row's Decode column is empty (the byte is stashed as a pending register) instead of the simple_write rule's text.",
+   "xfail_symptoms": [
+    "decode_mismatch"
+   ],
+   "requires": [
+    "loopback_decoder"
+   ],
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.584959,
+     "t_dut_us": 510246259,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        32
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-05",
+   "description": "Write to the address-NAK target (rig.toml [nak], default 0x08 = I2C1's own address with matching disabled). Expect one W phase with an address NAK and no data.",
+   "review_ids": [],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 1,
+    "address_nak": true
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.605345,
+     "t_dut_us": 510266604,
+     "result": "NAK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 8,
+       "dir": "W",
+       "ack": "NA",
+       "stop": true,
+       "data": [],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-06",
+   "description": "Read of 4 bytes from pointer 0x02 ending in the master's normal final-byte NAK. Expect Sr R [02 A0 03 A0] P; the end-of-read NAK must not be presented as an error.",
+   "review_ids": [
+    "B13",
+    "B32"
+   ],
+   "status": "xfail",
+   "expect": {
+    "phases_per_iteration": 2,
+    "end_of_read_nak": "strict"
+   },
+   "xfail_reason": "B13: the normal master NAK on the final read byte is exported as NAK=\"NAK\" (and coloured as an error) on the read row, indistinguishable from an address/data NAK. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+   "xfail_symptoms": [
+    "nak_on_normal_end_of_read",
+    "phase_extra",
+    "phase_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ion": [
+     "nak_on_normal_end_of_read"
+    ],
+    "ad2": [
+     "nak_on_normal_end_of_read",
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.625485,
+     "t_dut_us": 510287032,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        2
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        2,
+        160,
+        3,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-07",
+   "description": "SMBus read-word with PEC: W [08], Sr R [08 A0 PEC], where PEC = CRC-8 over D6 08 D7 08 A0 (Addr+W, command, Addr+R, data). With sniffer PEC validation on, the read row must show a valid PEC.",
+   "review_ids": [
+    "B9",
+    "B32"
+   ],
+   "status": "xfail",
+   "expect": {
+    "phases_per_iteration": 2,
+    "pec": "valid"
+   },
+   "xfail_reason": "B9: the sniffer computes PEC over the read phase only (Addr+R + data) instead of the combined transaction, so the read row shows PEC invalid (\u2717 PEC) although the bus PEC is correct. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+   "xfail_symptoms": [
+    "pec_invalid",
+    "phase_extra",
+    "phase_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ion": [
+     "pec_invalid"
+    ],
+    "ad2": [
+     "pec_invalid",
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "requires": [
+    "pec_validation_on"
+   ],
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.649983,
+     "t_dut_us": 510314462,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        8
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        8,
+        160,
+        110
+       ],
+       "pec": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-08",
+   "description": "SMBus write-byte with PEC: W [0A 5A PEC], PEC over D6 0A 5A. A single-phase PEC is computed over the right bytes even with B9 present, so this is expected to pass; if it fails, that is a new finding.",
+   "review_ids": [
+    "B9"
+   ],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 1,
+    "pec": "valid"
+   },
+   "requires": [
+    "pec_validation_on"
+   ],
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.6799748,
+     "t_dut_us": 510341776,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        10,
+        90,
+        81
+       ],
+       "pec": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-09",
+   "description": "Subcommand block read: write subcommand 0x0001 to 0x3E, then read 36 bytes from 0x3E (echo, 32-byte buffer, checksum 0x0E, length 36), the shape DecodeSchema._unwrap_subcommand_block expects.",
+   "review_ids": [
+    "B10",
+    "B32"
+   ],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 3,
+    "scl_check": true
+   },
+   "path_status": {
+    "ad2": "xfail",
+    "ion": "expect_pass"
+   },
+   "xfail_reason": "B10 (AD2 path only): spy_poll drops continuation segments when fStart == 0, so the 36-byte read is truncated to its first status-call segment; the ion probe captures all 36 bytes. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears. B10 itself was NOT reproduced in run 2 (36/64/80-byte reads complete); it stays listed until B32 is fixed and the reads can be judged alone.",
+   "xfail_symptoms": [
+    "data_mismatch",
+    "phase_extra",
+    "phase_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ad2": [
+     "data_mismatch",
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.701597,
+     "t_dut_us": 510363396,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        62,
+        1,
+        0
+       ],
+       "pec": false
+      },
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        62
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        1,
+        0,
+        65,
+        64,
+        67,
+        66,
+        69,
+        68,
+        71,
+        70,
+        73,
+        72,
+        75,
+        74,
+        77,
+        76,
+        79,
+        78,
+        81,
+        80,
+        83,
+        82,
+        85,
+        84,
+        87,
+        86,
+        89,
+        88,
+        91,
+        90,
+        93,
+        92,
+        95,
+        94,
+        14,
+        36
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-10",
+   "description": "64-byte read (= ion TXN_MAX_DATA) from pointer 0x00: no truncation on either path.",
+   "review_ids": [
+    "B10",
+    "B32"
+   ],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 2
+   },
+   "path_status": {
+    "ad2": "xfail",
+    "ion": "expect_pass"
+   },
+   "xfail_reason": "B10 (AD2 path only): spy_poll drops continuation segments when fStart == 0, so a 64-byte read split across status calls is truncated to its first segment. If the AD2 captures it whole (xpass), B10's segment boundary lies above this length: record that as a finding and move the case to expect_pass. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears. B10 itself was NOT reproduced in run 2 (36/64/80-byte reads complete); it stays listed until B32 is fixed and the reads can be judged alone.",
+   "xfail_symptoms": [
+    "data_mismatch",
+    "phase_extra",
+    "phase_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ad2": [
+     "data_mismatch",
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.747199,
+     "t_dut_us": 510408946,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        0
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        0,
+        160,
+        1,
+        160,
+        2,
+        160,
+        3,
+        160,
+        4,
+        160,
+        5,
+        160,
+        6,
+        160,
+        7,
+        160,
+        8,
+        160,
+        9,
+        160,
+        10,
+        160,
+        11,
+        160,
+        12,
+        160,
+        13,
+        160,
+        14,
+        160,
+        15,
+        160,
+        16,
+        160,
+        17,
+        160,
+        18,
+        160,
+        19,
+        160,
+        20,
+        160,
+        21,
+        160,
+        22,
+        160,
+        23,
+        160,
+        24,
+        160,
+        25,
+        160,
+        26,
+        160,
+        27,
+        160,
+        28,
+        160,
+        29,
+        160,
+        30,
+        160,
+        31,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-11",
+   "description": "80-byte read (over the ion probe's TXN_MAX_DATA = 64). Documents the truncation limit: the ion probe keeps the first 64 bytes and sets its OVERFLOW flag. Capture CSV v2 has no overflow column, so the flag itself is not visible to the harness (finding for M1/Phase 6).",
+   "review_ids": [
+    "B10",
+    "B32"
+   ],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 2,
+    "truncate_to": {
+     "ion": 64
+    }
+   },
+   "path_status": {
+    "ad2": "xfail",
+    "ion": "expect_pass"
+   },
+   "xfail_reason": "B10 (AD2 path only): spy_poll drops continuation segments when fStart == 0, so a 80-byte read split across status calls is truncated to its first segment. If the AD2 captures it whole (xpass), B10's segment boundary lies above this length: record that as a finding and move the case to expect_pass. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears. B10 itself was NOT reproduced in run 2 (36/64/80-byte reads complete); it stays listed until B32 is fixed and the reads can be judged alone.",
+   "xfail_symptoms": [
+    "data_mismatch",
+    "phase_extra",
+    "phase_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ad2": [
+     "data_mismatch",
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.7937138,
+     "t_dut_us": 510455461,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        0
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        0,
+        160,
+        1,
+        160,
+        2,
+        160,
+        3,
+        160,
+        4,
+        160,
+        5,
+        160,
+        6,
+        160,
+        7,
+        160,
+        8,
+        160,
+        9,
+        160,
+        10,
+        160,
+        11,
+        160,
+        12,
+        160,
+        13,
+        160,
+        14,
+        160,
+        15,
+        160,
+        16,
+        160,
+        17,
+        160,
+        18,
+        160,
+        19,
+        160,
+        20,
+        160,
+        21,
+        160,
+        22,
+        160,
+        23,
+        160,
+        24,
+        160,
+        25,
+        160,
+        26,
+        160,
+        27,
+        160,
+        28,
+        160,
+        29,
+        160,
+        30,
+        160,
+        31,
+        160,
+        32,
+        160,
+        33,
+        160,
+        34,
+        160,
+        35,
+        160,
+        36,
+        160,
+        37,
+        160,
+        38,
+        160,
+        39,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-12",
+   "description": "Burst of 200 back-to-back register reads (W [06], Sr R [06 A0]) with no gap: 400 phases. Any drop must be counted by the probe, never silent; the harness requires all 400.",
+   "review_ids": [
+    "B30",
+    "B32"
+   ],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 2,
+    "note": "A shortfall only at the very end on the ion path would match B11 (IonWorker drain exits immediately); report it as such."
+   },
+   "path_status": {
+    "ion": "xfail",
+    "ad2": "xfail"
+   },
+   "xfail_reason": "B30 (ion path): the bit-bang decoder misses one SCL edge under back-to-back traffic at 100 kHz, shifting a phase left by one bit (06 -> 0C, 06 A0 -> 0C 41); 7 and ~10 of 400 phases in runs 1-2, 1 lost. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+   "xfail_symptoms": [
+    "address_nak_mismatch",
+    "data_mismatch",
+    "flag_mismatch",
+    "phase_extra",
+    "phase_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ion": [
+     "data_mismatch",
+     "address_nak_mismatch",
+     "phase_missing",
+     "phase_extra",
+     "flag_mismatch"
+    ],
+    "ad2": [
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 200,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216653.859054,
+     "t_dut_us": 510509137,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 1,
+     "t_host": 1791216653.8684301,
+     "t_dut_us": 510518499,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 2,
+     "t_host": 1791216653.8776782,
+     "t_dut_us": 510527859,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 3,
+     "t_host": 1791216653.887053,
+     "t_dut_us": 510537220,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 4,
+     "t_host": 1791216653.8964322,
+     "t_dut_us": 510546581,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 5,
+     "t_host": 1791216653.905802,
+     "t_dut_us": 510555941,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 6,
+     "t_host": 1791216653.9151812,
+     "t_dut_us": 510565302,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 7,
+     "t_host": 1791216653.924555,
+     "t_dut_us": 510574663,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 8,
+     "t_host": 1791216653.93393,
+     "t_dut_us": 510584024,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 9,
+     "t_host": 1791216653.943296,
+     "t_dut_us": 510593384,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 10,
+     "t_host": 1791216653.952916,
+     "t_dut_us": 510602745,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 11,
+     "t_host": 1791216653.9625442,
+     "t_dut_us": 510612367,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 12,
+     "t_host": 1791216653.972167,
+     "t_dut_us": 510621989,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 13,
+     "t_host": 1791216653.981791,
+     "t_dut_us": 510631611,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 14,
+     "t_host": 1791216653.991424,
+     "t_dut_us": 510641233,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 15,
+     "t_host": 1791216654.001059,
+     "t_dut_us": 510650855,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 16,
+     "t_host": 1791216654.010676,
+     "t_dut_us": 510660478,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 17,
+     "t_host": 1791216654.0202932,
+     "t_dut_us": 510670100,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 18,
+     "t_host": 1791216654.0298,
+     "t_dut_us": 510679722,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 19,
+     "t_host": 1791216654.039422,
+     "t_dut_us": 510689344,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 20,
+     "t_host": 1791216654.049063,
+     "t_dut_us": 510698966,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 21,
+     "t_host": 1791216654.058688,
+     "t_dut_us": 510708588,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 22,
+     "t_host": 1791216654.0683022,
+     "t_dut_us": 510718210,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 23,
+     "t_host": 1791216654.0779321,
+     "t_dut_us": 510727833,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 24,
+     "t_host": 1791216654.0875552,
+     "t_dut_us": 510737455,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 25,
+     "t_host": 1791216654.097193,
+     "t_dut_us": 510747077,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 26,
+     "t_host": 1791216654.1067991,
+     "t_dut_us": 510756699,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 27,
+     "t_host": 1791216654.116422,
+     "t_dut_us": 510766321,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 28,
+     "t_host": 1791216654.126057,
+     "t_dut_us": 510775943,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 29,
+     "t_host": 1791216654.135674,
+     "t_dut_us": 510785565,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 30,
+     "t_host": 1791216654.145306,
+     "t_dut_us": 510795188,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 31,
+     "t_host": 1791216654.154929,
+     "t_dut_us": 510804810,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 32,
+     "t_host": 1791216654.164552,
+     "t_dut_us": 510814432,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 33,
+     "t_host": 1791216654.174176,
+     "t_dut_us": 510824054,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 34,
+     "t_host": 1791216654.183806,
+     "t_dut_us": 510833676,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 35,
+     "t_host": 1791216654.193425,
+     "t_dut_us": 510843299,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 36,
+     "t_host": 1791216654.203062,
+     "t_dut_us": 510852921,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 37,
+     "t_host": 1791216654.212673,
+     "t_dut_us": 510862543,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 38,
+     "t_host": 1791216654.222343,
+     "t_dut_us": 510872165,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 39,
+     "t_host": 1791216654.231931,
+     "t_dut_us": 510881787,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 40,
+     "t_host": 1791216654.2416,
+     "t_dut_us": 510891409,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 41,
+     "t_host": 1791216654.251201,
+     "t_dut_us": 510901031,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 42,
+     "t_host": 1791216654.2608058,
+     "t_dut_us": 510910653,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 43,
+     "t_host": 1791216654.2704241,
+     "t_dut_us": 510920276,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 44,
+     "t_host": 1791216654.280061,
+     "t_dut_us": 510929898,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 45,
+     "t_host": 1791216654.289675,
+     "t_dut_us": 510939520,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 46,
+     "t_host": 1791216654.299304,
+     "t_dut_us": 510949142,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 47,
+     "t_host": 1791216654.3089259,
+     "t_dut_us": 510958764,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 48,
+     "t_host": 1791216654.318541,
+     "t_dut_us": 510968386,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 49,
+     "t_host": 1791216654.328165,
+     "t_dut_us": 510978008,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 50,
+     "t_host": 1791216654.337811,
+     "t_dut_us": 510987631,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 51,
+     "t_host": 1791216654.347422,
+     "t_dut_us": 510997253,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 52,
+     "t_host": 1791216654.357045,
+     "t_dut_us": 511006875,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 53,
+     "t_host": 1791216654.3666701,
+     "t_dut_us": 511016497,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 54,
+     "t_host": 1791216654.376317,
+     "t_dut_us": 511026119,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 55,
+     "t_host": 1791216654.3859332,
+     "t_dut_us": 511035741,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 56,
+     "t_host": 1791216654.395544,
+     "t_dut_us": 511045363,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 57,
+     "t_host": 1791216654.405171,
+     "t_dut_us": 511054985,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 58,
+     "t_host": 1791216654.414797,
+     "t_dut_us": 511064608,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 59,
+     "t_host": 1791216654.4244192,
+     "t_dut_us": 511074230,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 60,
+     "t_host": 1791216654.434046,
+     "t_dut_us": 511083852,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 61,
+     "t_host": 1791216654.4436631,
+     "t_dut_us": 511093474,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 62,
+     "t_host": 1791216654.453287,
+     "t_dut_us": 511103096,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 63,
+     "t_host": 1791216654.462924,
+     "t_dut_us": 511112718,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 64,
+     "t_host": 1791216654.4725592,
+     "t_dut_us": 511122340,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 65,
+     "t_host": 1791216654.4821792,
+     "t_dut_us": 511131963,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 66,
+     "t_host": 1791216654.491793,
+     "t_dut_us": 511141585,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 67,
+     "t_host": 1791216654.501439,
+     "t_dut_us": 511151207,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 68,
+     "t_host": 1791216654.510944,
+     "t_dut_us": 511160829,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 69,
+     "t_host": 1791216654.520564,
+     "t_dut_us": 511170451,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 70,
+     "t_host": 1791216654.5301812,
+     "t_dut_us": 511180073,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 71,
+     "t_host": 1791216654.539912,
+     "t_dut_us": 511189695,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 72,
+     "t_host": 1791216654.5494359,
+     "t_dut_us": 511199317,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 73,
+     "t_host": 1791216654.55921,
+     "t_dut_us": 511208939,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 74,
+     "t_host": 1791216654.568824,
+     "t_dut_us": 511218561,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 75,
+     "t_host": 1791216654.578326,
+     "t_dut_us": 511228184,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 76,
+     "t_host": 1791216654.5879848,
+     "t_dut_us": 511237806,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 77,
+     "t_host": 1791216654.597554,
+     "t_dut_us": 511247428,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 78,
+     "t_host": 1791216654.607262,
+     "t_dut_us": 511257050,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 79,
+     "t_host": 1791216654.6168041,
+     "t_dut_us": 511266672,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 80,
+     "t_host": 1791216654.626428,
+     "t_dut_us": 511276294,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 81,
+     "t_host": 1791216654.636055,
+     "t_dut_us": 511285916,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 82,
+     "t_host": 1791216654.645683,
+     "t_dut_us": 511295539,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 83,
+     "t_host": 1791216654.6553202,
+     "t_dut_us": 511305161,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 84,
+     "t_host": 1791216654.664937,
+     "t_dut_us": 511314783,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 85,
+     "t_host": 1791216654.674565,
+     "t_dut_us": 511324405,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 86,
+     "t_host": 1791216654.684213,
+     "t_dut_us": 511334027,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 87,
+     "t_host": 1791216654.69386,
+     "t_dut_us": 511343649,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 88,
+     "t_host": 1791216654.703487,
+     "t_dut_us": 511353272,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 89,
+     "t_host": 1791216654.7130518,
+     "t_dut_us": 511362894,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 90,
+     "t_host": 1791216654.722731,
+     "t_dut_us": 511372516,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 91,
+     "t_host": 1791216654.7332292,
+     "t_dut_us": 511382138,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 92,
+     "t_host": 1791216654.742021,
+     "t_dut_us": 511391760,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 93,
+     "t_host": 1791216654.751559,
+     "t_dut_us": 511401382,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 94,
+     "t_host": 1791216654.761173,
+     "t_dut_us": 511411004,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 95,
+     "t_host": 1791216654.771729,
+     "t_dut_us": 511420626,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 96,
+     "t_host": 1791216654.7811918,
+     "t_dut_us": 511430249,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 97,
+     "t_host": 1791216654.790088,
+     "t_dut_us": 511439871,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 98,
+     "t_host": 1791216654.799673,
+     "t_dut_us": 511449493,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 99,
+     "t_host": 1791216654.809313,
+     "t_dut_us": 511459115,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 100,
+     "t_host": 1791216654.8191779,
+     "t_dut_us": 511468737,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 101,
+     "t_host": 1791216654.82905,
+     "t_dut_us": 511478621,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 102,
+     "t_host": 1791216654.83893,
+     "t_dut_us": 511488504,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 103,
+     "t_host": 1791216654.848813,
+     "t_dut_us": 511498388,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 104,
+     "t_host": 1791216654.858676,
+     "t_dut_us": 511508271,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 105,
+     "t_host": 1791216654.868564,
+     "t_dut_us": 511518155,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 106,
+     "t_host": 1791216654.878437,
+     "t_dut_us": 511528038,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 107,
+     "t_host": 1791216654.888308,
+     "t_dut_us": 511537922,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 108,
+     "t_host": 1791216654.898195,
+     "t_dut_us": 511547805,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 109,
+     "t_host": 1791216654.908194,
+     "t_dut_us": 511557689,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 110,
+     "t_host": 1791216654.918108,
+     "t_dut_us": 511567572,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 111,
+     "t_host": 1791216654.927934,
+     "t_dut_us": 511577456,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 112,
+     "t_host": 1791216654.937818,
+     "t_dut_us": 511587339,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 113,
+     "t_host": 1791216654.947783,
+     "t_dut_us": 511597223,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 114,
+     "t_host": 1791216654.957558,
+     "t_dut_us": 511607106,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 115,
+     "t_host": 1791216654.967475,
+     "t_dut_us": 511616990,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 116,
+     "t_host": 1791216654.9773078,
+     "t_dut_us": 511626873,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 117,
+     "t_host": 1791216654.987173,
+     "t_dut_us": 511636756,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 118,
+     "t_host": 1791216654.997059,
+     "t_dut_us": 511646640,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 119,
+     "t_host": 1791216655.0069382,
+     "t_dut_us": 511656524,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 120,
+     "t_host": 1791216655.016803,
+     "t_dut_us": 511666407,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 121,
+     "t_host": 1791216655.0266838,
+     "t_dut_us": 511676291,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 122,
+     "t_host": 1791216655.036563,
+     "t_dut_us": 511686174,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 123,
+     "t_host": 1791216655.046557,
+     "t_dut_us": 511696058,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 124,
+     "t_host": 1791216655.056433,
+     "t_dut_us": 511705941,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 125,
+     "t_host": 1791216655.066305,
+     "t_dut_us": 511715825,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 126,
+     "t_host": 1791216655.076174,
+     "t_dut_us": 511725709,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 127,
+     "t_host": 1791216655.086051,
+     "t_dut_us": 511735592,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 128,
+     "t_host": 1791216655.0959191,
+     "t_dut_us": 511745476,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 129,
+     "t_host": 1791216655.105799,
+     "t_dut_us": 511755359,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 130,
+     "t_host": 1791216655.1156921,
+     "t_dut_us": 511765243,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 131,
+     "t_host": 1791216655.1255522,
+     "t_dut_us": 511775126,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 132,
+     "t_host": 1791216655.1354308,
+     "t_dut_us": 511785010,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 133,
+     "t_host": 1791216655.145299,
+     "t_dut_us": 511794893,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 134,
+     "t_host": 1791216655.15518,
+     "t_dut_us": 511804777,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 135,
+     "t_host": 1791216655.165053,
+     "t_dut_us": 511814661,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 136,
+     "t_host": 1791216655.1749141,
+     "t_dut_us": 511824544,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 137,
+     "t_host": 1791216655.1849248,
+     "t_dut_us": 511834428,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 138,
+     "t_host": 1791216655.194806,
+     "t_dut_us": 511844312,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 139,
+     "t_host": 1791216655.204701,
+     "t_dut_us": 511854195,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 140,
+     "t_host": 1791216655.214553,
+     "t_dut_us": 511864079,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 141,
+     "t_host": 1791216655.224426,
+     "t_dut_us": 511873962,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 142,
+     "t_host": 1791216655.2343118,
+     "t_dut_us": 511883846,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 143,
+     "t_host": 1791216655.24418,
+     "t_dut_us": 511893729,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 144,
+     "t_host": 1791216655.254084,
+     "t_dut_us": 511903613,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 145,
+     "t_host": 1791216655.2639282,
+     "t_dut_us": 511913497,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 146,
+     "t_host": 1791216655.273818,
+     "t_dut_us": 511923380,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 147,
+     "t_host": 1791216655.283675,
+     "t_dut_us": 511933264,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 148,
+     "t_host": 1791216655.2935522,
+     "t_dut_us": 511943148,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 149,
+     "t_host": 1791216655.303444,
+     "t_dut_us": 511953031,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 150,
+     "t_host": 1791216655.313306,
+     "t_dut_us": 511962915,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 151,
+     "t_host": 1791216655.323305,
+     "t_dut_us": 511972798,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 152,
+     "t_host": 1791216655.333185,
+     "t_dut_us": 511982682,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 153,
+     "t_host": 1791216655.343053,
+     "t_dut_us": 511992565,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 154,
+     "t_host": 1791216655.352948,
+     "t_dut_us": 512002449,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 155,
+     "t_host": 1791216655.3627992,
+     "t_dut_us": 512012333,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 156,
+     "t_host": 1791216655.372671,
+     "t_dut_us": 512022216,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 157,
+     "t_host": 1791216655.38255,
+     "t_dut_us": 512032100,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 158,
+     "t_host": 1791216655.39242,
+     "t_dut_us": 512041983,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 159,
+     "t_host": 1791216655.402307,
+     "t_dut_us": 512051867,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 160,
+     "t_host": 1791216655.4121768,
+     "t_dut_us": 512061751,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 161,
+     "t_host": 1791216655.4220538,
+     "t_dut_us": 512071634,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 162,
+     "t_host": 1791216655.431927,
+     "t_dut_us": 512081518,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 163,
+     "t_host": 1791216655.441803,
+     "t_dut_us": 512091401,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 164,
+     "t_host": 1791216655.451807,
+     "t_dut_us": 512101285,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 165,
+     "t_host": 1791216655.4616761,
+     "t_dut_us": 512111169,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 166,
+     "t_host": 1791216655.4715462,
+     "t_dut_us": 512121052,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 167,
+     "t_host": 1791216655.481419,
+     "t_dut_us": 512130936,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 168,
+     "t_host": 1791216655.4913301,
+     "t_dut_us": 512140819,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 169,
+     "t_host": 1791216655.501183,
+     "t_dut_us": 512150703,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 170,
+     "t_host": 1791216655.51105,
+     "t_dut_us": 512160586,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 171,
+     "t_host": 1791216655.5209222,
+     "t_dut_us": 512170470,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 172,
+     "t_host": 1791216655.530795,
+     "t_dut_us": 512180353,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 173,
+     "t_host": 1791216655.540674,
+     "t_dut_us": 512190237,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 174,
+     "t_host": 1791216655.550555,
+     "t_dut_us": 512200121,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 175,
+     "t_host": 1791216655.560427,
+     "t_dut_us": 512210004,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 176,
+     "t_host": 1791216655.570306,
+     "t_dut_us": 512219887,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 177,
+     "t_host": 1791216655.58018,
+     "t_dut_us": 512229771,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 178,
+     "t_host": 1791216655.59008,
+     "t_dut_us": 512239655,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 179,
+     "t_host": 1791216655.600062,
+     "t_dut_us": 512249538,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 180,
+     "t_host": 1791216655.609924,
+     "t_dut_us": 512259422,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 181,
+     "t_host": 1791216655.6198301,
+     "t_dut_us": 512269306,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 182,
+     "t_host": 1791216655.629786,
+     "t_dut_us": 512279189,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 183,
+     "t_host": 1791216655.639551,
+     "t_dut_us": 512289073,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 184,
+     "t_host": 1791216655.649419,
+     "t_dut_us": 512298956,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 185,
+     "t_host": 1791216655.659328,
+     "t_dut_us": 512308840,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 186,
+     "t_host": 1791216655.6691809,
+     "t_dut_us": 512318723,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 187,
+     "t_host": 1791216655.6790762,
+     "t_dut_us": 512328607,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 188,
+     "t_host": 1791216655.688923,
+     "t_dut_us": 512338491,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 189,
+     "t_host": 1791216655.698794,
+     "t_dut_us": 512348374,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 190,
+     "t_host": 1791216655.708695,
+     "t_dut_us": 512358258,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 191,
+     "t_host": 1791216655.718575,
+     "t_dut_us": 512368142,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 192,
+     "t_host": 1791216655.728558,
+     "t_dut_us": 512378025,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 193,
+     "t_host": 1791216655.7384388,
+     "t_dut_us": 512387909,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 194,
+     "t_host": 1791216655.748371,
+     "t_dut_us": 512397792,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 195,
+     "t_host": 1791216655.758207,
+     "t_dut_us": 512407676,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 196,
+     "t_host": 1791216655.768071,
+     "t_dut_us": 512417559,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 197,
+     "t_host": 1791216655.777942,
+     "t_dut_us": 512427443,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 198,
+     "t_host": 1791216655.7878342,
+     "t_dut_us": 512437327,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    },
+    {
+     "iter": 199,
+     "t_host": 1791216655.7977269,
+     "t_dut_us": 512447210,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        6
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        6,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-14",
+   "description": "R1 clock-stretches 200 us before read byte 1 (byte boundary: a hardware I2C slave cannot stretch mid-byte). Data must be intact, and the measured SCL must still match the set speed, because stretched periods are excluded.",
+   "review_ids": [
+    "B32"
+   ],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 2,
+    "scl_check": true
+   },
+   "path_status": {
+    "ad2": "xfail",
+    "ion": "expect_pass"
+   },
+   "xfail_reason": "B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+   "xfail_symptoms": [
+    "phase_extra",
+    "phase_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ad2": [
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "stretch": {
+    "responder": "R1",
+    "byte_index": 1,
+    "us": 200
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216655.8151722,
+     "t_dut_us": 512476711,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        2
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        2,
+        160,
+        3,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-15",
+   "description": "Traffic interleaved across both responders. R1 and R2 return different word bases (0xA000 / 0xB000), so a mis-routed phase shows up in the value. Note: B30 bit slips are intermittent; LB-15 slipped once in run 1 and passed in run 2, so it stays expect_pass on ion (a slip here is B30, not a new finding).",
+   "review_ids": [
+    "B32"
+   ],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 8,
+    "scl_check": true
+   },
+   "path_status": {
+    "ad2": "xfail",
+    "ion": "expect_pass"
+   },
+   "xfail_reason": "B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+   "xfail_symptoms": [
+    "phase_extra",
+    "phase_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ad2": [
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "speed_hz": 100000,
+   "speed_pred_hz": 100075,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216655.8443499,
+     "t_dut_us": 512505881,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        2
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        2,
+        160
+       ],
+       "pec": false
+      },
+      {
+       "start": "S",
+       "address": 85,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        2
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 85,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        2,
+        176
+       ],
+       "pec": false
+      },
+      {
+       "start": "S",
+       "address": 85,
+       "dir": "W",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        16,
+        1
+       ],
+       "pec": false
+      },
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        4
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        4,
+        160
+       ],
+       "pec": false
+      },
+      {
+       "start": "S",
+       "address": 85,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        16,
+        176
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "LB-13",
+   "description": "LB-01, LB-03 and LB-06 shapes at 400 kHz. The ion bit-bang decoder is best-effort at 400 kHz (PROTOCOL.md \u00a73.1), so a failure on the ion path is a finding, not a regression.",
+   "review_ids": [
+    "B31",
+    "B32"
+   ],
+   "status": "expect_pass",
+   "expect": {
+    "phases_per_iteration": 5,
+    "scl_check": true
+   },
+   "path_status": {
+    "ion": "xfail",
+    "ad2": "xfail"
+   },
+   "xfail_reason": "B31 (ion path): bit-bang capture fails at 400 kHz (0 of 5 phases in runs 1-2; garbage rows such as 0x00 W / 0x0C R with no STOP) and leaves the decoder mid-transaction. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+   "xfail_symptoms": [
+    "address_nak_mismatch",
+    "data_mismatch",
+    "flag_mismatch",
+    "phase_extra",
+    "phase_missing",
+    "scl_missing"
+   ],
+   "path_xfail_symptoms": {
+    "ion": [
+     "phase_missing",
+     "phase_extra",
+     "data_mismatch",
+     "flag_mismatch",
+     "address_nak_mismatch",
+     "scl_missing"
+    ],
+    "ad2": [
+     "phase_missing",
+     "phase_extra"
+    ]
+   },
+   "speed_hz": 400000,
+   "speed_pred_hz": 401204,
+   "repeat": 1,
+   "emit_status": "ok",
+   "iterations": [
+    {
+     "iter": 0,
+     "t_host": 1791216655.908122,
+     "t_dut_us": 512569664,
+     "result": "OK",
+     "phases": [
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        2
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        2,
+        160
+       ],
+       "pec": false
+      },
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        16,
+        52,
+        18
+       ],
+       "pec": false
+      },
+      {
+       "start": "S",
+       "address": 107,
+       "dir": "W",
+       "ack": "A",
+       "stop": false,
+       "data": [
+        2
+       ],
+       "pec": false
+      },
+      {
+       "start": "Sr",
+       "address": 107,
+       "dir": "R",
+       "ack": "A",
+       "stop": true,
+       "data": [
+        2,
+        160,
+        3,
+        160
+       ],
+       "pec": false
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

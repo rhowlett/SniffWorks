@@ -1,0 +1,561 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://local/ad2_i2c_tool/decoder.schema.json",
+  "title": "AD2 I2C Tool Decoder File",
+  "description": "Validation schema for decoder files used by the AD2 I2C/SMBus Tool. A decoder is a list of rules; each rule names an I2C transaction type (per the standard I2C taxonomy), the register it targets (for indexed types), and how to turn the data bytes into a value + unit. Rules are keyed on (i2c_address, register, transaction_type).",
+  "type": "object",
+  "required": [
+    "version",
+    "rules"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "description": "Schema format version. Current engine uses version 4 (adds Registers-tab display groups + rule group/group_order/access).",
+      "minimum": 1
+    },
+    "device": {
+      "type": "string",
+      "description": "Optional human-readable device/part name."
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional free-text description."
+    },
+    "i2c_address": {
+      "type": "integer",
+      "description": "Optional default 7-bit I2C device address.",
+      "minimum": 0,
+      "maximum": 127
+    },
+    "i2c_address_hex": {
+      "type": "string",
+      "description": "Optional hex form of the 7-bit address, e.g. '0x08'.",
+      "pattern": "^0[xX][0-9a-fA-F]{1,2}$"
+    },
+    "i2c_address_8bit": {
+      "type": "object",
+      "description": "Optional 8-bit address form (write/read).",
+      "additionalProperties": false,
+      "properties": {
+        "write": {
+          "type": "string",
+          "pattern": "^0[xX][0-9a-fA-F]{1,2}$"
+        },
+        "read": {
+          "type": "string",
+          "pattern": "^0[xX][0-9a-fA-F]{1,2}$"
+        }
+      }
+    },
+    "byte_order_note": {
+      "type": "string",
+      "description": "Optional on-the-wire byte order note."
+    },
+    "rules": {
+      "type": "array",
+      "description": "List of decode rules, keyed on (address, register, transaction_type).",
+      "items": {
+        "$ref": "#/definitions/rule"
+      }
+    },
+    "display_groups": {
+      "type": "array",
+      "description": "Registers-tab layout (v4): ordered display groups. 'banner' groups render in the headline strip with dividers; 'pane' groups render as side-by-side parameter panes.",
+      "items": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "banner",
+              "pane"
+            ],
+            "default": "pane"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "transaction_type": {
+      "type": "string",
+      "description": "I2C bus transaction shape this rule matches (standard I2C taxonomy).",
+      "enum": [
+        "simple_write",
+        "simple_read",
+        "indexed_write",
+        "indexed_read",
+        "split_transaction",
+        "general_call",
+        "device_id_query",
+        "subcommand"
+      ]
+    },
+    "bitField": {
+      "type": "object",
+      "description": "One named bit field within a format='bits' value. Covers an inclusive [high, low] range. Its 'mode' decides rendering: 'enum' (a name per value: 2^N names), 'scale' (value through 'function' + 'unit', with optional 'special' value labels), or 'raw' (integer as-is).",
+      "additionalProperties": false,
+      "required": [
+        "range"
+      ],
+      "properties": {
+        "range": {
+          "type": "array",
+          "description": "Inclusive [high, low] bit indices (high >= low). A single bit is [n, n].",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 63
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "mode": {
+          "type": "string",
+          "description": "'enum' (name per value), 'scale' (function+unit), or 'raw' (integer).",
+          "enum": [
+            "enum",
+            "scale",
+            "raw"
+          ],
+          "default": "enum"
+        },
+        "name": {
+          "type": "string",
+          "description": "Field name (used by scale/raw)."
+        },
+        "names": {
+          "type": "array",
+          "description": "mode='enum': display name for each value, indexed by value. Length should be 2^(high-low+1).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "function": {
+          "type": "string",
+          "description": "mode='scale': expression on the field value X, e.g. 'X*122.1'."
+        },
+        "unit": {
+          "type": "string",
+          "description": "mode='scale'/'raw': unit string, e.g. 'us'."
+        },
+        "special": {
+          "type": "object",
+          "description": "mode='scale': map specific raw values to a label that overrides the scaled output, e.g. {\"0\": \"PWM disabled\"}.",
+          "patternProperties": {
+            "^[0-9]+$": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "description": {
+          "type": "string",
+          "description": "Datasheet field description."
+        }
+      }
+    },
+    "dataField": {
+      "type": "object",
+      "description": "One sub-field of a structured payload (rule 'fields'), addressed by BYTE offset. Its bytes are assembled per byte_order/signed and rendered per format.",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "offset",
+        "size"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Field label, e.g. 'Device Number'."
+        },
+        "offset": {
+          "type": "integer",
+          "description": "Byte offset of the field within the payload buffer.",
+          "minimum": 0,
+          "maximum": 63
+        },
+        "size": {
+          "type": "integer",
+          "description": "Field width in bytes.",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "byte_order": {
+          "type": "string",
+          "enum": [
+            "be",
+            "le"
+          ],
+          "default": "be",
+          "description": "Byte order used to assemble the field value."
+        },
+        "signed": {
+          "type": "boolean",
+          "default": false,
+          "description": "Interpret the assembled value as two's-complement."
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "dec",
+            "hex",
+            "raw",
+            "ascii",
+            "bits"
+          ],
+          "default": "dec",
+          "description": "Rendering: 'dec' (function result as a number+unit), 'hex' (0xNN zero-padded to the field width), 'raw' (integer as-is), 'ascii' (bytes as printable ASCII), or 'bits' (slice bit_fields out of the value)."
+        },
+        "function": {
+          "type": "string",
+          "default": "X",
+          "description": "Expression on the assembled value X, e.g. 'X*0.25'. Default 'X' (identity)."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit string appended to the rendered value, e.g. 'userA-s'."
+        },
+        "bit_fields": {
+          "type": "array",
+          "description": "For format='bits': named bit fields sliced from the assembled value (see #/definitions/bitField).",
+          "items": {
+            "$ref": "#/definitions/bitField"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "Datasheet field description."
+        }
+      }
+    },
+    "rule": {
+      "type": "object",
+      "required": [
+        "address",
+        "transaction_type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "address": {
+          "type": "integer",
+          "description": "7-bit I2C device address (0x00-0x7F).",
+          "minimum": 0,
+          "maximum": 127
+        },
+        "transaction_type": {
+          "$ref": "#/definitions/transaction_type"
+        },
+        "register": {
+          "description": "Register index byte(s). Required for indexed_read/indexed_write/split_transaction; must be omitted/null for simple_*, general_call, device_id_query. 0x00-0xFFFF for multi-byte indices.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "register_width_bytes": {
+          "type": "integer",
+          "description": "Byte width of the register index on the wire (1 for 0x14, 2 for 0x0014).",
+          "enum": [
+            1,
+            2,
+            4
+          ],
+          "default": 1
+        },
+        "subcommand": {
+          "description": "For transaction_type='subcommand': the 16-bit subcommand code (e.g. 0x0005 RESET_PASSQ) written to the subcommand register.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "subcommand_reg": {
+          "description": "Register the subcommand code is written to (default 0x3E).",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "default": 62
+        },
+        "access": {
+          "type": "string",
+          "description": "Datasheet access, e.g. 'R', 'W', 'R/W'. Drives the Registers tab's lock/pencil marker and (Phase 4 master) write controls."
+        },
+        "description": {
+          "type": "string",
+          "description": "Datasheet description of the register/subcommand, surfaced in the replay/editor."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit appended to the value, e.g. 'mV'."
+        },
+        "function": {
+          "type": "string",
+          "description": "Value expression. For Decimal use float math (* / + -); for Hex use integer/logic/shift (<< >> & | ^ ~ + -). Operand X = assembled integer value. Optional for Bit Field rules (defaults to the raw value). E.g. 'X*0.1', 'X<<2', '(X>>4)&0x0F'."
+        },
+        "byte_order": {
+          "type": "string",
+          "description": "Byte order for multi-byte DATA values: 'be' (default) or 'le'.",
+          "enum": [
+            "be",
+            "le"
+          ],
+          "default": "be"
+        },
+        "signed": {
+          "type": "boolean",
+          "description": "Interpret the assembled DATA value as two's-complement signed.",
+          "default": false
+        },
+        "data_bytes": {
+          "description": "Expected number of DATA bytes (register index NOT counted). Read length for reads; value-byte count for writes. null/omitted = any length; data is trimmed to this count before evaluation when set.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 64
+        },
+        "format": {
+          "type": "string",
+          "description": "Output format / function type for the decoded value: 'dec' (Decimal: float math with * and /, shown as a number + unit), 'hex' (Hex: integer/logic/shift math, shown as 0xNNNN), or 'bits' (Bit Field: the value's bits are sliced into named fields).",
+          "enum": [
+            "dec",
+            "hex",
+            "bits"
+          ],
+          "default": "dec"
+        },
+        "bit_fields": {
+          "type": "array",
+          "description": "For format='bits': a list of named bit fields (see #/definitions/bitField).",
+          "items": {
+            "$ref": "#/definitions/bitField"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "description": "For subcommand block reads and other structured payloads: a list of byte-offset-addressed sub-fields. When present, the value is rendered field-by-field and the rule-level function/format/byte_order are ignored. Models the TRM subcommand tables (e.g. FW_VERSION = Device Number + FW Version + Build Number; PASSQ = PASSQLSB + PASSQMSB + PASSTIME).",
+          "items": {
+            "$ref": "#/definitions/dataField"
+          }
+        },
+        "name": {
+          "type": "string",
+          "description": "Human label, e.g. 'Cell 1 Voltage'. Shown as 'Name = value unit'."
+        },
+        "group": {
+          "type": "string",
+          "description": "Registers-tab display group this rule appears in (v4). Scalar rules without a group don't appear in the top zone; format='bits' rules always join the Bit Registers matrix regardless."
+        },
+        "group_order": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sort order within the display group (v4)."
+        }
+      },
+      "allOf": [
+        {
+          "comment": "Decimal and Hex formats require a function expression (except subcommands, which may be command-only).",
+          "if": {
+            "allOf": [
+              {
+                "properties": {
+                  "format": {
+                    "enum": [
+                      "dec",
+                      "hex"
+                    ]
+                  }
+                }
+              },
+              {
+                "not": {
+                  "properties": {
+                    "transaction_type": {
+                      "const": "subcommand"
+                    }
+                  },
+                  "required": [
+                    "transaction_type"
+                  ]
+                }
+              }
+            ]
+          },
+          "then": {
+            "required": [
+              "function"
+            ],
+            "properties": {
+              "function": {
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "comment": "Bit Field format requires a bit_fields list.",
+          "if": {
+            "properties": {
+              "format": {
+                "const": "bits"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "bit_fields"
+            ]
+          }
+        },
+        {
+          "comment": "When no format is given it defaults to Decimal, so a function is required \u2014 except for command-only subcommands.",
+          "if": {
+            "allOf": [
+              {
+                "not": {
+                  "required": [
+                    "format"
+                  ]
+                }
+              },
+              {
+                "not": {
+                  "properties": {
+                    "transaction_type": {
+                      "const": "subcommand"
+                    }
+                  },
+                  "required": [
+                    "transaction_type"
+                  ]
+                }
+              }
+            ]
+          },
+          "then": {
+            "required": [
+              "function"
+            ],
+            "properties": {
+              "function": {
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "comment": "Subcommand rules require a subcommand code and must not carry a register.",
+          "if": {
+            "properties": {
+              "transaction_type": {
+                "const": "subcommand"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "subcommand"
+            ],
+            "properties": {
+              "register": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "comment": "Indexed read/write/split require a register index.",
+          "if": {
+            "properties": {
+              "transaction_type": {
+                "enum": [
+                  "indexed_read",
+                  "indexed_write",
+                  "split_transaction"
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "register"
+            ],
+            "properties": {
+              "register": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        {
+          "comment": "Simple read/write, general call, device ID query must NOT carry a register.",
+          "if": {
+            "properties": {
+              "transaction_type": {
+                "enum": [
+                  "simple_read",
+                  "simple_write",
+                  "general_call",
+                  "device_id_query"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "register": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "comment": "General Call targets the global broadcast address 0x00.",
+          "if": {
+            "properties": {
+              "transaction_type": {
+                "const": "general_call"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "address": {
+                "const": 0
+              }
+            }
+          }
+        },
+        {
+          "comment": "Device ID Query reads exactly 3 signature bytes.",
+          "if": {
+            "properties": {
+              "transaction_type": {
+                "const": "device_id_query"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data_bytes": {
+                "const": 3
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

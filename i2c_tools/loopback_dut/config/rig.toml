@@ -1,0 +1,45 @@
+# loopback_dut/config/rig.toml - the ONE place rig parameters live.
+# [v0.1]
+# Read by loopback_dut/host/loopback_run.py (pushes them to the DUT at the
+# start of every run) and loopback_dut/host/loopback_compare.py (uses the same
+# names to resolve pattern targets). Edit this file to reproduce a field case
+# (odd address, other speed, responder off) - no firmware rebuild needed.
+# The config actually used is copied into expected.json.
+
+[rig]
+name           = "loopback-h533"
+default_scl_hz = 100_000       # used when a pattern case sets no speed_hz
+rise_ns        = 300           # SCL rise for TIMINGR (4.7k + jumpers); update
+fall_ns        = 30            #   after measuring the rig with a scope
+
+[master]                       # NUCLEO-H533RE I2C1 (PB6/PB7)
+peripheral  = "I2C1"
+own_address = 0x08             # configured, matching disabled -> always NAKs
+
+[[responder]]                  # NUCLEO-H533RE I2C2 (PB10/PB12)
+name       = "R1"
+id         = 1                 # SET ... <id> on the DUT protocol
+peripheral = "I2C2"
+address    = 0x6B              # mirrors BQ25731
+enabled    = true
+word_base  = 0xA000            # fixed in firmware (LB_R1_WORD_BASE); the host
+                               #   model must use the same value
+
+[[responder]]                  # NUCLEO-H533RE I2C3 (PA8/PC9)
+name       = "R2"
+id         = 2
+peripheral = "I2C3"
+address    = 0x55
+enabled    = true
+word_base  = 0xB000            # fixed in firmware (LB_R2_WORD_BASE)
+
+[nak]                          # pattern target "NAK" resolves to addresses[0]
+name      = "NAK"
+addresses = [0x08]             # every access here must be NAKed
+
+[compare]                      # loopback_compare.py tolerances
+timestamp_skew_ms = 50         # allowed DUT-vs-sniffer clock offset drift
+scl_tolerance_pct = 5          # measured SCL (CSV "SCL (Hz)") vs DUT setting
+
+[ports]                        # per machine; fill from setup_guide.md §6.4
+dut = ""                       # e.g. "/dev/cu.usbmodem1103"  (ST-LINK V3)

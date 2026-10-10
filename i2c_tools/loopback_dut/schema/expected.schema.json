@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "loopback_dut/schema/expected.schema.json",
+  "$comment": "v0.1. Ground truth written by loopback_dut/host/loopback_run.py and read by loopback_compare.py. Every if/then carries `required` (B1 lesson).",
+  "title": "Loopback DUT expected bus traffic",
+  "type": "object",
+  "required": ["format", "version", "generated", "mode", "pattern", "rig", "cases"],
+  "properties": {
+    "format":    { "const": "loopback_expected" },
+    "version":   { "const": 1 },
+    "generated": { "type": "string" },
+    "mode":      { "enum": ["dry_run", "hardware"] },
+    "pattern": {
+      "type": "object", "required": ["name", "path", "sha256"],
+      "properties": { "name": {"type": "string"}, "path": {"type": "string"},
+                      "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"} }
+    },
+    "rig": { "type": "object", "required": ["rig", "responder", "nak"] },
+    "dut": { "type": "object" },
+    "aborted": {
+      "type": "object", "required": ["case", "kind", "error"],
+      "properties": { "kind": { "enum": ["desync", "error"] } }
+    },
+    "cases": { "type": "array", "items": { "$ref": "#/$defs/case" } }
+  },
+  "$defs": {
+    "phase": {
+      "type": "object", "additionalProperties": false,
+      "required": ["start", "address", "dir", "ack", "stop", "data", "pec"],
+      "properties": {
+        "start":   { "enum": ["S", "Sr"] },
+        "address": { "type": "integer", "minimum": 0, "maximum": 127 },
+        "dir":     { "enum": ["W", "R"] },
+        "ack":     { "enum": ["A", "NA", "ND", "ER"] },
+        "stop":    { "type": "boolean" },
+        "data":    { "type": "array", "maxItems": 128, "items": { "type": "integer", "minimum": 0, "maximum": 255 } },
+        "pec":     { "type": "boolean" }
+      },
+      "allOf": [
+        { "if": { "properties": { "ack": { "const": "NA" } }, "required": ["ack"] },
+          "then": { "properties": { "data": { "maxItems": 0 }, "stop": { "const": true } } } }
+      ]
+    },
+    "iteration": {
+      "type": "object", "additionalProperties": false,
+      "required": ["iter", "t_host", "t_dut_us", "result", "phases"],
+      "properties": {
+        "iter":     { "type": "integer", "minimum": 0 },
+        "t_host":   { "type": "number" },
+        "t_dut_us": { "type": ["integer", "null"] },
+        "dur_us":   { "type": ["integer", "null"] },
+        "result":   { "enum": ["OK", "NAK", "ERR"] },
+        "phases":   { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/phase" } }
+      }
+    },
+    "case": {
+      "type": "object",
+      "required": ["id", "review_ids", "status", "expect", "speed_hz", "repeat", "emit_status", "iterations"],
+      "properties": {
+        "id":          { "type": "string", "pattern": "^LB-[0-9]{2,3}$" },
+        "status":      { "enum": ["expect_pass", "xfail", "not_exercisable"] },
+        "speed_hz":    { "type": "integer" },
+        "speed_pred_hz": { "type": ["integer", "null"] },
+        "repeat":      { "type": "integer", "minimum": 1 },
+        "emit_status": { "enum": ["ok", "model_mismatch"] },
+        "iterations":  { "type": "array", "items": { "$ref": "#/$defs/iteration" } }
+      },
+      "allOf": [
+        { "if": { "properties": { "emit_status": { "const": "model_mismatch" } }, "required": ["emit_status"] },
+          "then": { "required": ["model_phases"] } }
+      ]
+    }
+  }
+}

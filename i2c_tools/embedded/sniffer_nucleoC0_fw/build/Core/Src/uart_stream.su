@@ -1,0 +1,6 @@
+Core/Src/uart_stream.c:47:10:uart_stream_tx_free	0	static
+Core/Src/uart_stream.c:56:6:uart_stream_init	40	static
+Core/Src/uart_stream.c:131:9:uart_stream_write	12	static
+Core/Src/uart_stream.c:158:6:uart_stream_poll	8	static
+Core/Src/uart_stream.c:204:6:uart_stream_flush	16	static
+Core/Src/uart_stream.c:219:9:uart_stream_read_byte	0	static

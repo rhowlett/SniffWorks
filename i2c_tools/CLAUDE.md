@@ -1,0 +1,214 @@
+# ion_i2c_tool
+<!-- version: 1.11 -->
+
+Only this CLAUDE.md applies to ion_i2c_tool; ignore any CLAUDE.md above this folder. Program plan: `plan_n_exe/00_MASTER_PLAN.md`; current phase: `plan_n_exe/PHASE_01_loopback_dut.md`; review source: `plan_n_exe/archive/ion_i2c_tool_review.md`.
+
+## Findings
+- H533RE has 3 I2C peripherals (DS14539 §3.35 Table 8), all master/slave with stretching and SMBus PEC; one board can be master and responders, so the plan's separate "probe B driver + board C responder" topology is not needed.
+- H533 LQFP64 I2C pins, all AF4 (DS14539 Table 15): I2C1 PB6/PB7 (D15/D14), I2C2 PB10 (D6)/PB12 (morpho CN10-16), I2C3 PA8 (D7)/PC9 (D10).
+- PB12 is FT_h, not FT_f, so the rig bus is not Fm+ (1 MHz) capable; 100 and 400 kHz are fine.
+- NUCLEO-H533RE HSE crystal X3 is 24 MHz (UM3121 §11.2); CubeMX defaulted to 25 MHz in `loopback_dut/firmware/firmware.ioc`, which would put SYSCLK and the UART 4 % off.
+- ~~C031 sniffer already reports SCL as STATUS `bus_hz` = 1 MHz / shortest rise-to-rise period since capture start (`i2c_bitbang_decoder.c`), with 1 µs polled timestamps; slave-monitor mode reports 0.~~ superseded v1.10: replaced by the fw 1.3 per-phase measurement (see the fw 1.3 entries below).
+- Host `decode_txn` (`core/ion_protocol.py`) reads `data` by `dlen` and ignores trailing bytes, so fields appended to the TXN frame are backward compatible.
+- `tests/test_neware_doc_conformance.py` failed only on paths; its content passes against the real files (0 failures) once repointed.
+- ~~`i2c_decoders/` holds 9 decoder JSON files, not the 3 the master plan assumed.~~ superseded v1.10: 10 files since `loopback_dut_decoder.json` was added; the master plan §5.2 criterion 5 was updated to match.
+- Decoder JSON description strings in `neware_decoder.json` and `smbus1v1_host_notify_decoder.json` still name `Smart_Battery_Registers.txt` / `SBDS1v1_decoder.json` (not changed: decoder content is Phase 4 scope).
+- Old C031 SCL estimate (1e6 / shortest period since capture start) stayed stuck after a speed step down and quantised 400 kHz to 333/500 kHz; replaced in fw 1.3 (change_log 2026-09-30).
+- ~~fw 1.3 per-phase SCL mean of periods ≤ 1.5× the phase minimum reads 100 kHz within 0.5 % and 400 kHz within 2 % (402 985 Hz) in host simulation with 1 µs timestamps; not yet measured on hardware.~~ superseded v1.10: now measured on hardware (entry below); the simulation figures still hold as the design target.
+- `i2c_capture/EVM_Handshake.csv` and `EVM_long_capture.csv` use an 11-column legacy layout (no Int/Decode) that fails both v1 and v2 validation; the other 13 captures validate (legacy reader is M1, Phase 6).
+- `i2c_capture/POC_i2c_sys_bq25731_smoke_v0.4.csv` exists in the tree while `test_csv_format.py` looks for it under `/mnt/user-data/uploads/` and skips (C9, Phase 2).
+- Timing model t_SCL = (SCLL+1+SCLH+1)·t_PRESC + t_r + t_f + 2·t_AF + 6·t_I2CCLK predicts CubeMX's own 100 kHz TIMINGR values at 99 453 / 99 763 Hz; the 10–400 kHz sweep lands within 2 % (loopback_dut/tests/host).
+- In the H5 HAL (7-bit mode), `HAL_I2C_AddrCallback` runs before ADDR is cleared, and the Seq transmit/receive calls clear it, so a delay in the callback stretches SCL; a slave AF error keeps LISTEN state; STOP ends in `ListenCpltCallback`.
+- A hardware I2C slave can only clock-stretch at byte boundaries; LB-14 is redefined as a byte-boundary stretch (plan said mid-byte).
+- B8 and B13 are not visible in raw bytes: B8 needs a loopback decoder with a simple_write rule (Decode column); B13 is the NAK column on a normal end-of-read, so only LB-06 checks it strictly.
+- Capture CSV v2 has no overflow column, so the ion probe's OVERFLOW flag on LB-11 (80-byte read) is not visible to the harness (finding for M1, Phase 6).
+- New review item B29 (engine): a `data_bytes: 2` rule fed a 1-byte payload renders a fabricated value (`R1 word 0x02 = 0x0002`) instead of absent; xfail in tests/test_loopback_dut_decoder.py.
+- The skill's `make_replay_check.py` puts every rule of a multi-address decoder on the file-level address, and its `validate_decoder.py` tool-load step fails for every shipped decoder (`DecodeSchema` has no `device`, B2 area); schema and lint steps are still usable.
+- Owner confirmed (2026-09-30) that the C031 Nucleo on the rig runs sniffer fw 1.3.
+- ~~B10 truncates any AD2 read spanning a spy segment, so LB-10 (64 B) and LB-11 (80 B) are AD2-only xfail B10 too (the plan listed LB-10 expect_pass); found by the harness self-test. An AD2 xpass there locates B10's segment boundary.~~ superseded v1.10: a prediction from the synthetic self-test; on hardware (runs 2-3) the AD2 captured 36/64/80-byte reads complete, so B10 was not reproduced. LB-09/10/11 stay AD2 xfail only because B32 hides them.
+- DUT bench check (2026-10-02) matches setup_guide §9.4 byte for byte, CRCs included: LB-01, LB-03, LB-09 (36-byte block, checksum 0E), R2 base 0xB000. Failure causes on the first attempt: H533 GND not connected; PB12 jumpered to CN10-10, not the bus.
+- ~~Rig ports on the owner's Mac: H533 /dev/cu.usbmodem11403 (0483:374E), C031 /dev/cu.usbmodem11203 (0483:374B), AD2 /dev/cu.usbserial-210321AC1ED9 (0403:6014); measured on this unit.~~ superseded v1.11: port names change with the USB location; see the 2026-10-05 entry.
+- Full runs 1-2 (2026-10-02, runs/2026-10-02_run1|2): ion passes LB-01/02/03/05/09/10/11 on both; B8 and B13 xfail exactly as recorded; LB-12 bit slips (~2 % of 400 burst phases, both runs), LB-13 400 kHz 0/5 (both), LB-14 knock-on Sr after the LB-13 garbage (run 2); measured SCL 98.8-99.6 kHz at 100 kHz set.
+- AD2 (run 2): Sr-terminated write phases exported as `0x00 W [00]` in 162/212; 36/64/80-byte reads captured complete, so B10 was NOT reproduced at <= 80 B / 100 kHz (the LB-10/11 AD2 xfail is unconfirmed).
+- ~~In neither run did the exported PEC column contain results, so B9 (LB-07/08) is still unexercised.~~ superseded v1.10: Validate SMBus PEC was not active in runs 1-2; with it ticked, run 3 exported PEC results and proved B9.
+- B9 proven on both sniffers (run 3, 2026-10-02): LB-07 bus PEC 0x6E correct, both show ✗ PEC; LB-08 write PEC ✓ on both.
+- B30 and B32 are intermittent per phase (B32 ~75 % of Sr-terminated writes, runs 2-3; B30 hits single transactions too: LB-15 run 1, LB-01 run 3), so a strict xfail/expect_pass ledger yields one random fail/xpass per run.
+- ~~Every B30 slip in runs 1-3 is one lost SCL rise at the address-ACK / first-data-bit boundary, where the DUT slave clock-stretches: either a sampler stall there (H1) or an SCL high narrower than the polling loop (H2); see embedded/docs/B30_B31_investigation.md.~~ superseded v1.13: the AD2 shows no stretch there; it is the address-ACK clock 9 that is missed (H1).
+- fw 1.3 SCL measurement on hardware (runs 1-3): 98.8-99.6 kHz measured at 100 kHz set (DUT TIMINGR model predicted 100 075 Hz), i.e. within ~1 %; the LB-14 200 µs stretch was correctly excluded.
+- The ion bit-bang capture loses everything at 400 kHz (LB-13: 0/5 phases in all three runs, garbage rows with no STOP); this is B31 (resolved v1.10).
+- The H533 DUT itself is reliable at 400 kHz and under burst: in runs 1-3 it emitted all 434 phases, including LB-12 (200 back-to-back reads) and LB-13 (400 kHz, predicted 401 204 Hz), with every case matching the host model (resolved v1.10).
+- Run 3 (2026-10-02, PEC validation on, DUT fw 0.2, LB-13 last): ion pass 9 / xfail 5 / fail 1 (B30 slip on LB-01); AD2 pass 4 / xfail 10 / xpass 1 (LB-01's single Sr write escaped B32). Re-judged with the current ledger, run 2 AD2 is exact.
+- ~~The DUT firmware on the H533 is 0.2 (address NAK reported as NA; HELLO `…fw=0.2… *AD`); the C031 on the rig still runs sniffer fw 1.3 (fw 1.4 built, not flashed).~~ superseded v1.11: the C031 now runs fw 1.4 (owner flashed, 2026-10-05); H533 still DUT fw 0.2.
+
+- ~~fw 1.4 on hardware (2026-10-05): STATUS frames arrive as the new 45-byte payload (fw 1.4, diag block present), but EVERY host command is rejected as ERROR code 2 / detail 0xFF (bad command CRC), so no HELLO and `ion_capture.py` cannot connect. Cause (from the code + frames): the probe was left capturing with the decoder stuck mid-transaction (`in_txn=1` on an idle bus); SNIFF_DEFER_UPKEEP then also deferred the UART RX poll for up to 20 ms, and the 1-byte USART RDR overruns on a 4-byte command (~0.35 ms). A defect in the fw 1.4 mitigation, not in B30 itself.~~ superseded v1.12: the deferral was not the cause (STATUS `upkeep_deferred 0`); see the next entry.
+- fw 1.4 command loss, bench-isolated (2026-10-05): while capturing, back-to-back command bytes are lost (ERROR 2/0xFF or silence), but bytes spaced 2-5 ms apart work, and fast commands work when stopped; HELLO+START succeed from reset, then STOP fails, so the probe stays capturing. Cause: the 1-byte RDR is polled every 64 iterations, and 64 capturing iterations of the fw 1.4 loop (diag code) exceed one byte time (87 us). Fixed in fw 1.5 by RX DMA (change_log 2026-10-05).
+- ~~Implication for B30/B31: one capturing loop iteration on an idle bus takes > ~1.36 us (87 us / 64), i.e. < ~0.73 MS/s, longer than a 400 kHz SCL high (~1.25 us); a lower bound only, which supports H2 and explains B31; fw 1.5 diag `max_gap` gives the exact figure.~~ superseded v1.13: that bound was for the fw 1.4 loop WITH diag, which is itself broken (next entries); H2 refuted at 100 kHz.
+- fw 1.5 on the rig (2026-10-05, runs/2026-10-05_*): SNIFF_DIAG on OR SNIFF_DEFER_UPKEEP on each collapses 100 kHz decoding (every row addr 0x00, no data, ion pass 0); both off = fw 1.3 level; fw 1.0 decodes the same wiring fine. The polled loop has almost no margin, so in-loop instrumentation measures a different loop.
+- Flash prefetch + instruction cache were never enabled (1 WS at 48 MHz); enabling them cut LB-12 slip lines 25/25 -> 1/6 (fw 1.3: 9/14/21); fw 1.5 default gives ion pass 10 / xfail 5, ledger EXACT (runs F1, F2). B31 unchanged (LB-13 0/5).
+- AD2 logic-analyser timing of LB-12 (2 x 1200 START-triggered windows): SCL high >= 4.92 us, low >= 5.12 us, no stretch anywhere in the address byte, SDA setup >= 2 us, no SDA move while SCL high: the bus is clean, H2 refuted at 100 kHz.
+- B30 = H1: the C031 misses the full 4.9 us high of the address-ACK clock 9 (data bytes arrive <<1 with the ACK as LSB, e.g. 06 A0 -> 0C 41); not caused by the 1 Hz STATUS (10 Hz vs off: no change).
+- Trace pins (2026-10-05, A0->DIO2 loop toggle, A1->DIO3 busy): idle capture loop 1.3 us/pass; every pass that decodes an edge takes 3.1-5.8 us (tail 8.2 us) vs a 4.9 us SCL high; whole highs with no sample seen; upkeep/flush not involved. Root cause of B30 AND B31: decoding (~120-220 cycles/edge on the M0+) runs in the sampling loop. Timestamp-on-edge tweak: no gain (reverted).
+- fw 1.6 edge interrupt on the rig (runs G1, G2, H1, H2): 0 FRAMING, LB-12 400/400 exact every run (1600 burst phases; fw 1.3 9-21 slip lines/run), pass 10, SCL 98.9 kHz: B30 FIXED. LB-12 now xpasses because the ledger still lists B30 for ion.
+- 400 kHz with the edge ISR (trace): ISR 0.58 us without push / 1.37 us with push (1.23 us from RAM, so time is in EXTI/TIM3 accesses), entry latency up to 0.9 us, edges every ~0.8 us, ~60 % of edges arrive mid-ISR; tHD;STA ~0.6 us < sampling delay, so every START is missed (LB-13: 0 rows, +5 errors, no garbage left for later cases). B31 is not reachable with an edge ISR on the 48 MHz M0+.
+- ~~Registers (dashboard) tab bug, proposed B33 (2026-10-05): `ui/widgets/registers_tabs_host.py` builds ONE tab per decoder file for `min(entry.addresses)` only, so multi-address decoders lose devices: loopback_dut shows R2 (0x55) and never R1 (0x6B); smbus1v1 (0x08/0x09/0x0B) gets NO tab at all because all 36 grouped rules are at 0x0B. Single-address decoders unaffected.~~ resolved v1.21: B33 FIXED (one tab per address, own-file rules; change_log Phase 1b).
+- `DecodeSchema.save()` keeps only version/rules/display_groups: device, description, address_names, i2c_address*, byte_order and byte_order_note are dropped on an editor save (Phase 4, B2 area; measured 2026-10-05).
+- The repo-wide .gitignore ignores *.csv: the 20 loopback rig captures and the replay fixture were never in git; the project .gitignore (v0.1) now un-ignores them (not yet committed).
+- The loopback DUT's dashboard values never change by design: responder reads are a pure function of the pointer (word = base + x) and writes are not stored.
+- Rig port names changed after re-enumeration (2026-10-05, same serial numbers): C031 `/dev/cu.usbmodem1203` (SER 066BFF54…), H533 `/dev/cu.usbmodem1403` (SER 00320027…), AD2 unchanged. Identify boards by serial number, not port name.
+## Decisions
+- D-01 Master launcher starts each app as a subprocess, for crash isolation from DWF/ctypes faults.
+- D-02 Sniffer apps may run as multiple instances (one per probe); all other apps are single-instance and focus the existing window.
+- D-03 Hardware verification uses AD2 + Nucleo probes, with the loopback DUT built first as ground truth.
+- D-04 Tree restructure (C3), gateway app (M3), master mode + ALERT (M9) and Windows (M10) are each their own phase.
+- D-05 Loopback cases failing on known unfixed review items are recorded as xfail in a ledger, never deleted or skipped.
+- D-06 No review item is fixed outside its phase; new issues are recorded in the phase review, not fixed.
+- The loopback DUT is a NUCLEO-H533RE; the devices under test are the AD2 and the NUCLEO-C031C6 sniffer (owner, 2026-09-30).
+- The DUT is fully isolated: `loopback_dut/` never imports `core/`, `ui/` or sniffer firmware, and vice versa; they meet only through files (expected.json, sniffer CSV), to avoid contaminating the sniffer tools (owner, 2026-09-30).
+- Because of isolation, the DUT host driver does not use `core.ion_master`/`IonMasterLink`, so the plan's B12 desync evidence must come from another test (deviation from P1-T3, to record in REVIEW_PHASE_01).
+- Address plan: I2C1 master (own address 0x08), I2C2 slave 0x6B, I2C3 slave 0x55; 0x08 is the address-NAK test case because a lone master cannot ACK itself (owner, 2026-09-30).
+- Rig addresses are adjustable through one config file read by both the DUT PC software and the validation script, so field-observed edge cases can be reproduced (owner, 2026-09-30).
+- The DUT PC software sets the SCL frequency; the C031 sniffer must detect and report it, implemented in this phase by owner direction (a scoped exception to Phase 1 "no tool behaviour change").
+- Bus: 3.3 V from the H533, external 4.7 kΩ pull-ups (one pair), all grounds common (owner, 2026-09-30).
+- H533 CubeMX project lives at `loopback_dut/firmware/` (project name `firmware`, fixed by CubeMX), Makefile toolchain, VCP = USART2 PA2/PA3 (owner, 2026-09-30).
+- ~~H533 I2C kernel clocks run from HSI 64 MHz, so TIMINGR for any requested SCL is computed from a fixed clock.~~ superseded v1.2
+- H533 I2C kernel clocks run from PLL3R = 64.000 MHz off the 24 MHz crystal (M3 N16 R2, as CubeMX generated); fixed and crystal-accurate (20 ppm), so preferred over HSI for TIMINGR.
+- Decoder JSON stays in `i2c_decoders/` and the Neware reference stays at `documents/decoders/Smart Battery Registers.txt`; tests and docs point at those locations, files are not moved (owner, 2026-09-30).
+- `test_neware_doc_conformance.py` path repoint applied now as an owner-approved exception to D-06 (overlaps C9), so the baseline is clean.
+- Capture CSV v2 = v1 + trailing `SCL (Hz)` (integer Hz, blank = unknown), added now as an owner-directed exception to Phase 6/M1; loader and validator accept v1 and v2 (resolved v1.1).
+- The replay app shows the SCL column (table header "SCL", cells in kHz, tooltip exact Hz) because it reuses the log model (owner, 2026-09-30).
+- C031 SCL measurement design (owner-approved): per phase, reset at START/Sr, mean of rise-to-rise periods ≤ 1.5× the phase minimum, ≥ `I2C_DEC_SCL_MIN_PERIODS` (4), sent as a trailing u32 `scl_hz` in each TXN frame; STATUS `bus_hz` = last measured phase.
+- The decoder stores raw sum/count and Hz is computed at frame encode / STATUS time, because the repeated-START path is ~half a bit from the next edge and the M0+ has no hardware divider.
+- ~~Version numbers: probe fw 1.2 → 1.3, FRAME_PROTOCOL_VERSION stays 1 (backward-compatible trailing field), PROJECT_VERSION 1.3.0 → 1.4.0.~~ superseded v1.10: see the fw 1.4 / project 1.5.0 entry below.
+- Version-tag policy this session: untagged files get `[v0.1]` inserted on line 2 inside their first comment/docstring; existing tags are bumped where they are (e.g. `validate_capture_csv.py` line 3).
+- DUT artefacts live under `loopback_dut/` (config, schema, patterns, firmware, host, tests, docs), not the plan's `tests/patterns`, `schema/`, `embedded/loopback_dut_fw`, `tools/loopback_run.py`; this follows from the isolation decision (deviation to record in REVIEW_PHASE_01).
+- PC↔DUT protocol is ASCII lines with a CRC-8 suffix (DUT→host always, host→DUT optional) plus echoed sequence numbers, so it is human-typable and a lost or reordered reply is detectable (loopback_dut/docs/PROTOCOL.md).
+- DUT responder reads are a pure function of (pointer, subcommand); written data is not stored, so expected values never depend on history.
+- The address-NAK target works by disabling matching on I2C1's own address 0x08 (OAR1.OA1EN = 0) at start-up; this also stops the master from answering itself.
+- Pattern cases carry `status` plus optional `path_status` {ion, ad2}, because B10 is AD2-only and B11 ion-only.
+- DUT firmware build entry is `loopback_dut/firmware/GNUmakefile` (includes the CubeMX Makefile, adds App/); hand-written code lives only in App/ and in USER CODE regions of main.c.
+- `i2c_decoders/loopback_dut_decoder.json` added (owner-approved: i2c_decoders is the default decoder location); it is a sniffer-side fixture, so DUT isolation holds. It deliberately has no indexed rule at R1 0x20, so LB-04 exercises B8 (resolved v1.4).
+- The loopback replay check (`i2c_capture/loopback_dut_replay_check.csv`) is generated from the real DUT map, with the independently computed expected decode in its Decode column, and not with the skill generator.
+- xfail cases declare machine-readable `xfail_symptoms`; the harness gives xfail only when every observed failure kind is listed, an unlisted kind is fail, and no failure is xpass (stale ledger); both fail the suite.
+- The harness aligns the capture to the expected phases with a global edit-distance alignment (match / same address+direction substitution / gap), so dropped, extra and reordered transactions are found without assuming equal counts; rows outside the run's span are ignored and counted.
+- `not_exercisable` (the capture lacks PEC results or Decode text a case requires) is reported loudly but does not fail the suite.
+- The tier-T2 capture test returns exit 77 when the rig artefacts are absent (a loud skip, never a pass).
+- New review items B30 (ion bit slip under burst), B31 (ion 400 kHz unusable + knock-on), B32 (AD2 Sr-terminated write → `0x00 W [00]`) confirmed by the owner 2026-10-02; the ledger was updated (resolved v1.8).
+- Ledger symptoms are per path (`path_xfail_symptoms`), so an AD2-only bug cannot excuse an ion failure; LB-13 runs last so B31's garbage cannot contaminate the next case; LB-15 stays expect_pass on ion because B30 is intermittent.
+- Owner decision (2026-10-02): fix the ion sniffer firmware (B30/B31) now, not in Phase 5, so the core embedded software works; an exception to D-06, with runs 1-3 as the before evidence. B32 (AD2 host code) stays in Phase 5 unless the owner says otherwise.
+- fw 1.4 first MEASURES (TIM14 diag in STATUS) and ships two switchable mitigations (upkeep deferral, table CRC) rather than guessing a root cause; the decision table is in B30_B31_investigation.md §4.
+- Version numbers now: probe fw 1.4 (STATUS gains an optional 24-byte diag block; FRAME_PROTOCOL_VERSION stays 1 because the extension is backward compatible), PROJECT_VERSION 1.5.0, DUT fw 0.2, DUT line protocol 1.
+- `tools/ion_capture.py` (owner-requested): headless C031 capture with `--seconds`/`--count`, address/direction/NAK/length filters, `--pec`, `--decoder`, `--status-only`; writes the GUI's exact CSV v2 through TransactionLogModel, so the harness and replay read it unchanged. It is a sniffer-side tool in `tools/`, outside `loopback_dut/`, so isolation holds.
+
+- ~~fw 1.5 fix for the fw 1.4 command-loss defect (planned, owner to reflash): (1) while upkeep is deferred, still drain USART RX every 64 iterations into a small software queue, so command bytes are never overrun; (2) defer only if a bus edge was seen within the last 1 ms (`s_last_edge_us`), so a decoder stuck in_txn on an idle bus never holds off upkeep. FW_VERSION_MINOR 4 → 5, because fw 1.4 is on hardware with the defect.~~ superseded v1.12: built on the wrong diagnosis.
+- fw 1.5 receives host commands by DMA1 CH2 circular into a 256-byte buffer (22 ms at 115200 > the 20 ms max deferral, enforced by `#error`), rather than polling faster, so neither loop speed nor deferral can ever lose a command byte; zero hot-path cost and no interrupts. The 'defer only after a recent edge' change was dropped: with DMA a deferral only delays a command. FW_VERSION_MINOR 4 → 5.
+- fw 1.5 defaults: DIAG 0, DEFER 0, FLASH_ACCEL 1 (best measured config); the B30 stall is to be located with logic-analyser trace pins (`SNIFF_TRACE`: PA0 loop toggle, PA1 upkeep/flush busy) rather than in-loop timers, because any in-loop instrumentation changes the loop under test.
+- I flash the C031 myself by copying a .bin to /Volumes/NOD_C031C6 during investigations (2026-10-05); the default image is left on the board afterwards.
+- Owner chose option 1 (2026-10-05): bit-bang sampling by EXTI4_15 edge ISR (PA9/PA10 both edges) into a 1024-entry RAM edge ring (`edge_ring.h`), decoded in the main loop by the unchanged decoder; fw 1.6, default `SNIFF_EDGE_IRQ 1`; the polled loop stays buildable (`SNIFF_EDGE_IRQ=0`, build_variants/fw16_polled). DIAG/DEFER are polled-only (#error in edge mode).
+- B30 closed in the ledger (owner, 2026-10-05): LB-12 ion expect_pass; a slip there is now a regression (harness self-test guards it). B31 stays open on the C031.
+- Owner direction (2026-10-05): the probe will move to a faster MCU (NUCLEO-H723ZG or NUCLEO-H743ZI2, to be ordered) that can also sniff CAN, UART, SPI, QSPI and Ethernet; until then, bring the C031 project to a stable state and harmonize the sniffer_ion.py and sniffer_ad2.py tabs so they look alike; afterwards the AD2 software forks into a general-purpose SPI/UART/ADC capture tool.
+- Sniffer harmonization (2026-10-05): both apps share ConnectionSection (ui/widgets/connection_section.py) as the first Device-tab group, then device-specific groups, then a fixed-height Device Info / Log; the ion serial baud moved from Preferences to its Device tab; both Sniffer tabs show the SCL readout (AD2: n/a); status bars ordered backend/fw, device, bus/rate, spy.
+- Phase 1b (owner, 2026-10-05, exception to D-06): decoder dashboard work done before Phase 2: B33 fixed, file-level `address_names` names per-address tabs, repeated field names show as '<rule> · <field>', loopback decoder layout v2 (word/base/pointer fields, write and block panes), smbus1v1 address_names; skill updates delivered as drafts in plan_n_exe/skill_updates/ for the owner to upload to claude.ai.
+- USB device naming (owner, 2026-10-05): every USB app discovers devices by snapshot-then-plug-in and names them; identity = normalized USB serial (AD2: pyserial '210321AC1ED9' == DWF 'SN:210321AC1ED9'); names per user in ~/.ion_i2c_tool/device_names.json shared by all apps (core/device_names.py); GUI 'Name devices…' in the shared Device group, tools/device_names.py CLI, --port <name> in ion_capture/record_on_trigger/loopback_run (loopback via its own isolated reader lbdevnames.py); last-used device pre-selected by serial per app.
+## Tradeoffs
+- The edge ISR gives up the firmware's zero-interrupt rule and 2 KB of TX ring (6144 -> 4096 in edge mode); acceptable because sampling no longer depends on decode/upkeep timing (B30 fixed) and dropped frames stay counted.
+- Single-board DUT gives up physically separate driver/responder boards; acceptable because the three peripherals are independent and it removes the C031's one-I2C limit.
+- DUT isolation duplicates a small CSV reader in `loopback_dut/`; acceptable because an independent parser is also an independent check on the sniffer's output.
+- TXN frames grew 4 bytes (UART cost 13 + dlen → 17 + dlen); acceptable because per-case speed is needed by the harness, and the 6 KB ring plus the counted `dropped` still cover bursts.
+- Slave-monitor and master firmware report scl_hz = 0 (the I2C1 peripheral owns PA9; the master already knows its speed); acceptable because bit-bang is the sniffing mode under test.
+- Running-minimum gating can keep a few early periods that a later, smaller minimum would reject (+0.75 % at 400 kHz in simulation); acceptable against the 2 % target without buffering periods in 12 KB RAM.
+- ASCII line protocol costs ~3 characters per byte on the UART (80-byte read ≈ 250 chars ≈ 22 ms at 115200); acceptable because the PC paces cases and waits for END.
+- Clock-stretch injection busy-waits in the responder ISR; acceptable for a test instrument, but UART receive can overrun during long stretches (counted as `uart_ovr`), so the host must wait for END.
+
+## Gotchas
+- Always run tests inside `.venv` (`source .venv/bin/activate`, Python 3.12.13); `/usr/bin/python3` is 3.9.6 and breaks `test_ion_master.py` (PEP 604) and lacks jsonschema.
+- The shell has no `timeout` command (macOS); do not wrap test runs in it.
+- zsh aborts a whole command when a glob matches nothing (e.g. `ls ~/.ion/venv*`); an earlier `.venv` check falsely reported it missing this way.
+- CubeMX regenerates `loopback_dut/firmware/`; version tags in generated files must sit inside USER CODE regions or they are lost.
+- The line-2 version-tag rule (project-conventions skill) conflicts with the master plan's "line-1 tag"; existing files use line 2 (e.g. `# [v1.1]` after the shebang), so line 2 is followed.
+- ~~`~/STM32Cube/Repository` has no FW_H5 package yet~~ installed v1.2. Without the family package, CubeMX generates only `Core/`, with no Drivers, Makefile, startup or linker script.
+- CubeMX `Bsp_Common_DEMO` puts a `printf` into the USER CODE BSP block of `main.c`; once the BSP VCP is off, it fails to compile (implicit printf). Regeneration keeps USER CODE, so the removal persists.
+- Never put a division (or other libgcc call) in `i2c_dec_sample` or `finish_txn`; check with `arm-none-eabi-objdump -d` that `__udivsi3` is called only from `frame_encode_txn` and `i2c_dec_bus_hz`.
+- Capture CSV columns may only be appended at the end: `ui/log_panel.py` sets default widths by position and COL_IDX users rely on existing positions.
+- Python heredoc edit scripts turn `"\n"` in C source strings into real newlines unless escaped as `\\n`; this broke `printf` lines once and was fixed.
+- Build firmware variants into scratch with `make BUILD_DIR=<dir> EXTRA_DEFS=-DSNIFF_MODE=...`, because `embedded/sniffer_nucleoC0_fw/build/` is tracked and holds the shipped default image.
+- ~~The C031 on the rig must be reflashed with the fw 1.3 build for the SCL column to fill; fw ≤ 1.2 leaves it blank.~~ superseded v1.10: fw 1.3 is on the C031 (owner-confirmed); the next flash is fw 1.4 (`embedded/sniffer_nucleoC0_fw/build/sniffer_nucleoC0_fw.bin`), which `ion_capture.py --status-only` confirms by printing `fw 1.4` and a diag block.
+- The generated CubeMX `Makefile` expands `$(OBJECTS)` into the .elf prerequisites at parse time; objects appended after `include Makefile` must be added as explicit prerequisites (done in GNUmakefile), or the link fails with "cannot find build/dut_*.o".
+- Never build the DUT with `make -f Makefile`: without App/ it fails to link (undefined dut_app_init).
+- The DUT ignores CR and needs LF: `screen` sends CR only; use `python -m serial.tools.miniterm <port> 115200 --eol LF`.
+- `STM32_Programmer_CLI` is not on PATH on the owner's Mac; use the path found by setup_guide §6.3.
+- Pinned literal test values must be computed independently before being written (a hand-guessed checksum 0x0F was wrong; the real value is 0x0E).
+- Hardware-mode runs are cross-checked against the host model; a difference is `model_mismatch` (DUT/wiring, not sniffer). In tests the fake DUT uses the same model, so that test proves protocol/sequencing/parsing, not the model; the model is proven separately against the C vectors.
+- The synthetic perfect capture must decode most rows when the decoder is "loaded"; otherwise the harness correctly concludes that no decoder was loaded and marks LB-04 not_exercisable.
+- Sniffer export writes only visible rows (B14): clear every filter before exporting a loopback capture.
+- With no ground connection or a missing responder jumper, the DUT shows NAK on every address while the lines read high; `STATUS r1w=0` distinguishes "responder never addressed" from a protocol problem.
+- The ST-LINK V3 VCP dropped the first command after flashing (uart_ovr=1); DutLink.handshake retries.
+- `loopback_run.py` copies an explicit list of ledger fields into expected.json; a new ledger key must be added there too (`path_xfail_symptoms` was missed once; test_host_model now guards against it via `LEDGER_KEYS`).
+- expected.json freezes the ledger at run time; re-judge archived runs with `test_loopback_capture.py <run dir>` or `loopback_compare.py --pattern`.
+- ~~fw 1.4 diag costs ~10 cycles per loop iteration and is on by default for the investigation; set SNIFF_DIAG 0 for a release once B30/B31 are closed. TIM14 widths alias for stretches longer than 1.365 ms.~~ superseded v1.13: diag breaks 100 kHz capture; off by default in fw 1.5.
+- ~~With SNIFF_DEFER_UPKEEP the probe answers host commands only between transactions; a bus that stays mid-transaction delays commands by up to 20 ms (UPKEEP_MAX_DEFER_US).~~ superseded v1.13: deferral off by default (it broke capture).
+- The probe flushes its frame ring only while capturing, so a host must keep pumping briefly before sending STOP (tools/ion_capture.py waits 0.3 s).
+- One program per serial port: close sniffer_ion (or sniffer_ad2) before `tools/ion_capture.py` or `loopback_run.py` uses the same probe, or the open fails / the GUI loses frames.
+- Validate SMBus PEC must be ticked BEFORE Start in each sniffer app; with it on, every data row gets a PEC result, so rows that carry no PEC show ✗ PEC by design (the harness checks PEC only on PEC-bearing phases).
+- Flash either board by copying its .bin onto the ST-LINK mass-storage volume (`NOD_H533RE`, `NOD_C031C6`); the volume disappears and remounts when done.
+- The project change log is still `change_log.md` at the project root (the master plan moves it to `documents/change_log.md` in Phase 2).
+
+- ~~Never defer the UART RX poll on the C031: USART2 has a 1-byte RDR and overruns within ~87 µs per byte at 115200. Deferral may hold back only TX pumping, STATUS and command execution.~~ superseded v1.12: from fw 1.5, RX is DMA-driven, so the poll interval no longer matters (keep `UART_RX_DMA_SIZE` > the longest upkeep hold-off).
+- A fw 1.4 probe stuck capturing can be stopped by sending STOP one byte every 5 ms, or by pressing the C031 RESET button; after flashing, a manual reset may be needed before HELLO (owner, 2026-10-05).
+- Button style (owner, 2026-10-05): never full-width bars; compact, equal-width-per-group, left-aligned buttons with a Qt standard icon, built with ui/widgets/buttons.py (icon_button / button_row / uniform_width).
+- New shared UI pieces go in ui/widgets/ and are used by BOTH sniffer windows; check with an offscreen render of both windows (QWidget.grab) before calling a layout change done.
+- Never add code to the C031 capture loop without a full loopback run before/after: ~10-20 cycles per iteration was enough to collapse 100 kHz decoding (diag, deferral check). Code size of `main` is a quick red flag (diag grew it 1018 -> 1668 B).
+- In edge mode the 16-bit TIM3 edge time is extended against a base re-anchored only while the edge ring is empty; the main loop must read the clock BEFORE testing empty (edge_ring_idle_sync), or a 65.5 ms wrap gives wrong times.
+- The STM32CubeProgrammer CLI on the owner's Mac is `/Applications/STMicroelectronics/STM32Cube/STM32CubeProgrammer/STM32CubeProgrammer.app/Contents/Resources/bin/STM32_Programmer_CLI` (2.23.0); `-l st-link` lists both boards by serial, flash with `-c port=SWD sn=<serial>`.
+- Decoder dashboards: design per plan_n_exe/skill_updates/datasheet-i2c-decoder/references/dashboard-design.md and check with its scripts/check_dashboard.py (predicts the tool's tabs exactly); every bits rule (read or write) lands in the bit matrix.
+- Tests that touch device names must set ION_TOOL_DEVICE_NAMES to a temp file (test_device_names does); otherwise a Connect in a test writes the user's real ~/.ion_i2c_tool/device_names.json.
+- pyserial sees all three rig instruments as USB serial devices (ST-LINK V2-1 0483:374B, ST-LINK V3 0483:374E, AD2 FTDI 0403:6014), so one scan covers serial and DWF apps; non-USB ports (Bluetooth, debug-console) have no vid and are skipped.
+- The AD2 can time the bus directly (scratch script pattern: DigitalIn 20-25 MS/s, trigger SCL high + SDA fall, 4096 samples); close sniffer_ad2 first.
+- A probe left capturing by the GUI keeps sending 1 Hz STATUS (`aa 02 2d 00 …` for fw 1.4) after the GUI closes; a raw read of the port shows whether the firmware is alive even when commands fail.
+## Current State
+- **Phase 1 closed (2026-10-05)**, PROJECT_VERSION 1.6.0: P1-T0..T7 done; `documents/phases/HANDOFF_PHASE_01.md` + `REVIEW_PHASE_01.md` written; bench docs `embedded/docs/build_and_flash.md` and `documents/loopback_dut_bringup.md`; zip `~/Downloads/ion_i2c_tool_phase01_v1.6.0.zip`. Awaiting the senior-designer verdict on the review.
+- Rig: C031 fw 1.6 (edge interrupt; B30 fixed), H533 DUT fw 0.2; ion ledger EXACT (pass 11 / xfail 4); AD2 run 3 has one B32 xpass (intermittency, REVIEW §7.2).
+- Open: B31 (400 kHz) until the faster probe MCU (H723ZG/H743ZI2); intermittent-symptom ledger (owner); B12 evidence and B10 reproduction (Phase 5); smoke 8/9 (Phase 10); tag-position rule (Phase 2).
+- Trace jumpers C031 A0 -> AD2 DIO2, A1 -> DIO3 still fitted (harmless with the default image). Ports: C031 `/dev/cu.usbmodem1203`, H533 `/dev/cu.usbmodem1403`.
+- Tests (2026-10-05): project 19/19, smoke 8/9, DUT T1 + host 40, firmware host 86 + 92 + 22, decoders 10/10 valid.
+- Next: Phase 2 (repo foundations) per HANDOFF_PHASE_01 §8; note Phase 2's C8 must keep a tracked flashable C031 image.
+
+## Open Questions
+- ~~Add per-transaction SCL as a CSV column now?~~ Yes: moved to Decisions (resolved v1.1).
+- ~~Does bit-bang capture at 400 kHz lose edges on the C031 under load, and does the measured scl_hz match the DUT setting on hardware?~~ Yes, it loses everything at 400 kHz (B31), and SCL matches within ~1 % at 100 kHz: moved to Findings (resolved v1.10).
+- Is `i2c_decoders/smbus1v1_decoder.json` the renamed `SBDS1v1_decoder.json`? Assumed yes (same device, SBDS v1.1 at 0x0B); blocks nothing.
+- ~~Is 400 kHz reliable on the C031 bit-bang decoder?~~ No (B31): moved to Findings (resolved v1.10).
+- ~~Does the H5 HAL slave byte-wise Seq/listen flow hold up at 400 kHz and with back-to-back WR?~~ Yes, all 434 phases emitted and model-matched in runs 1-3: moved to Findings (resolved v1.10).
+- ~~Add a loopback decoder?~~ Yes: moved to Decisions (resolved v1.4).
+- ~~Confirm B30/B31/B32?~~ Yes: moved to Decisions (resolved v1.8).
+- ~~Why is the PEC column empty?~~ The box was not active in runs 1-2; run 3 with it ticked proved B9: moved to Findings/Gotchas (resolved v1.10).
+- Approve the intermittent-symptom ledger (signature kinds `bit_slip` / `sr_write_zeroed`, excused when present, never xpass when absent)? Needed for an exact ledger while B30/B32 remain open.
+- ~~B30+B31 approach: EXTI edge ISR + RAM ring vs timer-paced DMA oversampling vs document 100 kHz only?~~ Option 1 chosen; moved to Decisions (resolved v1.15).
+- ~~Pursue B31 (400 kHz) with timer-paced DMA oversampling of GPIOA->IDR, or leave B31 open?~~ Left open: owner will move the probe to a faster MCU (resolved v1.16, see Decisions).
+- ~~Update the ledger: LB-12 ion expect_pass now that B30 is fixed?~~ Yes, done (resolved v1.16, change_log 2026-10-05 cont. 4).
+- ~~Next focus: decoder dashboard (B33, descriptive loopback decoder, skill rules)~~ done as Phase 1b (resolved v1.21). Owner to upload the skill drafts (plan_n_exe/skill_updates/datasheet-i2c-decoder/CHANGES.md) and commit the work since 11:37.
+- USB device discovery/naming done (change_log 2026-10-05); owner can name the rig boards with any app's 'Name devices…' or tools/device_names.py discover.
+
+## Revision History
+- v1.0 (2026-09-30): Created; seeded with program decisions D-01..D-06, Phase 1 owner answers, H533 findings, baseline result.
+- v1.1 (2026-09-30): C031 SCL measurement (fw 1.3) and capture CSV v2 decisions, findings, tradeoffs, gotchas; CSV open question resolved; current state rewritten.
+- v1.2 (2026-09-30): H533 project generated and building; I2C kernel clock decision superseded (PLL3R from HSE); FW_H5 gotcha resolved; BSP demo printf gotcha.
+- v1.3 (2026-09-30): P1-T1/T2 findings (timing model anchor, HAL slave stretch path, B8/B13/LB-11 visibility), decisions (loopback_dut layout, ASCII CRC protocol, pure regmap, NAK via OA1EN, path_status, GNUmakefile), tradeoffs, gotchas; state rewritten; two new open questions.
+- v1.4 (2026-09-30): loopback decoder decision (resolved), finding B29, skill-tool defects, C031 fw 1.3 confirmed.
+- v1.5 (2026-09-30): P1-T3/T4/T5: symptom-based ledger, alignment harness, loud T2 skip, LB-10/11 AD2 xfail B10, model cross-check gotchas; state rewritten.
+- v1.6 (2026-10-02): P1-T2 bench check passed; rig ports; wiring/VCP gotchas.
+- v1.7 (2026-10-02): full-run findings (B30/B31/B32 proposed, B10 not reproduced on AD2, PEC unexercised); state; two open questions.
+- v1.8 (2026-10-02): B30/B31/B32 resolved into Decisions; per-path ledger and LB-13-last tradeoffs; runner/ledger gotchas; state.
+- v1.9 (2026-10-02): B9 proven; B30 signature analysis; owner decision to fix the ion firmware now; fw 1.4 diag/mitigation tradeoffs and gotchas; state + next-session plan; two open questions.
+- v1.10 (2026-10-02): consistency pass: five overturned findings struck (old SCL estimate, decoder count, SCL not measured, B10 prediction, PEC unexercised) and one gotcha (fw 1.3 reflash); added hardware findings (SCL ~1 %, B31, DUT reliable at 400 kHz/burst, run 3 totals, board firmware versions), decisions (fw 1.4 / project 1.5.0 versions, ion_capture.py), gotchas (port ownership, PEC checkbox, flashing, change-log location); four open questions resolved; Current State rewritten.
+- v1.11 (2026-10-05): fw 1.4 flashed; found and recorded the deferral/UART-RX defect (all host commands lost) and the planned fw 1.5 fix; port names re-enumerated; gotchas on RX deferral and raw port checks; state rewritten.
+- v1.12 (2026-10-05): fw 1.4 command-loss cause re-diagnosed by bench test (RX poll too slow while capturing, not the deferral); old finding/decision/gotcha struck; fw 1.5 RX-DMA decision; loop-rate lower bound for B30/B31; stuck-probe and hot-path gotchas; state rewritten.
+- v1.13 (2026-10-05): fw 1.5 hardware results: diag and deferral each break 100 kHz capture (now off), prefetch+cache on cuts B30 ~4x, AD2 timing refutes H2 and the ACK-stretch story (B30 = sampler stall at clock 9); trace-pin decision, flashing practice, hot-path gotchas; state rewritten.
+- v1.14 (2026-10-05): trace-pin measurement: decode-in-sampling-loop is the B30/B31 root cause; architecture decision opened; state updated.
+- v1.15 (2026-10-05): fw 1.6 edge-interrupt decision (option 1) and results: B30 fixed, B31 unreachable with an ISR; tradeoff and edge-time gotcha; state rewritten; two open questions (B31 path, ledger update).
+- v1.16 (2026-10-05): B30 closed in the ledger; B31 left open pending a faster MCU (H723ZG/H743ZI2); owner roadmap (stabilise C031, harmonize sniffer tabs, fork AD2 tool); state updated.
+- v1.17 (2026-10-05): sniffer tab harmonization decision, shared-UI gotcha, state updated.
+- v1.18 (2026-10-05): button-style gotcha (compact icon buttons via ui/widgets/buttons.py).
+- v1.19 (2026-10-05): Phase 1 closed (docs, handoff, review, zip, PROJECT_VERSION 1.6.0); CubeProgrammer CLI gotcha; state rewritten.
+- v1.20 (2026-10-05): B33 dashboard multi-address finding; loopback values-constant finding; confirm dialogs OK/Cancel (change_log); dashboard open question.
+- v1.21 (2026-10-05): Phase 1b decoder dashboard: B33 fixed and struck, address_names decision, editor-save metadata-loss and *.csv-ignore findings, dashboard design gotcha, open item closed.
+- v1.22 (2026-10-05): USB device naming decision, test-isolation and pyserial-identity gotchas, state.

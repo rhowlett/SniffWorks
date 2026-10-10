@@ -1,0 +1,2285 @@
+{
+  "version": 4,
+  "device": "BQ25731",
+  "description": "TI BQ25731 buck-boost charge controller \u2014 FULL register map generated from SLUSE66A Rev A (Jan 2021) register tables. All current scalings for 10 mOhm sense resistors (RSR and RAC); halve codes / double mA for 5 mOhm. PSYS/CMPIN LSBs assume ADC_FULLSCALE=1b (3.06 V range, POR default).",
+  "i2c_address": 107,
+  "i2c_address_hex": "0x6B",
+  "i2c_address_8bit": {
+    "write": "0xD6",
+    "read": "0xD7"
+  },
+  "byte_order_note": "All 16-bit registers little-endian on the wire (low byte at the lower register address).",
+  "display_groups": [
+    {
+      "name": "Charge Settings",
+      "kind": "banner"
+    },
+    {
+      "name": "Input",
+      "kind": "banner"
+    },
+    {
+      "name": "ADC Measurements",
+      "kind": "pane"
+    },
+    {
+      "name": "OTG",
+      "kind": "pane"
+    },
+    {
+      "name": "Device Info",
+      "kind": "pane"
+    }
+  ],
+  "rules": [
+    {
+      "address": 107,
+      "register": 2,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>6)&127)*64",
+      "unit": "mA",
+      "name": "Charge Current",
+      "description": "7-bit field [12:6], LSB 64 mA at 10 mOhm RSR (0-8128 mA).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "group": "Charge Settings",
+      "group_order": 1
+    },
+    {
+      "address": 107,
+      "register": 2,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>6)&127)*64",
+      "unit": "mA",
+      "name": "Charge Current (set)",
+      "description": "7-bit field [12:6], LSB 64 mA at 10 mOhm RSR (0-8128 mA).",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 4,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>3)&4095)*8",
+      "unit": "mV",
+      "name": "Charge Voltage",
+      "description": "12-bit field [14:3], LSB 8 mV (1S 4200 ... 5S 21000 default).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "group": "Charge Settings",
+      "group_order": 2
+    },
+    {
+      "address": 107,
+      "register": 4,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>3)&4095)*8",
+      "unit": "mV",
+      "name": "Charge Voltage (set)",
+      "description": "12-bit field [14:3], LSB 8 mV (1S 4200 ... 5S 21000 default).",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 10,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>6)&255)*64+3200",
+      "unit": "mV",
+      "name": "Input Voltage (VINDPM)",
+      "description": "8-bit field [13:6], LSB 64 mV + fixed 3200 mV offset.",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "group": "Input",
+      "group_order": 1
+    },
+    {
+      "address": 107,
+      "register": 10,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>6)&255)*64+3200",
+      "unit": "mV",
+      "name": "Input Voltage (VINDPM) (set)",
+      "description": "8-bit field [13:6], LSB 64 mV + fixed 3200 mV offset.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 14,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>8)&127)*50",
+      "unit": "mA",
+      "name": "IIN_HOST",
+      "description": "7-bit field [14:8], LSB 50 mA at 10 mOhm RAC; code 0 = 50 mA.",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "group": "Input",
+      "group_order": 2
+    },
+    {
+      "address": 107,
+      "register": 14,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>8)&127)*50",
+      "unit": "mA",
+      "name": "IIN_HOST (set)",
+      "description": "7-bit field [14:8], LSB 50 mA at 10 mOhm RAC; code 0 = 50 mA.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 36,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>8)&127)*50",
+      "unit": "mA",
+      "name": "IIN_DPM",
+      "description": "Active input limit after ICO. LSB 50 mA at 10 mOhm RAC; code 0 = 50 mA. Reset 0x4100 = 3250 mA.",
+      "transaction_type": "indexed_read",
+      "access": "R",
+      "group": "Input",
+      "group_order": 3
+    },
+    {
+      "address": 107,
+      "register": 6,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>2)&4095)*8",
+      "unit": "mV",
+      "name": "OTG Voltage",
+      "description": "12-bit field [13:2], LSB 8 mV (reset 5000 mV).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "group": "OTG",
+      "group_order": 1
+    },
+    {
+      "address": 107,
+      "register": 6,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>2)&4095)*8",
+      "unit": "mV",
+      "name": "OTG Voltage (set)",
+      "description": "12-bit field [13:2], LSB 8 mV (reset 5000 mV).",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 8,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>8)&127)*50",
+      "unit": "mA",
+      "name": "OTG Current",
+      "description": "7-bit field [14:8], LSB 50 mA at 10 mOhm RAC.",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "group": "OTG",
+      "group_order": 2
+    },
+    {
+      "address": 107,
+      "register": 8,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "((X>>8)&127)*50",
+      "unit": "mA",
+      "name": "OTG Current (set)",
+      "description": "7-bit field [14:8], LSB 50 mA at 10 mOhm RAC.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 38,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X",
+      "unit": "",
+      "name": "ADC VBUS/PSYS",
+      "description": "Reg 0x26=PSYS, 0x27=VBUS.",
+      "transaction_type": "indexed_read",
+      "access": "R",
+      "group": "ADC Measurements",
+      "group_order": 1,
+      "fields": [
+        {
+          "name": "PSYS",
+          "offset": 0,
+          "size": 1,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*12",
+          "unit": "mV",
+          "description": "System power monitor, LSB 12 mV (ADC_FULLSCALE=1b, 3.06 V range)."
+        },
+        {
+          "name": "VBUS",
+          "offset": 1,
+          "size": 1,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*96",
+          "unit": "mV",
+          "description": "Input voltage, LSB 96 mV."
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 40,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X",
+      "unit": "",
+      "name": "ADC IBAT",
+      "description": "Reg 0x28=IDCHG, 0x29=ICHG.",
+      "transaction_type": "indexed_read",
+      "access": "R",
+      "group": "ADC Measurements",
+      "group_order": 2,
+      "fields": [
+        {
+          "name": "IDCHG",
+          "offset": 0,
+          "size": 1,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*256",
+          "unit": "mA",
+          "description": "Battery discharge current, LSB 256 mA at 10 mOhm RSR."
+        },
+        {
+          "name": "ICHG",
+          "offset": 1,
+          "size": 1,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*64",
+          "unit": "mA",
+          "description": "Battery charge current, LSB 64 mA at 10 mOhm RSR."
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 42,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X",
+      "unit": "",
+      "name": "ADC IIN/CMPIN",
+      "description": "Reg 0x2A=CMPIN, 0x2B=IIN.",
+      "transaction_type": "indexed_read",
+      "access": "R",
+      "group": "ADC Measurements",
+      "group_order": 3,
+      "fields": [
+        {
+          "name": "CMPIN",
+          "offset": 0,
+          "size": 1,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*12",
+          "unit": "mV",
+          "description": "CMPIN voltage, LSB 12 mV (ADC_FULLSCALE=1b)."
+        },
+        {
+          "name": "IIN",
+          "offset": 1,
+          "size": 1,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*50",
+          "unit": "mA",
+          "description": "Input current, LSB 50 mA at 10 mOhm RAC."
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 44,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X",
+      "unit": "",
+      "name": "ADC VSYS/VBAT",
+      "description": "Reg 0x2C=VBAT, 0x2D=VSYS.",
+      "transaction_type": "indexed_read",
+      "access": "R",
+      "group": "ADC Measurements",
+      "group_order": 4,
+      "fields": [
+        {
+          "name": "VBAT",
+          "offset": 0,
+          "size": 1,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*64+2880",
+          "unit": "mV",
+          "description": "Battery voltage, LSB 64 mV + 2880 mV offset (1S-4S; 5S offset is 8160 mV)."
+        },
+        {
+          "name": "VSYS",
+          "offset": 1,
+          "size": 1,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*64+2880",
+          "unit": "mV",
+          "description": "System voltage, LSB 64 mV + 2880 mV offset (1S-4S; 5S offset is 8160 mV)."
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 46,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "Manufacturer ID",
+      "description": "Always 0x40.",
+      "transaction_type": "indexed_read",
+      "access": "R",
+      "group": "Device Info",
+      "group_order": 1
+    },
+    {
+      "address": 107,
+      "register": 47,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "Device ID",
+      "description": "BQ25731: 0xD6.",
+      "transaction_type": "indexed_read",
+      "access": "R",
+      "group": "Device Info",
+      "group_order": 2
+    },
+    {
+      "address": 107,
+      "register": 0,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption0",
+      "description": "ChargeOption0 (16-bit, reset 0xE70E).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_LWPWR=0",
+            "EN_LWPWR=1"
+          ]
+        },
+        {
+          "range": [
+            14,
+            13
+          ],
+          "mode": "raw",
+          "description": "WDTMR_ADJ",
+          "name": "WDTMR_ADJ"
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "IIN_DPM_AUTO_DISABLE=0",
+            "IIN_DPM_AUTO_DISABLE=1"
+          ]
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "OTG_ON_CHRGOK=0",
+            "OTG_ON_CHRGOK=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_OOA=0",
+            "EN_OOA=1"
+          ]
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "PWM_FREQ=0",
+            "PWM_FREQ=1"
+          ]
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "LOW_PTM_RIPPLE=0",
+            "LOW_PTM_RIPPLE=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_CMP_LATCH=0",
+            "EN_CMP_LATCH=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "VSYS_UVP_ENZ=0",
+            "VSYS_UVP_ENZ=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_LEARN=0",
+            "EN_LEARN=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "IADPT_GAIN=0",
+            "IADPT_GAIN=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "IBAT_GAIN=0",
+            "IBAT_GAIN=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_IIN_DPM=0",
+            "EN_IIN_DPM=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "CHRG_INHIBIT=0",
+            "CHRG_INHIBIT=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 32,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ChargerStatus",
+      "description": "ChargerStatus (16-bit, reset 0x0000).",
+      "transaction_type": "indexed_read",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_AC=0",
+            "STAT_AC=1"
+          ]
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "ICO_DONE=0",
+            "ICO_DONE=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "IN_VAP=0",
+            "IN_VAP=1"
+          ]
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "IN_VINDPM=0",
+            "IN_VINDPM=1"
+          ]
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "IN_IIN_DPM=0",
+            "IN_IIN_DPM=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "IN_FCHRG=0",
+            "IN_FCHRG=1"
+          ]
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "IN_OTG=0",
+            "IN_OTG=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "Fault ACOV=0",
+            "Fault ACOV=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "Fault BATOC=0",
+            "Fault BATOC=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "Fault ACOC=0",
+            "Fault ACOC=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "Fault SYSOVP=0",
+            "Fault SYSOVP=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "Fault VSYS_UVP=0",
+            "Fault VSYS_UVP=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "Fault Force_Converter_Off=0",
+            "Fault Force_Converter_Off=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "Fault_OTG_OVP=0",
+            "Fault_OTG_OVP=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "Fault_OTG_UVP=0",
+            "Fault_OTG_UVP=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 34,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ProchotStatus",
+      "description": "ProchotStatus (16-bit, reset 0xB800).",
+      "transaction_type": "indexed_read",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_PROCHOT_EXT=0",
+            "EN_PROCHOT_EXT=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            12
+          ],
+          "mode": "raw",
+          "description": "PROCHOT_WIDTH",
+          "name": "PROCHOT_WIDTH"
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "PROCHOT_CLEAR=0",
+            "PROCHOT_CLEAR=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "TSHUT=0",
+            "TSHUT=1"
+          ]
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_VAP_FAIL=0",
+            "STAT_VAP_FAIL=1"
+          ]
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_EXIT_VAP=0",
+            "STAT_EXIT_VAP=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_VINDPM=0",
+            "STAT_VINDPM=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_COMP=0",
+            "STAT_COMP=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_ICRIT=0",
+            "STAT_ICRIT=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_INOM=0",
+            "STAT_INOM=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_IDCHG1=0",
+            "STAT_IDCHG1=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_VSYS=0",
+            "STAT_VSYS=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_Battery_Removal=0",
+            "STAT_Battery_Removal=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_Adapter_Removal=0",
+            "STAT_Adapter_Removal=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 48,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption1",
+      "description": "ChargeOption1 (16-bit, reset 0x3F00).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_IBAT=0",
+            "EN_IBAT=1"
+          ]
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_PROCHOT_LPWR=0",
+            "EN_PROCHOT_LPWR=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            12
+          ],
+          "mode": "raw",
+          "description": "PSYS_CONFIG",
+          "name": "PSYS_CONFIG"
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "RSNS_RAC=0",
+            "RSNS_RAC=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "RSNS_RSR=0",
+            "RSNS_RSR=1"
+          ]
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "PSYS_RATIO=0",
+            "PSYS_RATIO=1"
+          ]
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_FAST_5MOHM=0",
+            "EN_FAST_5MOHM=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "CMP_REF=0",
+            "CMP_REF=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "CMP_POL=0",
+            "CMP_POL=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            4
+          ],
+          "mode": "raw",
+          "description": "CMP_DEG",
+          "name": "CMP_DEG"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "FORCE_CONV_OFF=0",
+            "FORCE_CONV_OFF=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_PTM=0",
+            "EN_PTM=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_SHIP_DCHG=0",
+            "EN_SHIP_DCHG=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "AUTO_WAKEUP_EN=0",
+            "AUTO_WAKEUP_EN=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 50,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption2",
+      "description": "ChargeOption2 (16-bit, reset 0x00B7).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            14
+          ],
+          "mode": "raw",
+          "description": "PKPWR_TOVLD_DEG",
+          "name": "PKPWR_TOVLD_DEG"
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_PKPWR_IIN_DPM=0",
+            "EN_PKPWR_IIN_DPM=1"
+          ]
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_PKPWR_VSYS=0",
+            "EN_PKPWR_VSYS=1"
+          ]
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_PKPWR_OVLD=0",
+            "STAT_PKPWR_OVLD=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_PKPWR_RELAX=0",
+            "STAT_PKPWR_RELAX=1"
+          ]
+        },
+        {
+          "range": [
+            9,
+            8
+          ],
+          "mode": "raw",
+          "description": "PKPWR_TMAX[1:0]",
+          "name": "PKPWR_TMAX[1:0]"
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_EXTILIM=0",
+            "EN_EXTILIM=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ICHG_IDCHG=0",
+            "EN_ICHG_IDCHG=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "Q2_OCP=0",
+            "Q2_OCP=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "ACX_OCP=0",
+            "ACX_OCP=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ACOC=0",
+            "EN_ACOC=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "ACOC_VTH=0",
+            "ACOC_VTH=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_BATOC=0",
+            "EN_BATOC=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "BATOC_VTH=0",
+            "BATOC_VTH=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 52,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption3",
+      "description": "ChargeOption3 (16-bit, reset 0x0434).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_HIZ=0",
+            "EN_HIZ=1"
+          ]
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "RESET_REG=0",
+            "RESET_REG=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "RESET_VINDPM=0",
+            "RESET_VINDPM=1"
+          ]
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_OTG=0",
+            "EN_OTG=1"
+          ]
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ICO_MODE=0",
+            "EN_ICO_MODE=1"
+          ]
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_OTG_BIGCAP=0",
+            "EN_OTG_BIGCAP=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_VBUS_VAP=0",
+            "EN_VBUS_VAP=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "OTG_VAP_MODE=0",
+            "OTG_VAP_MODE=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            3
+          ],
+          "mode": "raw",
+          "description": "IL_AVG",
+          "name": "IL_AVG"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "CMP_EN=0",
+            "CMP_EN=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "PSYS_OTG_IDCHG=0",
+            "PSYS_OTG_IDCHG=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 54,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ProchotOption0",
+      "description": "ProchotOption0 (16-bit, reset 0x4A81 (2S-5S) / 0x4A09 (1S)).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            11
+          ],
+          "mode": "raw",
+          "description": "ILIM2_VTH",
+          "name": "ILIM2_VTH"
+        },
+        {
+          "range": [
+            10,
+            9
+          ],
+          "mode": "raw",
+          "description": "ICRIT_DEG",
+          "name": "ICRIT_DEG"
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "PROCHOT_VINDPM_80_90=0",
+            "PROCHOT_VINDPM_80_90=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            2
+          ],
+          "mode": "raw",
+          "description": "VSYS_TH1",
+          "name": "VSYS_TH1"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "INOM_DEG=0",
+            "INOM_DEG=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "LOWER_PROCHOT_VINDPM=0",
+            "LOWER_PROCHOT_VINDPM=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 56,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ProchotOption1",
+      "description": "ProchotOption1 (16-bit, reset 0x41A0).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            10
+          ],
+          "mode": "raw",
+          "description": "IDCHG_TH1",
+          "name": "IDCHG_TH1"
+        },
+        {
+          "range": [
+            9,
+            8
+          ],
+          "mode": "raw",
+          "description": "IDCHG_DEG1",
+          "name": "IDCHG_DEG1"
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_VINDPM=0",
+            "PP_VINDPM=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_COMP=0",
+            "PP_COMP=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_ICRIT=0",
+            "PP_ICRIT=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_INOM=0",
+            "PP_INOM=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_IDCHG1=0",
+            "PP_IDCHG1=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_VSYS=0",
+            "PP_VSYS=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_BATPRES=0",
+            "PP_BATPRES=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_ACOK=0",
+            "PP_ACOK=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 58,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ADCOption",
+      "description": "ADCOption (16-bit, reset 0x2000).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "ADC_CONV=0",
+            "ADC_CONV=1"
+          ]
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "ADC_START=0",
+            "ADC_START=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "ADC_FULLSCALE=0",
+            "ADC_FULLSCALE=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ADC_CMPIN=0",
+            "EN_ADC_CMPIN=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ADC_VBUS=0",
+            "EN_ADC_VBUS=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ADC_PSYS=0",
+            "EN_ADC_PSYS=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ADC_IIN=0",
+            "EN_ADC_IIN=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ADC_IDCHG=0",
+            "EN_ADC_IDCHG=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ADC_ICHG=0",
+            "EN_ADC_ICHG=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ADC_VSYS=0",
+            "EN_ADC_VSYS=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_ADC_VBAT=0",
+            "EN_ADC_VBAT=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 60,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption4",
+      "description": "ChargeOption4 (16-bit, reset 0x0048).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            12,
+            11
+          ],
+          "mode": "raw",
+          "description": "EN_DITHER",
+          "name": "EN_DITHER"
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_VBUS_VAP=0",
+            "PP_VBUS_VAP=1"
+          ]
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_VBUS_VAP=0",
+            "STAT_VBUS_VAP=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            6
+          ],
+          "mode": "raw",
+          "description": "IDCHG_DEG2",
+          "name": "IDCHG_DEG2"
+        },
+        {
+          "range": [
+            5,
+            3
+          ],
+          "mode": "raw",
+          "description": "IDCHG_TH2",
+          "name": "IDCHG_TH2"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "PP_IDCHG2=0",
+            "PP_IDCHG2=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_IDCHG2=0",
+            "STAT_IDCHG2=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "STAT_PTM=0",
+            "STAT_PTM=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 62,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Vmin Active Protection",
+      "description": "Vmin Active Protection (16-bit, reset 0x006C (2S-5S) / 0x0004 (1S)).",
+      "transaction_type": "indexed_read",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "VBUS_VAP_TH, Bit6=0",
+            "VBUS_VAP_TH, Bit6=1"
+          ]
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "VBUS_VAP_TH, Bit5=0",
+            "VBUS_VAP_TH, Bit5=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "VBUS_VAP_TH, Bit4=0",
+            "VBUS_VAP_TH, Bit4=1"
+          ]
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "VBUS_VAP_TH, Bit3=0",
+            "VBUS_VAP_TH, Bit3=1"
+          ]
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "VBUS_VAP_TH, Bit2=0",
+            "VBUS_VAP_TH, Bit2=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "VBUS_VAP_TH, Bit1=0",
+            "VBUS_VAP_TH, Bit1=1"
+          ]
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "VBUS_VAP_TH, Bit0=0",
+            "VBUS_VAP_TH, Bit0=1"
+          ]
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "Reserve=0",
+            "Reserve=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "VSYS_TH2, Bit5=0",
+            "VSYS_TH2, Bit5=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "VSYS_TH2, Bit4=0",
+            "VSYS_TH2, Bit4=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "VSYS_TH2, Bit3=0",
+            "VSYS_TH2, Bit3=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "VSYS_TH2, Bit2=0",
+            "VSYS_TH2, Bit2=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "VSYS_TH2, Bit1=0",
+            "VSYS_TH2, Bit1=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "VSYS_TH2, Bit0=0",
+            "VSYS_TH2, Bit0=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_VSYSTH2_FOLLOW_VSYSTH1=0",
+            "EN_VSYSTH2_FOLLOW_VSYSTH1=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "EN_FRS=0",
+            "EN_FRS=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 107,
+      "register": 0,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption0 (set)",
+      "description": "Host write to ChargeOption0; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 32,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ChargerStatus (set)",
+      "description": "Host write to ChargerStatus; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 34,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ProchotStatus (set)",
+      "description": "Host write to ProchotStatus; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 48,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption1 (set)",
+      "description": "Host write to ChargeOption1; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 50,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption2 (set)",
+      "description": "Host write to ChargeOption2; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 52,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption3 (set)",
+      "description": "Host write to ChargeOption3; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 54,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ProchotOption0 (set)",
+      "description": "Host write to ProchotOption0; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 56,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ProchotOption1 (set)",
+      "description": "Host write to ProchotOption1; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 58,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ADCOption (set)",
+      "description": "Host write to ADCOption; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 60,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ChargeOption4 (set)",
+      "description": "Host write to ChargeOption4; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 62,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "Vmin Active Protection (set)",
+      "description": "Host write to Vmin Active Protection; see the read rule for bit meanings.",
+      "transaction_type": "indexed_write",
+      "access": "R/W"
+    },
+    {
+      "address": 107,
+      "register": 33,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ChargerStatus (high byte)",
+      "description": "Status bits [15:8] read as a single byte at 0x21.",
+      "transaction_type": "indexed_read",
+      "access": "R"
+    },
+    {
+      "address": 107,
+      "register": 35,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ProchotStatus (high byte)",
+      "description": "PROCHOT config/status bits [15:8] read at 0x23.",
+      "transaction_type": "indexed_read",
+      "access": "R"
+    },
+    {
+      "address": 107,
+      "register": 37,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "(X&127)*50",
+      "unit": "mA",
+      "name": "IIN_DPM (byte)",
+      "description": "Bits [14:8] read at 0x25; LSB 50 mA at 10 mOhm RAC.",
+      "transaction_type": "indexed_read",
+      "access": "R"
+    },
+    {
+      "address": 107,
+      "register": 39,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X*96",
+      "unit": "mV",
+      "name": "VBUS (byte)",
+      "description": "ADC input voltage read as a single byte at 0x27; LSB 96 mV.",
+      "transaction_type": "indexed_read",
+      "access": "R"
+    },
+    {
+      "address": 107,
+      "register": 41,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X*64",
+      "unit": "mA",
+      "name": "ICHG (byte)",
+      "description": "ADC charge current read at 0x29; LSB 64 mA at 10 mOhm RSR.",
+      "transaction_type": "indexed_read",
+      "access": "R"
+    },
+    {
+      "address": 107,
+      "register": 43,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X*50",
+      "unit": "mA",
+      "name": "IIN (byte)",
+      "description": "ADC input current read at 0x2B; LSB 50 mA at 10 mOhm RAC.",
+      "transaction_type": "indexed_read",
+      "access": "R"
+    },
+    {
+      "address": 107,
+      "register": 45,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X*64+2880",
+      "unit": "mV",
+      "name": "VSYS (byte)",
+      "description": "ADC system voltage read at 0x2D; LSB 64 mV + 2880 mV (1S-4S).",
+      "transaction_type": "indexed_read",
+      "access": "R"
+    }
+  ]
+}

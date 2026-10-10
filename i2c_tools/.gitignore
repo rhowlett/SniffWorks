@@ -1,0 +1,7 @@
+# ion_i2c_tool/.gitignore  [v0.1]
+# The repository-wide .gitignore ignores every *.csv. These CSVs are project
+# fixtures and phase evidence, so they must be tracked (2026-10-05):
+#   - the loopback decoder replay fixture, read by tests/test_loopback_dut_decoder.py
+#   - loopback rig captures cited by documents/phases/REVIEW_PHASE_01.md
+!i2c_capture/loopback_dut_replay_check.csv
+!loopback_dut/runs/**/*.csv

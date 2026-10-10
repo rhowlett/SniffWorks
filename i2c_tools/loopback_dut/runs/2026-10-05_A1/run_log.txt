@@ -1,0 +1,17 @@
+HELLO LBDUT proto=1 fw=0.2 kernel=64000000
+LB-01  ok                 1 iter     2 phases  100000 Hz (pred 100075)
+LB-02  ok                 1 iter     2 phases  100000 Hz (pred 100075)
+LB-03  ok                 1 iter     1 phases  100000 Hz (pred 100075)
+LB-04  ok                 1 iter     1 phases  100000 Hz (pred 100075)
+LB-05  ok                 1 iter     1 phases  100000 Hz (pred 100075)
+LB-06  ok                 1 iter     2 phases  100000 Hz (pred 100075)
+LB-07  ok                 1 iter     2 phases  100000 Hz (pred 100075)
+LB-08  ok                 1 iter     1 phases  100000 Hz (pred 100075)
+LB-09  ok                 1 iter     3 phases  100000 Hz (pred 100075)
+LB-10  ok                 1 iter     2 phases  100000 Hz (pred 100075)
+LB-11  ok                 1 iter     2 phases  100000 Hz (pred 100075)
+LB-12  ok               200 iter   400 phases  100000 Hz (pred 100075)
+LB-14  ok                 1 iter     2 phases  100000 Hz (pred 100075)
+LB-15  ok                 1 iter     8 phases  100000 Hz (pred 100075)
+LB-13  ok                 1 iter     5 phases  400000 Hz (pred 401204)
+wrote loopback_dut/runs/2026-10-05_A1/expected.json

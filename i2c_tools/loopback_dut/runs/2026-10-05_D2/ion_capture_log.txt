@@ -1,0 +1,4 @@
+probe: fw 1.5, mode bit-bang
+stopped by 15 s: kept 557 of 557 transactions; FRAMING-flagged 502; device errors 0
+STATUS: fw 1.5 mode bit-bang captured 557 errors 733 dropped 0 bus 95808 Hz
+wrote loopback_dut/runs/2026-10-05_D2/ion_capture.csv (557 rows)

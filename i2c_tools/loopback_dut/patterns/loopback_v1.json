@@ -1,0 +1,590 @@
+{
+  "format": "loopback_pattern",
+  "version": 1,
+  "name": "loopback_v1",
+  "description": "v0.5. Golden pattern for PHASE_01 (P1-T1). Targets R1/R2/NAK resolve through loopback_dut/config/rig.toml. Read values follow the register map in loopback_dut/docs/PROTOCOL.md §4 (R1 word(x) = 0xA000 + x, R2 = 0xB000 + x, little-endian). A write step's data excludes the PEC byte (the host appends it when pec is true); a PEC read's read_len includes the PEC byte. Cases run in file order: LB-13 (400 kHz) runs LAST, because on the ion path it leaves the bit-bang decoder mid-transaction (B31) and corrupted the next case in run 2. Ledger updated from the 2026-10-02 bench runs (owner-approved): B30, B31, B32. v0.5 (2026-10-05, owner-approved): B30 fixed by C031 fw 1.6 (edge interrupt; 1600 LB-12 phases exact on the rig), so LB-12 is expect_pass on ion.",
+  "cases": [
+    {
+      "id": "LB-01",
+      "description": "1-byte pointer write + repeated-START read of 2 bytes (baseline indexed_read pairing). Expect W [02], Sr R [02 A0].",
+      "review_ids": [
+        "B32"
+      ],
+      "status": "expect_pass",
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            2
+          ],
+          "read_len": 2
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 2,
+        "scl_check": true
+      },
+      "path_status": {
+        "ad2": "xfail",
+        "ion": "expect_pass"
+      },
+      "xfail_reason": "B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+      "xfail_symptoms": [
+        "phase_extra",
+        "phase_missing"
+      ],
+      "path_xfail_symptoms": {
+        "ad2": [
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    },
+    {
+      "id": "LB-02",
+      "description": "1-byte pointer write + STOP, then a plain read (BQ25731 host style, stop-separated pointer). Expect W [04] P, S R [04 A0] P.",
+      "review_ids": [],
+      "status": "expect_pass",
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_stop_read",
+          "data": [
+            4
+          ],
+          "read_len": 2
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 2,
+        "scl_check": true
+      }
+    },
+    {
+      "id": "LB-03",
+      "description": "Indexed write: register 0x10 + 2 data bytes (34 12). Expect one W phase [10 34 12] P.",
+      "review_ids": [],
+      "status": "expect_pass",
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write",
+          "data": [
+            16,
+            52,
+            18
+          ]
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 1,
+        "scl_check": true
+      }
+    },
+    {
+      "id": "LB-04",
+      "description": "Single-byte write with STOP and no read following. With a loopback decoder that has a simple_write rule for register 0x20 on R1, the row must decode as that simple write.",
+      "review_ids": [
+        "B8"
+      ],
+      "status": "xfail",
+      "xfail_reason": "B8: _is_pointer_write() is True for every 1-byte write, so the simple_write branch never runs; the W [20] row's Decode column is empty (the byte is stashed as a pending register) instead of the simple_write rule's text.",
+      "xfail_symptoms": [
+        "decode_mismatch"
+      ],
+      "requires": [
+        "loopback_decoder"
+      ],
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write",
+          "data": [
+            32
+          ]
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 1,
+        "decode": {
+          "phase": 0,
+          "contains": "LB simple write = 0x20"
+        },
+        "note": "Raw bytes must still match exactly; only the decode check is xfail."
+      }
+    },
+    {
+      "id": "LB-05",
+      "description": "Write to the address-NAK target (rig.toml [nak], default 0x08 = I2C1's own address with matching disabled). Expect one W phase with an address NAK and no data.",
+      "review_ids": [],
+      "status": "expect_pass",
+      "steps": [
+        {
+          "target": "NAK",
+          "op": "write",
+          "data": [
+            0
+          ]
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 1,
+        "address_nak": true
+      }
+    },
+    {
+      "id": "LB-06",
+      "description": "Read of 4 bytes from pointer 0x02 ending in the master's normal final-byte NAK. Expect Sr R [02 A0 03 A0] P; the end-of-read NAK must not be presented as an error.",
+      "review_ids": [
+        "B13",
+        "B32"
+      ],
+      "status": "xfail",
+      "xfail_reason": "B13: the normal master NAK on the final read byte is exported as NAK=\"NAK\" (and coloured as an error) on the read row, indistinguishable from an address/data NAK. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+      "xfail_symptoms": [
+        "nak_on_normal_end_of_read",
+        "phase_extra",
+        "phase_missing"
+      ],
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            2
+          ],
+          "read_len": 4
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 2,
+        "end_of_read_nak": "strict"
+      },
+      "path_xfail_symptoms": {
+        "ion": [
+          "nak_on_normal_end_of_read"
+        ],
+        "ad2": [
+          "nak_on_normal_end_of_read",
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    },
+    {
+      "id": "LB-07",
+      "description": "SMBus read-word with PEC: W [08], Sr R [08 A0 PEC], where PEC = CRC-8 over D6 08 D7 08 A0 (Addr+W, command, Addr+R, data). With sniffer PEC validation on, the read row must show a valid PEC.",
+      "review_ids": [
+        "B9",
+        "B32"
+      ],
+      "status": "xfail",
+      "xfail_reason": "B9: the sniffer computes PEC over the read phase only (Addr+R + data) instead of the combined transaction, so the read row shows PEC invalid (✗ PEC) although the bus PEC is correct. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+      "xfail_symptoms": [
+        "pec_invalid",
+        "phase_extra",
+        "phase_missing"
+      ],
+      "requires": [
+        "pec_validation_on"
+      ],
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            8
+          ],
+          "read_len": 3,
+          "pec": true
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 2,
+        "pec": "valid"
+      },
+      "path_xfail_symptoms": {
+        "ion": [
+          "pec_invalid"
+        ],
+        "ad2": [
+          "pec_invalid",
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    },
+    {
+      "id": "LB-08",
+      "description": "SMBus write-byte with PEC: W [0A 5A PEC], PEC over D6 0A 5A. A single-phase PEC is computed over the right bytes even with B9 present, so this is expected to pass; if it fails, that is a new finding.",
+      "review_ids": [
+        "B9"
+      ],
+      "status": "expect_pass",
+      "requires": [
+        "pec_validation_on"
+      ],
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write",
+          "data": [
+            10,
+            90
+          ],
+          "pec": true
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 1,
+        "pec": "valid"
+      }
+    },
+    {
+      "id": "LB-09",
+      "description": "Subcommand block read: write subcommand 0x0001 to 0x3E, then read 36 bytes from 0x3E (echo, 32-byte buffer, checksum 0x0E, length 36), the shape DecodeSchema._unwrap_subcommand_block expects.",
+      "review_ids": [
+        "B10",
+        "B32"
+      ],
+      "status": "expect_pass",
+      "path_status": {
+        "ad2": "xfail",
+        "ion": "expect_pass"
+      },
+      "xfail_reason": "B10 (AD2 path only): spy_poll drops continuation segments when fStart == 0, so the 36-byte read is truncated to its first status-call segment; the ion probe captures all 36 bytes. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears. B10 itself was NOT reproduced in run 2 (36/64/80-byte reads complete); it stays listed until B32 is fixed and the reads can be judged alone.",
+      "xfail_symptoms": [
+        "data_mismatch",
+        "phase_extra",
+        "phase_missing"
+      ],
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write",
+          "data": [
+            62,
+            1,
+            0
+          ]
+        },
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            62
+          ],
+          "read_len": 36
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 3,
+        "scl_check": true
+      },
+      "path_xfail_symptoms": {
+        "ad2": [
+          "data_mismatch",
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    },
+    {
+      "id": "LB-10",
+      "description": "64-byte read (= ion TXN_MAX_DATA) from pointer 0x00: no truncation on either path.",
+      "review_ids": [
+        "B10",
+        "B32"
+      ],
+      "status": "expect_pass",
+      "path_status": {
+        "ad2": "xfail",
+        "ion": "expect_pass"
+      },
+      "xfail_reason": "B10 (AD2 path only): spy_poll drops continuation segments when fStart == 0, so a 64-byte read split across status calls is truncated to its first segment. If the AD2 captures it whole (xpass), B10's segment boundary lies above this length: record that as a finding and move the case to expect_pass. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears. B10 itself was NOT reproduced in run 2 (36/64/80-byte reads complete); it stays listed until B32 is fixed and the reads can be judged alone.",
+      "xfail_symptoms": [
+        "data_mismatch",
+        "phase_extra",
+        "phase_missing"
+      ],
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            0
+          ],
+          "read_len": 64
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 2
+      },
+      "path_xfail_symptoms": {
+        "ad2": [
+          "data_mismatch",
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    },
+    {
+      "id": "LB-11",
+      "description": "80-byte read (over the ion probe's TXN_MAX_DATA = 64). Documents the truncation limit: the ion probe keeps the first 64 bytes and sets its OVERFLOW flag. Capture CSV v2 has no overflow column, so the flag itself is not visible to the harness (finding for M1/Phase 6).",
+      "review_ids": [
+        "B10",
+        "B32"
+      ],
+      "status": "expect_pass",
+      "path_status": {
+        "ad2": "xfail",
+        "ion": "expect_pass"
+      },
+      "xfail_reason": "B10 (AD2 path only): spy_poll drops continuation segments when fStart == 0, so a 80-byte read split across status calls is truncated to its first segment. If the AD2 captures it whole (xpass), B10's segment boundary lies above this length: record that as a finding and move the case to expect_pass. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears. B10 itself was NOT reproduced in run 2 (36/64/80-byte reads complete); it stays listed until B32 is fixed and the reads can be judged alone.",
+      "xfail_symptoms": [
+        "data_mismatch",
+        "phase_extra",
+        "phase_missing"
+      ],
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            0
+          ],
+          "read_len": 80
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 2,
+        "truncate_to": {
+          "ion": 64
+        }
+      },
+      "path_xfail_symptoms": {
+        "ad2": [
+          "data_mismatch",
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    },
+    {
+      "id": "LB-12",
+      "description": "Burst of 200 back-to-back register reads (W [06], Sr R [06 A0]) with no gap: 400 phases. Any drop must be counted by the probe, never silent; the harness requires all 400.",
+      "review_ids": [
+        "B32"
+      ],
+      "status": "expect_pass",
+      "repeat": 200,
+      "gap_us": 0,
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            6
+          ],
+          "read_len": 2
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 2,
+        "note": "A shortfall only at the very end on the ion path would match B11 (IonWorker drain exits immediately); report it as such."
+      },
+      "path_status": {
+        "ion": "expect_pass",
+        "ad2": "xfail"
+      },
+      "xfail_reason": "B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears. B30 (ion) was fixed in C031 fw 1.6 (2026-10-05): a slip on the ion path is now a regression.",
+      "xfail_symptoms": [
+        "phase_extra",
+        "phase_missing"
+      ],
+      "path_xfail_symptoms": {
+        "ad2": [
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    },
+    {
+      "id": "LB-14",
+      "description": "R1 clock-stretches 200 us before read byte 1 (byte boundary: a hardware I2C slave cannot stretch mid-byte). Data must be intact, and the measured SCL must still match the set speed, because stretched periods are excluded.",
+      "review_ids": [
+        "B32"
+      ],
+      "status": "expect_pass",
+      "stretch": {
+        "responder": "R1",
+        "byte_index": 1,
+        "us": 200
+      },
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            2
+          ],
+          "read_len": 4
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 2,
+        "scl_check": true
+      },
+      "path_status": {
+        "ad2": "xfail",
+        "ion": "expect_pass"
+      },
+      "xfail_reason": "B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+      "xfail_symptoms": [
+        "phase_extra",
+        "phase_missing"
+      ],
+      "path_xfail_symptoms": {
+        "ad2": [
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    },
+    {
+      "id": "LB-15",
+      "description": "Traffic interleaved across both responders. R1 and R2 return different word bases (0xA000 / 0xB000), so a mis-routed phase shows up in the value. B30 (ion bit slips, which hit LB-15 once in run 1) is fixed in C031 fw 1.6; a slip here is now a regression.",
+      "review_ids": [
+        "B32"
+      ],
+      "status": "expect_pass",
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            2
+          ],
+          "read_len": 2
+        },
+        {
+          "target": "R2",
+          "op": "write_read",
+          "data": [
+            2
+          ],
+          "read_len": 2
+        },
+        {
+          "target": "R2",
+          "op": "write",
+          "data": [
+            16,
+            1
+          ]
+        },
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            4
+          ],
+          "read_len": 2
+        },
+        {
+          "target": "R2",
+          "op": "read",
+          "read_len": 2
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 8,
+        "scl_check": true
+      },
+      "path_status": {
+        "ad2": "xfail",
+        "ion": "expect_pass"
+      },
+      "xfail_reason": "B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+      "xfail_symptoms": [
+        "phase_extra",
+        "phase_missing"
+      ],
+      "path_xfail_symptoms": {
+        "ad2": [
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    },
+    {
+      "id": "LB-13",
+      "description": "LB-01, LB-03 and LB-06 shapes at 400 kHz. The ion bit-bang decoder is best-effort at 400 kHz (PROTOCOL.md §3.1), so a failure on the ion path is a finding, not a regression.",
+      "review_ids": [
+        "B31",
+        "B32"
+      ],
+      "status": "expect_pass",
+      "speed_hz": 400000,
+      "steps": [
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            2
+          ],
+          "read_len": 2
+        },
+        {
+          "target": "R1",
+          "op": "write",
+          "data": [
+            16,
+            52,
+            18
+          ]
+        },
+        {
+          "target": "R1",
+          "op": "write_read",
+          "data": [
+            2
+          ],
+          "read_len": 4
+        }
+      ],
+      "expect": {
+        "phases_per_iteration": 5,
+        "scl_check": true
+      },
+      "path_status": {
+        "ion": "xfail",
+        "ad2": "xfail"
+      },
+      "xfail_reason": "B31 (ion path): bit-bang capture fails at 400 kHz (0 of 5 phases in runs 1-2; garbage rows such as 0x00 W / 0x0C R with no STOP) and leaves the decoder mid-transaction. B32 (AD2 path): a write phase that ends in a repeated START is exported as `0x00 W [00]` instead of the real pointer write (162 of 212 in run 2), so the pointer phase is missing and a spurious 0x00 row appears.",
+      "xfail_symptoms": [
+        "address_nak_mismatch",
+        "data_mismatch",
+        "flag_mismatch",
+        "phase_extra",
+        "phase_missing",
+        "scl_missing"
+      ],
+      "path_xfail_symptoms": {
+        "ion": [
+          "phase_missing",
+          "phase_extra",
+          "data_mismatch",
+          "flag_mismatch",
+          "address_nak_mismatch",
+          "scl_missing"
+        ],
+        "ad2": [
+          "phase_missing",
+          "phase_extra"
+        ]
+      }
+    }
+  ]
+}

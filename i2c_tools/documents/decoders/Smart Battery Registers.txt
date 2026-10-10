@@ -1,0 +1,136 @@
+# ---------------------------------------------------------------------------
+# Smart Battery Default Address (7-bit)
+# ---------------------------------------------------------------------------
+SBS_ADDRESS = 0x0B  # Standard Smart Battery address
+
+# ---------------------------------------------------------------------------
+# Smart Battery Data Specification (SBS) Register Definitions
+# Each entry: (register_address, size_in_bytes, description)
+# Size: 2 = word (16-bit), 1 = byte, -1 = block (variable length)
+# Access: RW = Read/Write, RO = Read Only, WO = Write Only
+# ---------------------------------------------------------------------------
+
+# fmt: off
+SBS_CMD_MANUFACTURER_ACCESS        = 0x00  # RW - Manufacturer access/commands
+SBS_CMD_REMAINING_CAPACITY_ALARM   = 0x01  # RW - Remaining capacity alarm threshold
+SBS_CMD_REMAINING_TIME_ALARM       = 0x02  # RW - Remaining time alarm threshold
+SBS_CMD_BATTERY_MODE               = 0x03  # RW - Battery mode / configuration
+SBS_CMD_AT_RATE                    = 0x04  # RW - AtRate for run-time predictions
+SBS_CMD_AT_RATE_TIME_TO_FULL       = 0x05  # RO - Predicted time to full at AtRate
+SBS_CMD_AT_RATE_TIME_TO_EMPTY      = 0x06  # RO - Predicted time to empty at AtRate
+SBS_CMD_AT_RATE_OK                 = 0x07  # RO - AtRate prediction valid flag
+SBS_CMD_TEMPERATURE                = 0x08  # RO - Temperature (0.1 K)
+SBS_CMD_VOLTAGE                    = 0x09  # RO - Voltage (mV)
+SBS_CMD_CURRENT                    = 0x0A  # RO - Current (mA, signed)
+SBS_CMD_AVERAGE_CURRENT            = 0x0B  # RO - Average current (mA, signed)
+SBS_CMD_MAX_ERROR                  = 0x0C  # RO - Max error (%)
+SBS_CMD_RELATIVE_STATE_OF_CHARGE   = 0x0D  # RO - Relative state of charge (%)
+SBS_CMD_ABSOLUTE_STATE_OF_CHARGE   = 0x0E  # RO - Absolute state of charge (%)
+SBS_CMD_REMAINING_CAPACITY         = 0x0F  # RO - Remaining capacity (mAh/10mWh)
+SBS_CMD_FULL_CHARGE_CAPACITY       = 0x10  # RO - Full charge capacity (mAh/10mWh)
+SBS_CMD_RUN_TIME_TO_EMPTY          = 0x11  # RO - Run time to empty (min)
+SBS_CMD_AVERAGE_TIME_TO_EMPTY      = 0x12  # RO - Average time to empty (min)
+SBS_CMD_AVERAGE_TIME_TO_FULL       = 0x13  # RO - Average time to full (min)
+SBS_CMD_CHARGING_CURRENT           = 0x14  # RW - Charging current (mA)    ******
+SBS_CMD_CHARGING_VOLTAGE           = 0x15  # RW - Charging voltage (mV)    ******
+SBS_CMD_BATTERY_STATUS             = 0x16  # RO - Battery status bitfield  ******
+SBS_CMD_CYCLE_COUNT                = 0x17  # RO - Cycle count
+SBS_CMD_DESIGN_CAPACITY            = 0x18  # RO - Design capacity (mAh/10mWh)
+SBS_CMD_DESIGN_VOLTAGE             = 0x19  # RO - Design voltage (mV)
+SBS_CMD_SPEC_INFO                  = 0x1A  # RO - Specification info
+SBS_CMD_MANUFACTURE_DATE           = 0x1B  # RO - Manufacture date (packed)
+SBS_CMD_SERIAL_NUMBER              = 0x1C  # RO - Serial number
+SBS_CMD_MANUFACTURER_NAME          = 0x20  # RO - Block read, manufacturer name
+SBS_CMD_DEVICE_NAME                = 0x21  # RO - Block read, device name
+SBS_CMD_DEVICE_CHEMISTRY           = 0x22  # RO - Block read, device chemistry
+SBS_CMD_MANUFACTURER_DATA          = 0x23  # RO - Block read, manufacturer data
+SBS_CMD_CELL_VOLTAGE_4             = 0x3C  # RO - Optional cell 4 voltage (mV)
+SBS_CMD_CELL_VOLTAGE_3             = 0x3D  # RO - Optional cell 3 voltage (mV)
+SBS_CMD_CELL_VOLTAGE_2             = 0x3E  # RO - Optional cell 2 voltage (mV)
+SBS_CMD_CELL_VOLTAGE_1             = 0x3F  # RO - Optional cell 1 voltage (mV)
+# fmt: on
+
+# Register metadata: {register: (size_bytes, name, unit)}
+# size_bytes: 2 = word, 1 = byte, -1 = block (variable)
+SBS_REGISTER_MAP = {
+    0x00: (2, "ManufacturerAccess",       ""),
+    0x01: (2, "RemainingCapacityAlarm",   "mAh"),
+    0x02: (2, "RemainingTimeAlarm",       "min"),
+    0x03: (2, "BatteryMode",             "bitfield"),
+    0x04: (2, "AtRate",                  "mA"),
+    0x05: (2, "AtRateTimeToFull",        "min"),
+    0x06: (2, "AtRateTimeToEmpty",       "min"),
+    0x07: (2, "AtRateOK",               "boolean"),
+    0x08: (2, "Temperature",             "0.1K"),
+    0x09: (2, "Voltage",                 "mV"),
+    0x0A: (2, "Current",                 "mA"),
+    0x0B: (2, "AverageCurrent",          "mA"),
+    0x0C: (2, "MaxError",               "%"),
+    0x0D: (2, "RelativeStateOfCharge",   "%"),
+    0x0E: (2, "AbsoluteStateOfCharge",   "%"),
+    0x0F: (2, "RemainingCapacity",       "mAh"),
+    0x10: (2, "FullChargeCapacity",      "mAh"),
+    0x11: (2, "RunTimeToEmpty",          "min"),
+    0x12: (2, "AverageTimeToEmpty",      "min"),
+    0x13: (2, "AverageTimeToFull",       "min"),
+    0x14: (2, "ChargingCurrent",         "mA"),
+    0x15: (2, "ChargingVoltage",         "mV"),
+    0x16: (2, "BatteryStatus",           "bitfield"),
+    0x17: (2, "CycleCount",             "cycles"),
+    0x18: (2, "DesignCapacity",          "mAh"),
+    0x19: (2, "DesignVoltage",           "mV"),
+    0x1A: (2, "SpecificationInfo",       "bitfield"),
+    0x1B: (2, "ManufactureDate",         "packed"),
+    0x1C: (2, "SerialNumber",            "number"),
+    0x20: (-1, "ManufacturerName",       "string"),
+    0x21: (-1, "DeviceName",             "string"),
+    0x22: (-1, "DeviceChemistry",        "string"),
+    0x23: (-1, "ManufacturerData",       "bytes"),
+    0x3C: (2, "CellVoltage4",           "mV"),
+    0x3D: (2, "CellVoltage3",           "mV"),
+    0x3E: (2, "CellVoltage2",           "mV"),
+    0x3F: (2, "CellVoltage1",           "mV"),
+}
+
+Bit 15  0x8000  OVER_CHARGED_ALARM
+Bit 14  0x4000  TERMINATE_CHARGE_ALARM
+Bit 13  0x2000  Reserved
+Bit 12  0x1000  OVER_TEMP_ALARM
+Bit 11  0x0800  TERMINATE_DISCHARGE_ALARM
+Bit 10  0x0400  Reserved
+Bit  9  0x0200  REMAINING_CAPACITY_ALARM
+Bit  8  0x0100  REMAINING_TIME_ALARM
+
+Bit  7  0x0080  INITIALIZED
+Bit  6  0x0040  DISCHARGING
+Bit  5  0x0020  FULLY_CHARGED
+Bit  4  0x0010  FULLY_DISCHARGED
+
+Bits 3:0 0x000F Error Code
+
+
+The standard SBS error codes are:
+
+Plain Text
+0x0 OK
+0x1 Busy
+0x2 ReservedCommand
+0x3 UnsupportedCommand
+0x4 AccessDenied
+0x5 Overflow/Underflow
+0x6 BadSize
+0x7 UnknownError
+0x8-0xF Reserved
+Show more lines
+
+These codes are intended to report the outcome of the most recent SMBus transaction directed to the battery. The specification states that after a transaction, the battery places the appropriate error code into the lower nibble of BatteryStatus(), and successful transactions clear the error code back to OK (0x0).
+
+A few practical notes:
+
+ReservedCommand (0x2) means the host attempted to access a command code reserved for manufacturer use.
+UnsupportedCommand (0x3) means the command is defined by SBS but not implemented by that battery.
+AccessDenied (0x4) is typically returned when the operation is not permitted in the battery's current state.
+BadSize (0x6) indicates an incorrect data length was supplied.
+UnknownError (0x7) is a catch-all for errors that do not fit the other defined categories.
+
+In practice, many modern fuel gauges (for example, several TI gauges) still use these SBS-defined values, which is why you will often see documentation referring to EC[3:0] as the SBS error code field.

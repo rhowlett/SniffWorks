@@ -1,0 +1,2224 @@
+{
+  "version": 4,
+  "device": "BQ76905",
+  "description": "TI BQ76905 2S-5S battery monitor decode map (direct commands + subcommands), per SLUUCI8 Chapter 11.",
+  "i2c_address": 8,
+  "i2c_address_hex": "0x08",
+  "i2c_address_8bit": {
+    "write": "0x10",
+    "read": "0x11"
+  },
+  "byte_order_note": "Multi-byte registers are little-endian on the wire.",
+  "rules": [
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 20,
+      "register_width_bytes": 1,
+      "unit": "mV",
+      "function": "X",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "Cell 1 Voltage",
+      "description": "16-bit voltage on cell 1.",
+      "group": "Cell Measurements",
+      "group_order": 1,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 22,
+      "register_width_bytes": 1,
+      "unit": "mV",
+      "function": "X",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "Cell 2 Voltage",
+      "description": "16-bit voltage on cell 2.",
+      "group": "Cell Measurements",
+      "group_order": 2,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 24,
+      "register_width_bytes": 1,
+      "unit": "mV",
+      "function": "X",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "Cell 3 Voltage",
+      "description": "16-bit voltage on cell 3.",
+      "group": "Cell Measurements",
+      "group_order": 3,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 26,
+      "register_width_bytes": 1,
+      "unit": "mV",
+      "function": "X",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "Cell 4 Voltage",
+      "description": "16-bit voltage on cell 4.",
+      "group": "Cell Measurements",
+      "group_order": 4,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 28,
+      "register_width_bytes": 1,
+      "unit": "mV",
+      "function": "X",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "Cell 5 Voltage",
+      "description": "16-bit voltage on cell 5.",
+      "group": "Cell Measurements",
+      "group_order": 5,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 38,
+      "register_width_bytes": 1,
+      "unit": "mV",
+      "function": "X",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "Stack Voltage",
+      "description": "16-bit voltage on top of stack.",
+      "group": "Pack Measurements",
+      "group_order": 1,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 34,
+      "register_width_bytes": 1,
+      "unit": "ADC codes",
+      "function": "X",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "REG18 Voltage",
+      "description": "Internal 1.8V regulator voltage measured using bandgap reference; diagnostic of VREF1 vs VREF2.",
+      "group": "IC Measurements",
+      "group_order": 1,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 36,
+      "register_width_bytes": 1,
+      "unit": "ADC codes",
+      "function": "X",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "VSS Voltage",
+      "description": "Measurement of VSS using ADC; diagnostic of ADC input mux.",
+      "group": "IC Measurements",
+      "group_order": 2,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 42,
+      "register_width_bytes": 1,
+      "unit": "ADC codes",
+      "function": "X",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "TS Measurement",
+      "description": "ADC measurement of the TS pin.",
+      "group": "Pack Measurements",
+      "group_order": 3,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 40,
+      "register_width_bytes": 1,
+      "unit": "degC",
+      "function": "X*0.1",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "Int Temperature",
+      "description": "Most recent measured internal die temperature.",
+      "group": "IC Measurements",
+      "group_order": 3,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 58,
+      "register_width_bytes": 1,
+      "unit": "userA",
+      "function": "X",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "Current",
+      "description": "16-bit CC2 current measurement.",
+      "group": "Pack Measurements",
+      "group_order": 2,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 60,
+      "register_width_bytes": 1,
+      "unit": "userA",
+      "function": "X",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 2,
+      "format": "dec",
+      "name": "CC1 Current",
+      "description": "16-bit CC1 current measurement.",
+      "group": "Current & Charge",
+      "group_order": 1,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 54,
+      "register_width_bytes": 1,
+      "unit": "ADC codes",
+      "function": "X",
+      "byte_order": "le",
+      "signed": true,
+      "data_bytes": 4,
+      "format": "dec",
+      "name": "Raw Current",
+      "description": "32-bit raw current measurement (24-bit sign-extended).",
+      "group": "Current & Charge",
+      "group_order": 2,
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 2,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 1,
+      "format": "bits",
+      "name": "Safety Alert A",
+      "description": "Provides individual alert signals when enabled safety alerts have triggered.",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "COV=0",
+            "COV=1"
+          ],
+          "description": "Cell Overvoltage Safety Alert"
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "CUV=0",
+            "CUV=1"
+          ],
+          "description": "Cell Undervoltage Safety Alert"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "SCD=0",
+            "SCD=1"
+          ],
+          "description": "Short Circuit in Discharge Safety Alert"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD1=0",
+            "OCD1=1"
+          ],
+          "description": "Overcurrent in Discharge 1 Safety Alert"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD2=0",
+            "OCD2=1"
+          ],
+          "description": "Overcurrent in Discharge 2 Safety Alert"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "OCC=0",
+            "OCC=1"
+          ],
+          "description": "Overcurrent in Charge Safety Alert"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 3,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 1,
+      "format": "bits",
+      "name": "Safety Status A",
+      "description": "Provides individual fault signals when enabled safety faults have triggered.",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "COV=0",
+            "COV=1"
+          ],
+          "description": "Cell Overvoltage Safety Fault"
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "CUV=0",
+            "CUV=1"
+          ],
+          "description": "Cell Undervoltage Safety Fault"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "SCD=0",
+            "SCD=1"
+          ],
+          "description": "Short Circuit in Discharge Safety Fault"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD1=0",
+            "OCD1=1"
+          ],
+          "description": "Overcurrent in Discharge 1 Safety Fault"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD2=0",
+            "OCD2=1"
+          ],
+          "description": "Overcurrent in Discharge 2 Safety Fault"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "OCC=0",
+            "OCC=1"
+          ],
+          "description": "Overcurrent in Charge Safety Fault"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "CURLATCH=0",
+            "CURLATCH=1"
+          ],
+          "description": "Current Protection Latch Safety Fault"
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "REGOUT=0",
+            "REGOUT=1"
+          ],
+          "description": "REGOUT Safety Fault"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 4,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 1,
+      "format": "bits",
+      "name": "Safety Alert B",
+      "description": "Provides individual alert signals when enabled safety alerts have triggered.",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "OTD=0",
+            "OTD=1"
+          ],
+          "description": "Overtemperature in Discharge"
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "OTC=0",
+            "OTC=1"
+          ],
+          "description": "Overtemperature in Charge"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "UTD=0",
+            "UTD=1"
+          ],
+          "description": "Undertemperature in Discharge"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "UTC=0",
+            "UTC=1"
+          ],
+          "description": "Undertemperature in Charge"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "OTINT=0",
+            "OTINT=1"
+          ],
+          "description": "Internal Overtemperature"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "HWD=0",
+            "HWD=1"
+          ],
+          "description": "Host Watchdog"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "VREF=0",
+            "VREF=1"
+          ],
+          "description": "VREF Measurement Diagnostic"
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "VSS=0",
+            "VSS=1"
+          ],
+          "description": "VSS Measurement Diagnostic"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 5,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 1,
+      "format": "bits",
+      "name": "Safety Status B",
+      "description": "Provides individual fault signals when enabled safety faults have triggered.",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "OTD=0",
+            "OTD=1"
+          ],
+          "description": "Overtemperature in Discharge"
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "OTC=0",
+            "OTC=1"
+          ],
+          "description": "Overtemperature in Charge"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "UTD=0",
+            "UTD=1"
+          ],
+          "description": "Undertemperature in Discharge"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "UTC=0",
+            "UTC=1"
+          ],
+          "description": "Undertemperature in Charge"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "OTINT=0",
+            "OTINT=1"
+          ],
+          "description": "Internal Overtemperature"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "HWD=0",
+            "HWD=1"
+          ],
+          "description": "Host Watchdog"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "VREF=0",
+            "VREF=1"
+          ],
+          "description": "VREF Measurement Diagnostic"
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "VSS=0",
+            "VSS=1"
+          ],
+          "description": "VSS Measurement Diagnostic"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 18,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "bits",
+      "name": "Battery Status",
+      "description": "Provides flags related to battery status.",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "SLEEP=0",
+            "SLEEP=1"
+          ],
+          "description": "Device is in SLEEP mode"
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "DEEPSLEEP=0",
+            "DEEPSLEEP=1"
+          ],
+          "description": "Device is in DEEPSLEEP mode"
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "SA=0",
+            "SA=1"
+          ],
+          "description": "An enabled safety alert is present"
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "SS=0",
+            "SS=1"
+          ],
+          "description": "An enabled safety fault is present"
+        },
+        {
+          "range": [
+            11,
+            10
+          ],
+          "mode": "enum",
+          "name": "SEC",
+          "names": [
+            "uninitialized",
+            "FULLACCESS",
+            "unused",
+            "SEALED"
+          ],
+          "description": "Present security state of the device."
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "FET_EN=0",
+            "FET_EN=1"
+          ],
+          "description": "Device is in autonomous FET control mode"
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "POR=0",
+            "POR=1"
+          ],
+          "description": "Full reset has occurred since last CONFIG_UPDATE exit"
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "SLEEP_EN=0",
+            "SLEEP_EN=1"
+          ],
+          "description": "SLEEP mode is allowed when other conditions met"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "CFGUPDATE=0",
+            "CFGUPDATE=1"
+          ],
+          "description": "Device is in CONFIG_UPDATE mode"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "ALERTPIN=0",
+            "ALERTPIN=1"
+          ],
+          "description": "ALERT pin is asserted (pulled low)"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "CHG=0",
+            "CHG=1"
+          ],
+          "description": "CHG driver is enabled"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "DSG=0",
+            "DSG=1"
+          ],
+          "description": "DSG driver is enabled"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "CHGDETFLAG=0",
+            "CHGDETFLAG=1"
+          ],
+          "description": "Debounced CHG Detector signal is high"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 98,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "bits",
+      "name": "Alarm Status",
+      "description": "Latched signal used to assert the ALERT pin. Write a bit high to clear the latched bit.",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "SSA=0",
+            "SSA=1"
+          ],
+          "description": "Safety Status A latch"
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "SSB=0",
+            "SSB=1"
+          ],
+          "description": "Safety Status B latch"
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "SAA=0",
+            "SAA=1"
+          ],
+          "description": "Safety Alert A latch"
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "SAB=0",
+            "SAB=1"
+          ],
+          "description": "Safety Alert B latch"
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "XCHG=0",
+            "XCHG=1"
+          ],
+          "description": "CHG driver disabled"
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "XDSG=0",
+            "XDSG=1"
+          ],
+          "description": "DSG driver disabled"
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "SHUTV=0",
+            "SHUTV=1"
+          ],
+          "description": "Cell/stack below shutdown voltage"
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "CB=0",
+            "CB=1"
+          ],
+          "description": "Cell balancing active"
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "FULLSCAN=0",
+            "FULLSCAN=1"
+          ],
+          "description": "Full scan complete"
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "ADSCAN=0",
+            "ADSCAN=1"
+          ],
+          "description": "Voltage ADC scan complete"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "WAKE=0",
+            "WAKE=1"
+          ],
+          "description": "Wakened from SLEEP"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "SLEEP=0",
+            "SLEEP=1"
+          ],
+          "description": "SLEEP related"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "TIMER_ALARM=0",
+            "TIMER_ALARM=1"
+          ],
+          "description": "Programmable timer expired"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "INITCOMP=0",
+            "INITCOMP=1"
+          ],
+          "description": "Startup measurement complete"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "CDTOGGLE=0",
+            "CDTOGGLE=1"
+          ],
+          "description": "Debounced CHG Detector toggled"
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "POR=0",
+            "POR=1"
+          ],
+          "description": "POR bit in Battery Status asserted"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 100,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "bits",
+      "name": "Alarm Raw Status",
+      "description": "Unlatched value of flags which can be selected to be latched and used to assert the ALERT pin.",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "SSA=0",
+            "SSA=1"
+          ],
+          "description": "Safety Status A latch"
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "SSB=0",
+            "SSB=1"
+          ],
+          "description": "Safety Status B latch"
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "SAA=0",
+            "SAA=1"
+          ],
+          "description": "Safety Alert A latch"
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "SAB=0",
+            "SAB=1"
+          ],
+          "description": "Safety Alert B latch"
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "XCHG=0",
+            "XCHG=1"
+          ],
+          "description": "CHG driver disabled"
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "XDSG=0",
+            "XDSG=1"
+          ],
+          "description": "DSG driver disabled"
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "SHUTV=0",
+            "SHUTV=1"
+          ],
+          "description": "Cell/stack below shutdown voltage"
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "CB=0",
+            "CB=1"
+          ],
+          "description": "Cell balancing active"
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "FULLSCAN=0",
+            "FULLSCAN=1"
+          ],
+          "description": "Full scan complete"
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "ADSCAN=0",
+            "ADSCAN=1"
+          ],
+          "description": "Voltage ADC scan complete"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "WAKE=0",
+            "WAKE=1"
+          ],
+          "description": "Wakened from SLEEP"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "SLEEP=0",
+            "SLEEP=1"
+          ],
+          "description": "SLEEP related"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "TIMER_ALARM=0",
+            "TIMER_ALARM=1"
+          ],
+          "description": "Programmable timer expired"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "INITCOMP=0",
+            "INITCOMP=1"
+          ],
+          "description": "Startup measurement complete"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "CDTOGGLE=0",
+            "CDTOGGLE=1"
+          ],
+          "description": "Debounced CHG Detector toggled"
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "POR=0",
+            "POR=1"
+          ],
+          "description": "POR bit in Battery Status asserted"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 102,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "bits",
+      "name": "Alarm Enable",
+      "description": "Mask for Alarm Status(). Selects which alarm sources are enabled.",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "SSA=0",
+            "SSA=1"
+          ],
+          "description": "Safety Status A latch"
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "SSB=0",
+            "SSB=1"
+          ],
+          "description": "Safety Status B latch"
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "SAA=0",
+            "SAA=1"
+          ],
+          "description": "Safety Alert A latch"
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "SAB=0",
+            "SAB=1"
+          ],
+          "description": "Safety Alert B latch"
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "XCHG=0",
+            "XCHG=1"
+          ],
+          "description": "CHG driver disabled"
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "XDSG=0",
+            "XDSG=1"
+          ],
+          "description": "DSG driver disabled"
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "SHUTV=0",
+            "SHUTV=1"
+          ],
+          "description": "Cell/stack below shutdown voltage"
+        },
+        {
+          "range": [
+            8,
+            8
+          ],
+          "mode": "enum",
+          "names": [
+            "CB=0",
+            "CB=1"
+          ],
+          "description": "Cell balancing active"
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "FULLSCAN=0",
+            "FULLSCAN=1"
+          ],
+          "description": "Full scan complete"
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "ADSCAN=0",
+            "ADSCAN=1"
+          ],
+          "description": "Voltage ADC scan complete"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "WAKE=0",
+            "WAKE=1"
+          ],
+          "description": "Wakened from SLEEP"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "SLEEP=0",
+            "SLEEP=1"
+          ],
+          "description": "SLEEP related"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "TIMER_ALARM=0",
+            "TIMER_ALARM=1"
+          ],
+          "description": "Programmable timer expired"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "INITCOMP=0",
+            "INITCOMP=1"
+          ],
+          "description": "Startup measurement complete"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "CDTOGGLE=0",
+            "CDTOGGLE=1"
+          ],
+          "description": "Debounced CHG Detector toggled"
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "POR=0",
+            "POR=1"
+          ],
+          "description": "POR bit in Battery Status asserted"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 104,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 1,
+      "format": "bits",
+      "name": "FET CONTROL",
+      "description": "FET Control: allows host control of individual FET drivers.",
+      "bit_fields": [
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "CHG_OFF=0",
+            "CHG_OFF=1"
+          ],
+          "description": "CHG FET driver forced off"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "DSG_OFF=0",
+            "DSG_OFF=1"
+          ],
+          "description": "DSG FET driver forced off"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "CHG_ON=0",
+            "CHG_ON=1"
+          ],
+          "description": "CHG FET driver forced on"
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "DSG_ON=0",
+            "DSG_ON=1"
+          ],
+          "description": "DSG FET driver forced on"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 105,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 1,
+      "format": "bits",
+      "name": "REGOUT CONTROL",
+      "description": "REGOUT Control: changes voltage regulator settings.",
+      "bit_fields": [
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "TS_ON=0",
+            "TS_ON=1"
+          ],
+          "description": "TS pullup continuously connected"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "REG_EN=0",
+            "REG_EN=1"
+          ],
+          "description": "REGOUT LDO enabled"
+        },
+        {
+          "range": [
+            2,
+            0
+          ],
+          "mode": "enum",
+          "name": "REGOUTV",
+          "names": [
+            "1.8V",
+            "1.8V",
+            "1.8V",
+            "1.8V",
+            "2.5V",
+            "3.0V",
+            "3.3V",
+            "5V"
+          ],
+          "description": "REGOUT LDO voltage control."
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 106,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "bits",
+      "name": "DSG FET Driver PWM Control",
+      "description": "Controls PWM mode of the DSG FET driver. Values are not used until the second byte is written.",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "DSGPWMEN=0",
+            "DSGPWMEN=1"
+          ],
+          "description": "DSG FET driver PWM mode enabled"
+        },
+        {
+          "range": [
+            14,
+            8
+          ],
+          "mode": "scale",
+          "name": "DSGPWMON",
+          "function": "X*30.52",
+          "unit": "us",
+          "special": {
+            "0": "PWM disabled"
+          },
+          "description": "Time DSG FET driver is enabled per cycle. 30.52 us to 3.876 ms in steps of 30.52 us. 0 disables PWM."
+        },
+        {
+          "range": [
+            7,
+            0
+          ],
+          "mode": "scale",
+          "name": "DSGPWMOFF",
+          "function": "X*122.1",
+          "unit": "us",
+          "special": {
+            "0": "PWM disabled"
+          },
+          "description": "Time DSG FET driver is disabled per cycle. 122.1 us to 31.128 ms in steps of 122.1 us. 0 disables PWM."
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 108,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "bits",
+      "name": "CHG FET Driver PWM Control",
+      "description": "Controls PWM mode of the CHG FET driver. Values are not used until the second byte is written.",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "CHGPWMEN=0",
+            "CHGPWMEN=1"
+          ],
+          "description": "CHG FET driver PWM mode enabled"
+        },
+        {
+          "range": [
+            14,
+            8
+          ],
+          "mode": "scale",
+          "name": "CHGPWMON",
+          "function": "X*30.52",
+          "unit": "us",
+          "special": {
+            "0": "PWM disabled"
+          },
+          "description": "Time CHG FET driver is enabled per cycle. 30.52 us to 3.876 ms in steps of 30.52 us. 0 disables PWM."
+        },
+        {
+          "range": [
+            7,
+            0
+          ],
+          "mode": "scale",
+          "name": "CHGPWMOFF",
+          "function": "X*488.4",
+          "unit": "us",
+          "special": {
+            "0": "PWM disabled"
+          },
+          "description": "Time CHG FET driver is disabled per cycle. 488.4 us to 124.512 ms in steps of 488.4 us. 0 disables PWM."
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "RESET_PASSQ",
+      "description": "Resets the accumulated charge and timer.",
+      "subcommand": 5,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "EXIT_DEEPSLEEP",
+      "description": "Exit DEEPSLEEP mode.",
+      "subcommand": 14,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "DEEPSLEEP",
+      "description": "Enter DEEPSLEEP mode. Must be sent twice within 4s.",
+      "subcommand": 15,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "SHUTDOWN",
+      "description": "Start SHUTDOWN sequence. Must be sent twice within 4s.",
+      "subcommand": 16,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "RESET",
+      "description": "Reset the device.",
+      "subcommand": 18,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "FET_ENABLE",
+      "description": "Toggle the FET_EN bit in Battery Status().",
+      "subcommand": 34,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "SEAL",
+      "description": "Place the device in SEALED mode.",
+      "subcommand": 48,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "SET_CFGUPDATE",
+      "description": "Place the device in CONFIG_UPDATE mode.",
+      "subcommand": 144,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "EXIT_CFGUPDATE",
+      "description": "Exit CONFIG_UPDATE mode.",
+      "subcommand": 146,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "SLEEP_ENABLE",
+      "description": "Allow the device to enter SLEEP mode.",
+      "subcommand": 153,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": null,
+      "format": "dec",
+      "name": "SLEEP_DISABLE",
+      "description": "Block the device from entering SLEEP mode.",
+      "subcommand": 154,
+      "subcommand_reg": 62,
+      "access": "W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "X",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "hex",
+      "name": "DEVICE_NUMBER",
+      "description": "Reports the device number (little-endian).",
+      "subcommand": 1,
+      "subcommand_reg": 62,
+      "access": "R",
+      "group": "Device Info",
+      "group_order": 1
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "be",
+      "signed": false,
+      "data_bytes": 6,
+      "format": "hex",
+      "name": "FW_VERSION",
+      "description": "Returns three 16-bit words: Device Number (bytes 0-1, big-endian), Firmware Version (bytes 2-3, big-endian), Build Number (bytes 4-5, big-endian BCD).",
+      "subcommand": 2,
+      "subcommand_reg": 62,
+      "access": "R",
+      "fields": [
+        {
+          "name": "Device Number",
+          "offset": 0,
+          "size": 2,
+          "byte_order": "be",
+          "signed": false,
+          "format": "hex",
+          "description": "Device number in big-endian format (legacy compatibility)."
+        },
+        {
+          "name": "FW Version",
+          "offset": 2,
+          "size": 2,
+          "byte_order": "be",
+          "signed": false,
+          "format": "hex",
+          "description": "Firmware major/minor version number, big-endian."
+        },
+        {
+          "name": "Build Number",
+          "offset": 4,
+          "size": 2,
+          "byte_order": "be",
+          "signed": false,
+          "format": "hex",
+          "description": "Firmware build number, big-endian BCD."
+        }
+      ],
+      "group": "Device Info",
+      "group_order": 2
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "X",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 2,
+      "format": "hex",
+      "name": "HW_VERSION",
+      "description": "Reports the device hardware version number.",
+      "subcommand": 3,
+      "subcommand_reg": 62,
+      "access": "R",
+      "group": "Device Info",
+      "group_order": 3
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 12,
+      "format": "dec",
+      "name": "PASSQ",
+      "description": "Accumulated charge and time: PASSQLSB (U4, lower 32 bits), PASSQMSB (I4, upper bits sign-extended), PASSTIME (U4). Full charge is a signed 48-bit value in units of 0.25 userA-s.",
+      "subcommand": 4,
+      "subcommand_reg": 62,
+      "access": "R",
+      "fields": [
+        {
+          "name": "PASSQLSB",
+          "offset": 0,
+          "size": 4,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*0.25",
+          "unit": "userA-s",
+          "description": "Accumulated charge lower 32 bits (little-endian, byte-by-byte)."
+        },
+        {
+          "name": "PASSQMSB",
+          "offset": 4,
+          "size": 4,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X*0.25",
+          "unit": "userA-s",
+          "description": "Accumulated charge upper bits, sign-extended to 32 bits (little-endian)."
+        },
+        {
+          "name": "PASSTIME",
+          "offset": 8,
+          "size": 4,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*0.25",
+          "unit": "s",
+          "description": "Accumulated time, 32-bit unsigned, units of 250 ms."
+        }
+      ],
+      "group": "Current & Charge",
+      "group_order": 3
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 1,
+      "format": "bits",
+      "name": "CB_ACTIVE_CELLS",
+      "description": "Cell balancing active cells bit mask.",
+      "subcommand": 83,
+      "subcommand_reg": 62,
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "CB_Cell1=0",
+            "CB_Cell1=1"
+          ],
+          "description": "First active cell (VC1-VC0)"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "CB_Cell2=0",
+            "CB_Cell2=1"
+          ],
+          "description": "Second active cell"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "CB_Cell3=0",
+            "CB_Cell3=1"
+          ],
+          "description": "Third active cell"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "CB_Cell4=0",
+            "CB_Cell4=1"
+          ],
+          "description": "Fourth active cell"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "CB_Cell5=0",
+            "CB_Cell5=1"
+          ],
+          "description": "Fifth active cell"
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "unit": "",
+      "function": "",
+      "byte_order": "le",
+      "signed": false,
+      "data_bytes": 1,
+      "format": "bits",
+      "name": "PROT_RECOVERY",
+      "description": "Allow recovery of selected protection faults.",
+      "subcommand": 155,
+      "subcommand_reg": 62,
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "VOLTREC=0",
+            "VOLTREC=1"
+          ],
+          "description": "COV/CUV fault recovery"
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "DIAGREC=0",
+            "DIAGREC=1"
+          ],
+          "description": "Diagnostic fault recovery"
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "SCDREC=0",
+            "SCDREC=1"
+          ],
+          "description": "SCD recovery"
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD1REC=0",
+            "OCD1REC=1"
+          ],
+          "description": "OCD1 recovery"
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD2REC=0",
+            "OCD2REC=1"
+          ],
+          "description": "OCD2 recovery"
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "OCCREC=0",
+            "OCCREC=1"
+          ],
+          "description": "OCC recovery"
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "TEMPREC=0",
+            "TEMPREC=1"
+          ],
+          "description": "Temperature fault recovery"
+        }
+      ]
+    }
+  ],
+  "display_groups": [
+    {
+      "name": "Pack Measurements",
+      "kind": "banner"
+    },
+    {
+      "name": "IC Measurements",
+      "kind": "banner"
+    },
+    {
+      "name": "Cell Measurements",
+      "kind": "pane"
+    },
+    {
+      "name": "Current & Charge",
+      "kind": "pane"
+    },
+    {
+      "name": "Device Info",
+      "kind": "pane"
+    }
+  ]
+}

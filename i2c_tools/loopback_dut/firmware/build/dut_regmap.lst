@@ -1,0 +1,700 @@
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 1
+
+
+   1              		.cpu cortex-m33
+   2              		.arch armv8-m.main
+   3              		.fpu fpv5-sp-d16
+   4              		.arch_extension dsp
+   5              		.eabi_attribute 27, 1
+   6              		.eabi_attribute 28, 1
+   7              		.eabi_attribute 20, 1
+   8              		.eabi_attribute 21, 1
+   9              		.eabi_attribute 23, 3
+  10              		.eabi_attribute 24, 1
+  11              		.eabi_attribute 25, 1
+  12              		.eabi_attribute 26, 1
+  13              		.eabi_attribute 30, 1
+  14              		.eabi_attribute 34, 1
+  15              		.eabi_attribute 18, 4
+  16              		.file	"dut_regmap.c"
+  17              		.text
+  18              	.Ltext0:
+  19              		.cfi_sections	.debug_frame
+  20              		.file 1 "App/Src/dut_regmap.c"
+  21              		.section	.text.block_byte,"ax",%progbits
+  22              		.align	1
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	block_byte:
+  28              	.LVL0:
+  29              	.LFB3:
+   1:App/Src/dut_regmap.c **** /**
+   2:App/Src/dut_regmap.c ****  * [v0.1]
+   3:App/Src/dut_regmap.c ****  * @file    dut_regmap.c
+   4:App/Src/dut_regmap.c ****  * @brief   Synthetic responder register map (see dut_regmap.h, PROTOCOL.md §4).
+   5:App/Src/dut_regmap.c ****  */
+   6:App/Src/dut_regmap.c **** #include "dut_regmap.h"
+   7:App/Src/dut_regmap.c **** 
+   8:App/Src/dut_regmap.c **** void dut_regmap_init(dut_regmap_t *m, uint16_t base)
+   9:App/Src/dut_regmap.c **** {
+  10:App/Src/dut_regmap.c ****     m->base   = base;
+  11:App/Src/dut_regmap.c ****     m->ptr    = 0U;
+  12:App/Src/dut_regmap.c ****     m->subcmd = 0U;
+  13:App/Src/dut_regmap.c ****     m->sub_lo = 0U;
+  14:App/Src/dut_regmap.c **** }
+  15:App/Src/dut_regmap.c **** 
+  16:App/Src/dut_regmap.c **** void dut_regmap_write(dut_regmap_t *m, uint32_t index, uint8_t byte)
+  17:App/Src/dut_regmap.c **** {
+  18:App/Src/dut_regmap.c ****     if (index == 0U)
+  19:App/Src/dut_regmap.c ****     {
+  20:App/Src/dut_regmap.c ****         m->ptr = byte;
+  21:App/Src/dut_regmap.c ****         return;
+  22:App/Src/dut_regmap.c ****     }
+  23:App/Src/dut_regmap.c ****     if (m->ptr == DUT_BLOCK_START)
+  24:App/Src/dut_regmap.c ****     {
+  25:App/Src/dut_regmap.c ****         if (index == 1U)
+  26:App/Src/dut_regmap.c ****         {
+  27:App/Src/dut_regmap.c ****             m->sub_lo = byte;
+  28:App/Src/dut_regmap.c ****         }
+  29:App/Src/dut_regmap.c ****         else if (index == 2U)
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 2
+
+
+  30:App/Src/dut_regmap.c ****         {
+  31:App/Src/dut_regmap.c ****             m->subcmd = (uint16_t)(m->sub_lo | ((uint16_t)byte << 8));
+  32:App/Src/dut_regmap.c ****         }
+  33:App/Src/dut_regmap.c ****     }
+  34:App/Src/dut_regmap.c ****     /* other data bytes: acknowledged, not stored (reads stay a pure
+  35:App/Src/dut_regmap.c ****      * function of the pointer, so expected values never depend on history
+  36:App/Src/dut_regmap.c ****      * other than the subcommand)                                           */
+  37:App/Src/dut_regmap.c **** }
+  38:App/Src/dut_regmap.c **** 
+  39:App/Src/dut_regmap.c **** static uint8_t block_byte(const dut_regmap_t *m, uint32_t off)
+  40:App/Src/dut_regmap.c **** {
+  30              		.loc 1 40 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  41:App/Src/dut_regmap.c ****     const uint8_t lo = (uint8_t)(m->subcmd & 0xFFU);
+  34              		.loc 1 41 5 view .LVU1
+  35              		.loc 1 41 35 is_stmt 0 view .LVU2
+  36 0000 8388     		ldrh	r3, [r0, #4]
+  37              		.loc 1 41 19 view .LVU3
+  38 0002 D8B2     		uxtb	r0, r3
+  39              	.LVL1:
+  42:App/Src/dut_regmap.c ****     const uint8_t hi = (uint8_t)(m->subcmd >> 8);
+  40              		.loc 1 42 5 is_stmt 1 view .LVU4
+  43:App/Src/dut_regmap.c **** 
+  44:App/Src/dut_regmap.c ****     if (off == 0U) { return lo; }
+  41              		.loc 1 44 5 view .LVU5
+  42              		.loc 1 44 8 is_stmt 0 view .LVU6
+  43 0004 21B3     		cbz	r1, .L10
+  40:App/Src/dut_regmap.c ****     const uint8_t lo = (uint8_t)(m->subcmd & 0xFFU);
+  44              		.loc 1 40 1 view .LVU7
+  45 0006 00B5     		push	{lr}
+  46              	.LCFI0:
+  47              		.cfi_def_cfa_offset 4
+  48              		.cfi_offset 14, -4
+  49 0008 4FEA132E 		lsr	lr, r3, #8
+  50 000c 0A46     		mov	r2, r1
+  45:App/Src/dut_regmap.c ****     if (off == 1U) { return hi; }
+  51              		.loc 1 45 5 is_stmt 1 view .LVU8
+  52              		.loc 1 45 8 is_stmt 0 view .LVU9
+  53 000e 0129     		cmp	r1, #1
+  54 0010 1AD0     		beq	.L7
+  46:App/Src/dut_regmap.c ****     if (off < 2U + DUT_BLOCK_DATA_LEN)
+  55              		.loc 1 46 5 is_stmt 1 view .LVU10
+  56              		.loc 1 46 8 is_stmt 0 view .LVU11
+  57 0012 2129     		cmp	r1, #33
+  58 0014 05D9     		bls	.L13
+  47:App/Src/dut_regmap.c ****     {
+  48:App/Src/dut_regmap.c ****         return (uint8_t)((0x40U + (off - 2U)) ^ lo);
+  49:App/Src/dut_regmap.c ****     }
+  50:App/Src/dut_regmap.c ****     if (off == 2U + DUT_BLOCK_DATA_LEN)            /* 0x60 checksum        */
+  59              		.loc 1 50 5 is_stmt 1 view .LVU12
+  60              		.loc 1 50 8 is_stmt 0 view .LVU13
+  61 0016 2229     		cmp	r1, #34
+  62 0018 07D0     		beq	.L14
+  51:App/Src/dut_regmap.c ****     {
+  52:App/Src/dut_regmap.c ****         uint32_t sum = (uint32_t)lo + hi;
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 3
+
+
+  53:App/Src/dut_regmap.c ****         for (uint32_t i = 0U; i < DUT_BLOCK_DATA_LEN; i++)
+  54:App/Src/dut_regmap.c ****         {
+  55:App/Src/dut_regmap.c ****             sum += (uint8_t)((0x40U + i) ^ lo);
+  56:App/Src/dut_regmap.c ****         }
+  57:App/Src/dut_regmap.c ****         return (uint8_t)(~sum & 0xFFU);
+  58:App/Src/dut_regmap.c ****     }
+  59:App/Src/dut_regmap.c ****     if (off == 3U + DUT_BLOCK_DATA_LEN)            /* 0x61 length          */
+  63              		.loc 1 59 5 is_stmt 1 view .LVU14
+  64              		.loc 1 59 8 is_stmt 0 view .LVU15
+  65 001a 2329     		cmp	r1, #35
+  66 001c 16D0     		beq	.L8
+  60:App/Src/dut_regmap.c ****     {
+  61:App/Src/dut_regmap.c ****         return (uint8_t)(DUT_BLOCK_DATA_LEN + 4U);
+  62:App/Src/dut_regmap.c ****     }
+  63:App/Src/dut_regmap.c ****     return 0xFFU;
+  67              		.loc 1 63 12 view .LVU16
+  68 001e FF20     		movs	r0, #255
+  69              	.LVL2:
+  70              	.L2:
+  64:App/Src/dut_regmap.c **** }
+  71              		.loc 1 64 1 view .LVU17
+  72 0020 00BD     		pop	{pc}
+  73              	.LVL3:
+  74              	.L13:
+  48:App/Src/dut_regmap.c ****     }
+  75              		.loc 1 48 9 is_stmt 1 view .LVU18
+  48:App/Src/dut_regmap.c ****     }
+  76              		.loc 1 48 33 is_stmt 0 view .LVU19
+  77 0022 3E32     		adds	r2, r2, #62
+  78 0024 D2B2     		uxtb	r2, r2
+  48:App/Src/dut_regmap.c ****     }
+  79              		.loc 1 48 16 view .LVU20
+  80 0026 5040     		eors	r0, r0, r2
+  81              	.LVL4:
+  48:App/Src/dut_regmap.c ****     }
+  82              		.loc 1 48 16 view .LVU21
+  83 0028 FAE7     		b	.L2
+  84              	.LVL5:
+  85              	.L14:
+  86              	.LBB6:
+  52:App/Src/dut_regmap.c ****         for (uint32_t i = 0U; i < DUT_BLOCK_DATA_LEN; i++)
+  87              		.loc 1 52 9 is_stmt 1 view .LVU22
+  52:App/Src/dut_regmap.c ****         for (uint32_t i = 0U; i < DUT_BLOCK_DATA_LEN; i++)
+  88              		.loc 1 52 18 is_stmt 0 view .LVU23
+  89 002a 5EFA83F1 		uxtab	r1, lr, r3
+  90              	.LVL6:
+  53:App/Src/dut_regmap.c ****         {
+  91              		.loc 1 53 9 is_stmt 1 view .LVU24
+  92              	.LBB7:
+  53:App/Src/dut_regmap.c ****         {
+  93              		.loc 1 53 14 view .LVU25
+  53:App/Src/dut_regmap.c ****         {
+  94              		.loc 1 53 23 is_stmt 0 view .LVU26
+  95 002e 0022     		movs	r2, #0
+  96              	.LVL7:
+  53:App/Src/dut_regmap.c ****         {
+  97              		.loc 1 53 9 view .LVU27
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 4
+
+
+  98 0030 05E0     		b	.L5
+  99              	.LVL8:
+ 100              	.L6:
+  55:App/Src/dut_regmap.c ****         }
+ 101              		.loc 1 55 13 is_stmt 1 view .LVU28
+  55:App/Src/dut_regmap.c ****         }
+ 102              		.loc 1 55 37 is_stmt 0 view .LVU29
+ 103 0032 02F14003 		add	r3, r2, #64
+ 104 0036 DBB2     		uxtb	r3, r3
+  55:App/Src/dut_regmap.c ****         }
+ 105              		.loc 1 55 20 view .LVU30
+ 106 0038 4340     		eors	r3, r3, r0
+  55:App/Src/dut_regmap.c ****         }
+ 107              		.loc 1 55 17 view .LVU31
+ 108 003a 1944     		add	r1, r1, r3
+ 109              	.LVL9:
+  53:App/Src/dut_regmap.c ****         {
+ 110              		.loc 1 53 56 is_stmt 1 discriminator 3 view .LVU32
+ 111 003c 0132     		adds	r2, r2, #1
+ 112              	.LVL10:
+ 113              	.L5:
+  53:App/Src/dut_regmap.c ****         {
+ 114              		.loc 1 53 33 discriminator 1 view .LVU33
+ 115 003e 1F2A     		cmp	r2, #31
+ 116 0040 F7D9     		bls	.L6
+  53:App/Src/dut_regmap.c ****         {
+ 117              		.loc 1 53 33 is_stmt 0 discriminator 1 view .LVU34
+ 118              	.LBE7:
+  57:App/Src/dut_regmap.c ****     }
+ 119              		.loc 1 57 9 is_stmt 1 view .LVU35
+  57:App/Src/dut_regmap.c ****     }
+ 120              		.loc 1 57 16 is_stmt 0 view .LVU36
+ 121 0042 C943     		mvns	r1, r1
+ 122              	.LVL11:
+  57:App/Src/dut_regmap.c ****     }
+ 123              		.loc 1 57 16 view .LVU37
+ 124 0044 C8B2     		uxtb	r0, r1
+ 125              	.LVL12:
+  57:App/Src/dut_regmap.c ****     }
+ 126              		.loc 1 57 16 view .LVU38
+ 127 0046 EBE7     		b	.L2
+ 128              	.LVL13:
+ 129              	.L7:
+  57:App/Src/dut_regmap.c ****     }
+ 130              		.loc 1 57 16 view .LVU39
+ 131              	.LBE6:
+  45:App/Src/dut_regmap.c ****     if (off < 2U + DUT_BLOCK_DATA_LEN)
+ 132              		.loc 1 45 29 discriminator 1 view .LVU40
+ 133 0048 7046     		mov	r0, lr
+ 134              	.LVL14:
+  45:App/Src/dut_regmap.c ****     if (off < 2U + DUT_BLOCK_DATA_LEN)
+ 135              		.loc 1 45 29 discriminator 1 view .LVU41
+ 136 004a E9E7     		b	.L2
+ 137              	.LVL15:
+ 138              	.L8:
+  61:App/Src/dut_regmap.c ****     }
+ 139              		.loc 1 61 16 view .LVU42
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 5
+
+
+ 140 004c 2420     		movs	r0, #36
+ 141              	.LVL16:
+  61:App/Src/dut_regmap.c ****     }
+ 142              		.loc 1 61 16 view .LVU43
+ 143 004e E7E7     		b	.L2
+ 144              	.LVL17:
+ 145              	.L10:
+ 146              	.LCFI1:
+ 147              		.cfi_def_cfa_offset 0
+ 148              		.cfi_restore 14
+ 149              		.loc 1 64 1 view .LVU44
+ 150 0050 7047     		bx	lr
+ 151              		.cfi_endproc
+ 152              	.LFE3:
+ 154              		.section	.text.dut_regmap_init,"ax",%progbits
+ 155              		.align	1
+ 156              		.global	dut_regmap_init
+ 157              		.syntax unified
+ 158              		.thumb
+ 159              		.thumb_func
+ 161              	dut_regmap_init:
+ 162              	.LVL18:
+ 163              	.LFB1:
+   9:App/Src/dut_regmap.c ****     m->base   = base;
+ 164              		.loc 1 9 1 is_stmt 1 view -0
+ 165              		.cfi_startproc
+ 166              		@ args = 0, pretend = 0, frame = 0
+ 167              		@ frame_needed = 0, uses_anonymous_args = 0
+ 168              		@ link register save eliminated.
+  10:App/Src/dut_regmap.c ****     m->ptr    = 0U;
+ 169              		.loc 1 10 5 view .LVU46
+  10:App/Src/dut_regmap.c ****     m->ptr    = 0U;
+ 170              		.loc 1 10 15 is_stmt 0 view .LVU47
+ 171 0000 0180     		strh	r1, [r0]	@ movhi
+  11:App/Src/dut_regmap.c ****     m->subcmd = 0U;
+ 172              		.loc 1 11 5 is_stmt 1 view .LVU48
+  11:App/Src/dut_regmap.c ****     m->subcmd = 0U;
+ 173              		.loc 1 11 15 is_stmt 0 view .LVU49
+ 174 0002 0023     		movs	r3, #0
+ 175 0004 8370     		strb	r3, [r0, #2]
+  12:App/Src/dut_regmap.c ****     m->sub_lo = 0U;
+ 176              		.loc 1 12 5 is_stmt 1 view .LVU50
+  12:App/Src/dut_regmap.c ****     m->sub_lo = 0U;
+ 177              		.loc 1 12 15 is_stmt 0 view .LVU51
+ 178 0006 8380     		strh	r3, [r0, #4]	@ movhi
+  13:App/Src/dut_regmap.c **** }
+ 179              		.loc 1 13 5 is_stmt 1 view .LVU52
+  13:App/Src/dut_regmap.c **** }
+ 180              		.loc 1 13 15 is_stmt 0 view .LVU53
+ 181 0008 8371     		strb	r3, [r0, #6]
+  14:App/Src/dut_regmap.c **** 
+ 182              		.loc 1 14 1 view .LVU54
+ 183 000a 7047     		bx	lr
+ 184              		.cfi_endproc
+ 185              	.LFE1:
+ 187              		.section	.text.dut_regmap_write,"ax",%progbits
+ 188              		.align	1
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 6
+
+
+ 189              		.global	dut_regmap_write
+ 190              		.syntax unified
+ 191              		.thumb
+ 192              		.thumb_func
+ 194              	dut_regmap_write:
+ 195              	.LVL19:
+ 196              	.LFB2:
+  17:App/Src/dut_regmap.c ****     if (index == 0U)
+ 197              		.loc 1 17 1 is_stmt 1 view -0
+ 198              		.cfi_startproc
+ 199              		@ args = 0, pretend = 0, frame = 0
+ 200              		@ frame_needed = 0, uses_anonymous_args = 0
+ 201              		@ link register save eliminated.
+  18:App/Src/dut_regmap.c ****     {
+ 202              		.loc 1 18 5 view .LVU56
+  18:App/Src/dut_regmap.c ****     {
+ 203              		.loc 1 18 8 is_stmt 0 view .LVU57
+ 204 0000 0B46     		mov	r3, r1
+ 205 0002 19B1     		cbz	r1, .L20
+  23:App/Src/dut_regmap.c ****     {
+ 206              		.loc 1 23 5 is_stmt 1 view .LVU58
+  23:App/Src/dut_regmap.c ****     {
+ 207              		.loc 1 23 10 is_stmt 0 view .LVU59
+ 208 0004 8178     		ldrb	r1, [r0, #2]	@ zero_extendqisi2
+ 209              	.LVL20:
+  23:App/Src/dut_regmap.c ****     {
+ 210              		.loc 1 23 8 view .LVU60
+ 211 0006 3E29     		cmp	r1, #62
+ 212 0008 02D0     		beq	.L21
+ 213              	.LVL21:
+ 214              	.L16:
+  37:App/Src/dut_regmap.c **** 
+ 215              		.loc 1 37 1 view .LVU61
+ 216 000a 7047     		bx	lr
+ 217              	.LVL22:
+ 218              	.L20:
+  20:App/Src/dut_regmap.c ****         return;
+ 219              		.loc 1 20 9 is_stmt 1 view .LVU62
+  20:App/Src/dut_regmap.c ****         return;
+ 220              		.loc 1 20 16 is_stmt 0 view .LVU63
+ 221 000c 8270     		strb	r2, [r0, #2]
+  21:App/Src/dut_regmap.c ****     }
+ 222              		.loc 1 21 9 is_stmt 1 view .LVU64
+ 223 000e 7047     		bx	lr
+ 224              	.LVL23:
+ 225              	.L21:
+  25:App/Src/dut_regmap.c ****         {
+ 226              		.loc 1 25 9 view .LVU65
+  25:App/Src/dut_regmap.c ****         {
+ 227              		.loc 1 25 12 is_stmt 0 view .LVU66
+ 228 0010 012B     		cmp	r3, #1
+ 229 0012 06D0     		beq	.L22
+  29:App/Src/dut_regmap.c ****         {
+ 230              		.loc 1 29 14 is_stmt 1 view .LVU67
+  29:App/Src/dut_regmap.c ****         {
+ 231              		.loc 1 29 17 is_stmt 0 view .LVU68
+ 232 0014 022B     		cmp	r3, #2
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 7
+
+
+ 233 0016 F8D1     		bne	.L16
+  31:App/Src/dut_regmap.c ****         }
+ 234              		.loc 1 31 13 is_stmt 1 view .LVU69
+  31:App/Src/dut_regmap.c ****         }
+ 235              		.loc 1 31 37 is_stmt 0 view .LVU70
+ 236 0018 8379     		ldrb	r3, [r0, #6]	@ zero_extendqisi2
+ 237              	.LVL24:
+  31:App/Src/dut_regmap.c ****         }
+ 238              		.loc 1 31 25 view .LVU71
+ 239 001a 43EA0223 		orr	r3, r3, r2, lsl #8
+  31:App/Src/dut_regmap.c ****         }
+ 240              		.loc 1 31 23 view .LVU72
+ 241 001e 8380     		strh	r3, [r0, #4]	@ movhi
+ 242 0020 F3E7     		b	.L16
+ 243              	.LVL25:
+ 244              	.L22:
+  27:App/Src/dut_regmap.c ****         }
+ 245              		.loc 1 27 13 is_stmt 1 view .LVU73
+  27:App/Src/dut_regmap.c ****         }
+ 246              		.loc 1 27 23 is_stmt 0 view .LVU74
+ 247 0022 8271     		strb	r2, [r0, #6]
+ 248 0024 7047     		bx	lr
+ 249              		.cfi_endproc
+ 250              	.LFE2:
+ 252              		.section	.text.dut_regmap_read,"ax",%progbits
+ 253              		.align	1
+ 254              		.global	dut_regmap_read
+ 255              		.syntax unified
+ 256              		.thumb
+ 257              		.thumb_func
+ 259              	dut_regmap_read:
+ 260              	.LVL26:
+ 261              	.LFB4:
+  65:App/Src/dut_regmap.c **** 
+  66:App/Src/dut_regmap.c **** uint8_t dut_regmap_read(const dut_regmap_t *m, uint32_t k)
+  67:App/Src/dut_regmap.c **** {
+ 262              		.loc 1 67 1 is_stmt 1 view -0
+ 263              		.cfi_startproc
+ 264              		@ args = 0, pretend = 0, frame = 0
+ 265              		@ frame_needed = 0, uses_anonymous_args = 0
+ 266              		.loc 1 67 1 is_stmt 0 view .LVU76
+ 267 0000 08B5     		push	{r3, lr}
+ 268              	.LCFI2:
+ 269              		.cfi_def_cfa_offset 8
+ 270              		.cfi_offset 3, -8
+ 271              		.cfi_offset 14, -4
+  68:App/Src/dut_regmap.c ****     if ((m->ptr >= DUT_BLOCK_START) && (m->ptr <= DUT_BLOCK_END))
+ 272              		.loc 1 68 5 is_stmt 1 view .LVU77
+ 273              		.loc 1 68 11 is_stmt 0 view .LVU78
+ 274 0002 8278     		ldrb	r2, [r0, #2]	@ zero_extendqisi2
+ 275              		.loc 1 68 37 view .LVU79
+ 276 0004 A2F13E03 		sub	r3, r2, #62
+ 277 0008 DBB2     		uxtb	r3, r3
+ 278              		.loc 1 68 8 view .LVU80
+ 279 000a 232B     		cmp	r3, #35
+ 280 000c 0BD9     		bls	.L28
+  69:App/Src/dut_regmap.c ****     {
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 8
+
+
+  70:App/Src/dut_regmap.c ****         return block_byte(m, (uint32_t)(m->ptr - DUT_BLOCK_START) + k);
+  71:App/Src/dut_regmap.c ****     }
+  72:App/Src/dut_regmap.c ****     const uint16_t word = (uint16_t)(m->base + m->ptr + (k >> 1));
+ 281              		.loc 1 72 5 is_stmt 1 view .LVU81
+ 282              		.loc 1 72 39 is_stmt 0 view .LVU82
+ 283 000e 0088     		ldrh	r0, [r0]
+ 284              	.LVL27:
+ 285              		.loc 1 72 46 view .LVU83
+ 286 0010 1044     		add	r0, r0, r2
+ 287              		.loc 1 72 27 view .LVU84
+ 288 0012 C1F34F03 		ubfx	r3, r1, #1, #16
+ 289              		.loc 1 72 20 view .LVU85
+ 290 0016 13FA80F0 		uxtah	r0, r3, r0
+ 291 001a 80B2     		uxth	r0, r0
+ 292              	.LVL28:
+  73:App/Src/dut_regmap.c ****     return (uint8_t)((k & 1U) ? (word >> 8) : (word & 0xFFU));
+ 293              		.loc 1 73 5 is_stmt 1 view .LVU86
+ 294              		.loc 1 73 12 is_stmt 0 view .LVU87
+ 295 001c 11F0010F 		tst	r1, #1
+ 296 0020 06D0     		beq	.L26
+ 297              		.loc 1 73 12 discriminator 1 view .LVU88
+ 298 0022 000A     		lsrs	r0, r0, #8
+ 299              	.LVL29:
+ 300              		.loc 1 73 12 discriminator 1 view .LVU89
+ 301 0024 03E0     		b	.L25
+ 302              	.LVL30:
+ 303              	.L28:
+  70:App/Src/dut_regmap.c ****     }
+ 304              		.loc 1 70 9 is_stmt 1 view .LVU90
+  70:App/Src/dut_regmap.c ****     }
+ 305              		.loc 1 70 67 is_stmt 0 view .LVU91
+ 306 0026 1144     		add	r1, r1, r2
+ 307              	.LVL31:
+  70:App/Src/dut_regmap.c ****     }
+ 308              		.loc 1 70 16 view .LVU92
+ 309 0028 3E39     		subs	r1, r1, #62
+ 310 002a FFF7FEFF 		bl	block_byte
+ 311              	.LVL32:
+ 312              	.L25:
+  74:App/Src/dut_regmap.c **** }
+ 313              		.loc 1 74 1 view .LVU93
+ 314 002e 08BD     		pop	{r3, pc}
+ 315              	.LVL33:
+ 316              	.L26:
+  73:App/Src/dut_regmap.c ****     return (uint8_t)((k & 1U) ? (word >> 8) : (word & 0xFFU));
+ 317              		.loc 1 73 12 discriminator 2 view .LVU94
+ 318 0030 C0B2     		uxtb	r0, r0
+ 319              	.LVL34:
+  73:App/Src/dut_regmap.c ****     return (uint8_t)((k & 1U) ? (word >> 8) : (word & 0xFFU));
+ 320              		.loc 1 73 12 discriminator 2 view .LVU95
+ 321 0032 FCE7     		b	.L25
+ 322              		.cfi_endproc
+ 323              	.LFE4:
+ 325              		.section	.text.dut_crc8,"ax",%progbits
+ 326              		.align	1
+ 327              		.global	dut_crc8
+ 328              		.syntax unified
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 9
+
+
+ 329              		.thumb
+ 330              		.thumb_func
+ 332              	dut_crc8:
+ 333              	.LVL35:
+ 334              	.LFB5:
+  75:App/Src/dut_regmap.c **** 
+  76:App/Src/dut_regmap.c **** uint8_t dut_crc8(const uint8_t *p, uint32_t n)
+  77:App/Src/dut_regmap.c **** {
+ 335              		.loc 1 77 1 is_stmt 1 view -0
+ 336              		.cfi_startproc
+ 337              		@ args = 0, pretend = 0, frame = 0
+ 338              		@ frame_needed = 0, uses_anonymous_args = 0
+ 339              		@ link register save eliminated.
+ 340              		.loc 1 77 1 is_stmt 0 view .LVU97
+ 341 0000 8446     		mov	ip, r0
+  78:App/Src/dut_regmap.c ****     uint8_t crc = 0U;
+ 342              		.loc 1 78 5 is_stmt 1 view .LVU98
+ 343              	.LVL36:
+  79:App/Src/dut_regmap.c ****     for (uint32_t i = 0U; i < n; i++)
+ 344              		.loc 1 79 5 view .LVU99
+ 345              	.LBB8:
+ 346              		.loc 1 79 10 view .LVU100
+ 347              		.loc 1 79 19 is_stmt 0 view .LVU101
+ 348 0002 0022     		movs	r2, #0
+ 349              	.LBE8:
+  78:App/Src/dut_regmap.c ****     uint8_t crc = 0U;
+ 350              		.loc 1 78 13 view .LVU102
+ 351 0004 1046     		mov	r0, r2
+ 352              	.LVL37:
+ 353              	.LBB15:
+ 354              		.loc 1 79 5 view .LVU103
+ 355 0006 0DE0     		b	.L30
+ 356              	.LVL38:
+ 357              	.L37:
+ 358              	.LBB9:
+ 359              	.LBB10:
+ 360              	.LBB11:
+ 361              		.file 2 "App/Inc/dut_regmap.h"
+   1:App/Inc/dut_regmap.h **** /**
+   2:App/Inc/dut_regmap.h ****  * [v0.1]
+   3:App/Inc/dut_regmap.h ****  * @file    dut_regmap.h
+   4:App/Inc/dut_regmap.h ****  * @brief   Synthetic responder register map + SMBus CRC-8. Pure C: no HAL,
+   5:App/Inc/dut_regmap.h ****  *          compiled unchanged by loopback_dut/tests/host.
+   6:App/Inc/dut_regmap.h ****  *
+   7:App/Inc/dut_regmap.h ****  * The map is documented in loopback_dut/docs/PROTOCOL.md §4. Summary:
+   8:App/Inc/dut_regmap.h ****  *
+   9:App/Inc/dut_regmap.h ****  *   Pointer = first byte of every write phase. Reads start at the pointer.
+  10:App/Inc/dut_regmap.h ****  *
+  11:App/Inc/dut_regmap.h ****  *   Word region (pointer != 0x3E..0x61):
+  12:App/Inc/dut_regmap.h ****  *     read byte k = byte (k & 1) of word(ptr + k/2), little-endian,
+  13:App/Inc/dut_regmap.h ****  *     word(x) = (base + x) & 0xFFFF         (base 0xA000 R1, 0xB000 R2)
+  14:App/Inc/dut_regmap.h ****  *     e.g. R1, ptr 0x02, 4 bytes -> 02 A0 03 A0
+  15:App/Inc/dut_regmap.h ****  *
+  16:App/Inc/dut_regmap.h ****  *   Subcommand block (pointer 0x3E..0x61, byte-addressed, TI BQ769x shape,
+  17:App/Inc/dut_regmap.h ****  *   matches DecodeSchema._unwrap_subcommand_block):
+  18:App/Inc/dut_regmap.h ****  *     0x3E/0x3F  echo of the last subcommand written to 0x3E (LE)
+  19:App/Inc/dut_regmap.h ****  *     0x40..0x5F buf[i] = (0x40 + i) XOR (subcmd & 0xFF)
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 10
+
+
+  20:App/Inc/dut_regmap.h ****  *     0x60       ~(lo + hi + sum(buf)) & 0xFF
+  21:App/Inc/dut_regmap.h ****  *     0x61       36 (= 32 + 4)
+  22:App/Inc/dut_regmap.h ****  *     past 0x61  0xFF
+  23:App/Inc/dut_regmap.h ****  *
+  24:App/Inc/dut_regmap.h ****  *   Writes: byte 0 = pointer; if pointer == 0x3E, bytes 1..2 set the
+  25:App/Inc/dut_regmap.h ****  *   subcommand (LE). Other written data is acknowledged and counted only.
+  26:App/Inc/dut_regmap.h ****  */
+  27:App/Inc/dut_regmap.h **** #ifndef DUT_REGMAP_H
+  28:App/Inc/dut_regmap.h **** #define DUT_REGMAP_H
+  29:App/Inc/dut_regmap.h **** 
+  30:App/Inc/dut_regmap.h **** #include <stdint.h>
+  31:App/Inc/dut_regmap.h **** 
+  32:App/Inc/dut_regmap.h **** #define DUT_BLOCK_START     0x3EU
+  33:App/Inc/dut_regmap.h **** #define DUT_BLOCK_END       0x61U
+  34:App/Inc/dut_regmap.h **** #define DUT_BLOCK_LEN       36U       /* 0x3E..0x61 inclusive              */
+  35:App/Inc/dut_regmap.h **** #define DUT_BLOCK_DATA_LEN  32U
+  36:App/Inc/dut_regmap.h **** 
+  37:App/Inc/dut_regmap.h **** typedef struct
+  38:App/Inc/dut_regmap.h **** {
+  39:App/Inc/dut_regmap.h ****     uint16_t base;      /* word base (0xA000 / 0xB000)                     */
+  40:App/Inc/dut_regmap.h ****     uint8_t  ptr;       /* register pointer (persists across STOP)         */
+  41:App/Inc/dut_regmap.h ****     uint16_t subcmd;    /* last subcommand written to 0x3E                 */
+  42:App/Inc/dut_regmap.h ****     uint8_t  sub_lo;    /* assembling a subcommand write                   */
+  43:App/Inc/dut_regmap.h **** } dut_regmap_t;
+  44:App/Inc/dut_regmap.h **** 
+  45:App/Inc/dut_regmap.h **** void    dut_regmap_init(dut_regmap_t *m, uint16_t base);
+  46:App/Inc/dut_regmap.h **** 
+  47:App/Inc/dut_regmap.h **** /** Byte `index` of a write phase (0 = pointer). */
+  48:App/Inc/dut_regmap.h **** void    dut_regmap_write(dut_regmap_t *m, uint32_t index, uint8_t byte);
+  49:App/Inc/dut_regmap.h **** 
+  50:App/Inc/dut_regmap.h **** /** Byte `k` (0-based) of a read phase that starts at the current pointer. */
+  51:App/Inc/dut_regmap.h **** uint8_t dut_regmap_read(const dut_regmap_t *m, uint32_t k);
+  52:App/Inc/dut_regmap.h **** 
+  53:App/Inc/dut_regmap.h **** /** SMBus CRC-8: poly 0x07, init 0x00, no reflection, no final XOR. */
+  54:App/Inc/dut_regmap.h **** static inline uint8_t dut_crc8_update(uint8_t crc, uint8_t byte)
+  55:App/Inc/dut_regmap.h **** {
+  56:App/Inc/dut_regmap.h ****     crc ^= byte;
+  57:App/Inc/dut_regmap.h ****     for (int i = 0; i < 8; i++)
+  58:App/Inc/dut_regmap.h ****     {
+  59:App/Inc/dut_regmap.h ****         crc = (uint8_t)((crc & 0x80U) ? (((uint32_t)crc << 1) ^ 0x07U)
+ 362              		.loc 2 59 57 discriminator 1 view .LVU104
+ 363 0008 4000     		lsls	r0, r0, #1
+ 364              	.LVL39:
+ 365              		.loc 2 59 57 discriminator 1 view .LVU105
+ 366 000a C0B2     		uxtb	r0, r0
+ 367              		.loc 2 59 13 discriminator 1 view .LVU106
+ 368 000c 80F00700 		eor	r0, r0, #7
+ 369              	.LVL40:
+ 370              	.L33:
+  57:App/Inc/dut_regmap.h ****     {
+ 371              		.loc 2 57 29 is_stmt 1 discriminator 2 view .LVU107
+ 372 0010 0133     		adds	r3, r3, #1
+ 373              	.LVL41:
+ 374              	.L31:
+  57:App/Inc/dut_regmap.h ****     {
+ 375              		.loc 2 57 23 discriminator 1 view .LVU108
+ 376 0012 072B     		cmp	r3, #7
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 11
+
+
+ 377 0014 05DC     		bgt	.L36
+ 378              		.loc 2 59 9 view .LVU109
+ 379              		.loc 2 59 15 is_stmt 0 view .LVU110
+ 380 0016 10F0800F 		tst	r0, #128
+ 381 001a F5D1     		bne	.L37
+ 382              		.loc 2 59 13 discriminator 2 view .LVU111
+ 383 001c 4000     		lsls	r0, r0, #1
+ 384              	.LVL42:
+ 385              		.loc 2 59 13 discriminator 2 view .LVU112
+ 386 001e C0B2     		uxtb	r0, r0
+ 387 0020 F6E7     		b	.L33
+ 388              	.LVL43:
+ 389              	.L36:
+ 390              		.loc 2 59 13 discriminator 2 view .LVU113
+ 391              	.LBE11:
+  60:App/Inc/dut_regmap.h ****                                       : ((uint32_t)crc << 1));
+  61:App/Inc/dut_regmap.h ****     }
+  62:App/Inc/dut_regmap.h ****     return crc;
+ 392              		.loc 2 62 5 is_stmt 1 view .LVU114
+ 393              		.loc 2 62 5 is_stmt 0 view .LVU115
+ 394              	.LBE10:
+ 395              	.LBE9:
+ 396              		.loc 1 79 35 is_stmt 1 discriminator 3 view .LVU116
+ 397 0022 0132     		adds	r2, r2, #1
+ 398              	.LVL44:
+ 399              	.L30:
+ 400              		.loc 1 79 29 discriminator 1 view .LVU117
+ 401 0024 8A42     		cmp	r2, r1
+ 402 0026 04D2     		bcs	.L38
+  80:App/Src/dut_regmap.c ****     {
+  81:App/Src/dut_regmap.c ****         crc = dut_crc8_update(crc, p[i]);
+ 403              		.loc 1 81 9 view .LVU118
+ 404              		.loc 1 81 15 is_stmt 0 view .LVU119
+ 405 0028 1CF80230 		ldrb	r3, [ip, r2]	@ zero_extendqisi2
+ 406              	.LVL45:
+ 407              	.LBB14:
+ 408              	.LBI9:
+  54:App/Inc/dut_regmap.h **** {
+ 409              		.loc 2 54 23 is_stmt 1 view .LVU120
+ 410              	.LBB13:
+  56:App/Inc/dut_regmap.h ****     for (int i = 0; i < 8; i++)
+ 411              		.loc 2 56 5 view .LVU121
+  56:App/Inc/dut_regmap.h ****     for (int i = 0; i < 8; i++)
+ 412              		.loc 2 56 9 is_stmt 0 view .LVU122
+ 413 002c 5840     		eors	r0, r0, r3
+ 414              	.LVL46:
+  57:App/Inc/dut_regmap.h ****     {
+ 415              		.loc 2 57 5 is_stmt 1 view .LVU123
+ 416              	.LBB12:
+  57:App/Inc/dut_regmap.h ****     {
+ 417              		.loc 2 57 10 view .LVU124
+  57:App/Inc/dut_regmap.h ****     {
+ 418              		.loc 2 57 14 is_stmt 0 view .LVU125
+ 419 002e 0023     		movs	r3, #0
+  57:App/Inc/dut_regmap.h ****     {
+ 420              		.loc 2 57 5 view .LVU126
+ 421 0030 EFE7     		b	.L31
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 12
+
+
+ 422              	.LVL47:
+ 423              	.L38:
+  57:App/Inc/dut_regmap.h ****     {
+ 424              		.loc 2 57 5 view .LVU127
+ 425              	.LBE12:
+ 426              	.LBE13:
+ 427              	.LBE14:
+ 428              	.LBE15:
+  82:App/Src/dut_regmap.c ****     }
+  83:App/Src/dut_regmap.c ****     return crc;
+ 429              		.loc 1 83 5 is_stmt 1 view .LVU128
+  84:App/Src/dut_regmap.c **** }
+ 430              		.loc 1 84 1 is_stmt 0 view .LVU129
+ 431 0032 7047     		bx	lr
+ 432              		.cfi_endproc
+ 433              	.LFE5:
+ 435              		.text
+ 436              	.Letext0:
+ 437              		.file 3 "/Applications/ArmGNUToolchain/15.2.rel1/arm-none-eabi/arm-none-eabi/include/machine/_defa
+ 438              		.file 4 "/Applications/ArmGNUToolchain/15.2.rel1/arm-none-eabi/arm-none-eabi/include/sys/_stdint.h
+ARM GAS  /var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 dut_regmap.c
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:22     .text.block_byte:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:27     .text.block_byte:00000000 block_byte
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:155    .text.dut_regmap_init:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:161    .text.dut_regmap_init:00000000 dut_regmap_init
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:188    .text.dut_regmap_write:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:194    .text.dut_regmap_write:00000000 dut_regmap_write
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:253    .text.dut_regmap_read:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:259    .text.dut_regmap_read:00000000 dut_regmap_read
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:326    .text.dut_crc8:00000000 $t
+/var/folders/9k/smst4kss2fl0cw56q7g7rjfc0000gp/T//ccDLk64s.s:332    .text.dut_crc8:00000000 dut_crc8
+
+NO UNDEFINED SYMBOLS

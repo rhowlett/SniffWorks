@@ -1,0 +1,4 @@
+# ion_i2c_tool Python dependencies (installed into .venv by install.sh)
+PySide6>=6.6        # GUI framework (all apps)
+pyserial>=3.5       # ion/Nucleo probe serial link (sniffer_ion, tools/)
+jsonschema>=4.0     # optional: validates decoder/theme JSON in tests

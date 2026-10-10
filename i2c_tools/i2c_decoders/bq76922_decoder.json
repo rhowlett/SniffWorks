@@ -1,0 +1,3191 @@
+{
+  "version": 4,
+  "device": "BQ76922",
+  "description": "TI BQ76922 3s-5s battery monitor/protector (BQ769x2 family). Direct commands + subcommand protocol per the BQ76922 TRM SLUUCG7 (Apr 2024); rules noting 'family standard' use the shared BQ769x2 register layout (cross-checked against family TRMs and BQStudio) and should be verified against SLUUCG7 \u00a712 when convenient. userV default = 10 mV (cV); userA default per DA Configuration (1 mA typical). Temperatures reported raw in 0.1 K, decoded to degC. Subcommands use 0x3E/0x3F + transfer buffer 0x40-0x5F with checksum 0x60 / length 0x61. Data-memory (RAM/OTP settings) traffic appears as subcommand+buffer transfers and is not individually named.",
+  "i2c_address": 8,
+  "i2c_address_hex": "0x08",
+  "i2c_address_8bit": {
+    "write": "0x10",
+    "read": "0x11"
+  },
+  "byte_order_note": "All multi-byte values little-endian.",
+  "display_groups": [
+    {
+      "name": "Pack Measurements",
+      "kind": "banner"
+    },
+    {
+      "name": "IC Measurements",
+      "kind": "banner"
+    },
+    {
+      "name": "Cell Voltages",
+      "kind": "pane"
+    },
+    {
+      "name": "Temperatures",
+      "kind": "pane"
+    },
+    {
+      "name": "Device Info",
+      "kind": "pane"
+    }
+  ],
+  "rules": [
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 2,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Safety Alert A",
+      "description": "Per TRM SLUUCG7 (Apr 2024) Table 5-1.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "SCD=0",
+            "SCD=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD2=0",
+            "OCD2=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD1=0",
+            "OCD1=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "OCC=0",
+            "OCC=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "COV=0",
+            "COV=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "CUV=0",
+            "CUV=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 3,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Safety Status A",
+      "description": "Per TRM SLUUCG7 (Apr 2024) Table 5-2.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "SCD=0",
+            "SCD=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD2=0",
+            "OCD2=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD1=0",
+            "OCD1=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "OCC=0",
+            "OCC=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "COV=0",
+            "COV=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "CUV=0",
+            "CUV=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 4,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Safety Alert B",
+      "description": "Per TRM SLUUCG7 (Apr 2024) Table 5-3.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "OTF=0",
+            "OTF=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "OTINT=0",
+            "OTINT=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "OTD=0",
+            "OTD=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "OTC=0",
+            "OTC=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "UTINT=0",
+            "UTINT=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "UTD=0",
+            "UTD=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "UTC=0",
+            "UTC=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 5,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Safety Status B",
+      "description": "Per TRM SLUUCG7 (Apr 2024) Table 5-4.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "OTF=0",
+            "OTF=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "OTINT=0",
+            "OTINT=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "OTD=0",
+            "OTD=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "OTC=0",
+            "OTC=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "UTINT=0",
+            "UTINT=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "UTD=0",
+            "UTD=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "UTC=0",
+            "UTC=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 6,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Safety Alert C",
+      "description": "Per TRM SLUUCG7 (Apr 2024) Table 5-5.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD3=0",
+            "OCD3=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "SCDL=0",
+            "SCDL=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "OCDL=0",
+            "OCDL=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "COVL=0",
+            "COVL=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "PTOS=0",
+            "PTOS=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 7,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Safety Status C",
+      "description": "Per TRM SLUUCG7 (Apr 2024) Table 5-6.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "OCD3=0",
+            "OCD3=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "SCDL=0",
+            "SCDL=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "OCDL=0",
+            "OCDL=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "COVL=0",
+            "COVL=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "PTO=0",
+            "PTO=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "HWDF=0",
+            "HWDF=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 10,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "PF Alert A",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "CUDEP=0",
+            "CUDEP=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "SOTF=0",
+            "SOTF=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "SOT=0",
+            "SOT=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "SOCD=0",
+            "SOCD=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "SOCC=0",
+            "SOCC=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "SOV=0",
+            "SOV=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "SUV=0",
+            "SUV=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 11,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "PF Status A",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "CUDEP=0",
+            "CUDEP=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "SOTF=0",
+            "SOTF=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "SOT=0",
+            "SOT=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "SOCD=0",
+            "SOCD=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "SOCC=0",
+            "SOCC=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "SOV=0",
+            "SOV=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "SUV=0",
+            "SUV=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 12,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "PF Alert B",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "SCDL=0",
+            "SCDL=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "VIMA=0",
+            "VIMA=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "VIMR=0",
+            "VIMR=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "2LVL=0",
+            "2LVL=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "DFETF=0",
+            "DFETF=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "CFETF=0",
+            "CFETF=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 13,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "PF Status B",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "SCDL=0",
+            "SCDL=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "VIMA=0",
+            "VIMA=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "VIMR=0",
+            "VIMR=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "2LVL=0",
+            "2LVL=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "DFETF=0",
+            "DFETF=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "CFETF=0",
+            "CFETF=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 14,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "PF Alert C",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "HWMX=0",
+            "HWMX=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "VSSF=0",
+            "VSSF=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "VREF=0",
+            "VREF=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "LFOF=0",
+            "LFOF=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 15,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "PF Status C",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "CMDF=0",
+            "CMDF=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "HWMX=0",
+            "HWMX=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "VSSF=0",
+            "VSSF=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "VREF=0",
+            "VREF=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "LFOF=0",
+            "LFOF=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "IRMF=0",
+            "IRMF=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "DRMF=0",
+            "DRMF=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "OTPF=0",
+            "OTPF=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 16,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "PF Alert D",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2 (all reserved)",
+      "access": "R",
+      "bit_fields": []
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 17,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "PF Status D",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "TOSF=0",
+            "TOSF=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 0,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Control Status",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "DEEPSLEEP=0",
+            "DEEPSLEEP=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "LD_TIMEOUT=0",
+            "LD_TIMEOUT=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "LD_ON=0",
+            "LD_ON=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 18,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Battery Status",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2; SEC: 01=FULLACCESS 10=UNSEALED 11=SEALED.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "SLEEP=0",
+            "SLEEP=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "SD_CMD=0",
+            "SD_CMD=1"
+          ]
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "PF=0",
+            "PF=1"
+          ]
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "SS=0",
+            "SS=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "FUSE=0",
+            "FUSE=1"
+          ]
+        },
+        {
+          "range": [
+            9,
+            8
+          ],
+          "mode": "raw",
+          "name": "SEC",
+          "description": "SEC"
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "OTPB=0",
+            "OTPB=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "OTPW=0",
+            "OTPW=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "COW_CHK=0",
+            "COW_CHK=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "WD=0",
+            "WD=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "POR=0",
+            "POR=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "SLEEP_EN=0",
+            "SLEEP_EN=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "PCHG_MODE=0",
+            "PCHG_MODE=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "CFGUPDATE=0",
+            "CFGUPDATE=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 98,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Alarm Status",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2; write 1 to clear latched bits.",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "SSBC=0",
+            "SSBC=1"
+          ]
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "SSA=0",
+            "SSA=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "PF=0",
+            "PF=1"
+          ]
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "MSK_SFALERT=0",
+            "MSK_SFALERT=1"
+          ]
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "MSK_PFALERT=0",
+            "MSK_PFALERT=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "INITSTART=0",
+            "INITSTART=1"
+          ]
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "INITCOMP=0",
+            "INITCOMP=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "FULLSCAN=0",
+            "FULLSCAN=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "XCHG=0",
+            "XCHG=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "XDSG=0",
+            "XDSG=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "SHUTV=0",
+            "SHUTV=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "FUSE=0",
+            "FUSE=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "CB=0",
+            "CB=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "ADSCAN=0",
+            "ADSCAN=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "WAKE=0",
+            "WAKE=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 100,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Alarm Raw Status",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "SSBC=0",
+            "SSBC=1"
+          ]
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "SSA=0",
+            "SSA=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "PF=0",
+            "PF=1"
+          ]
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "MSK_SFALERT=0",
+            "MSK_SFALERT=1"
+          ]
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "MSK_PFALERT=0",
+            "MSK_PFALERT=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "INITSTART=0",
+            "INITSTART=1"
+          ]
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "INITCOMP=0",
+            "INITCOMP=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "FULLSCAN=0",
+            "FULLSCAN=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "XCHG=0",
+            "XCHG=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "XDSG=0",
+            "XDSG=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "SHUTV=0",
+            "SHUTV=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "FUSE=0",
+            "FUSE=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "CB=0",
+            "CB=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "ADSCAN=0",
+            "ADSCAN=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "WAKE=0",
+            "WAKE=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 102,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "Alarm Enable",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2; default 0xF800.",
+      "access": "R/W",
+      "bit_fields": [
+        {
+          "range": [
+            15,
+            15
+          ],
+          "mode": "enum",
+          "names": [
+            "SSBC=0",
+            "SSBC=1"
+          ]
+        },
+        {
+          "range": [
+            14,
+            14
+          ],
+          "mode": "enum",
+          "names": [
+            "SSA=0",
+            "SSA=1"
+          ]
+        },
+        {
+          "range": [
+            13,
+            13
+          ],
+          "mode": "enum",
+          "names": [
+            "PF=0",
+            "PF=1"
+          ]
+        },
+        {
+          "range": [
+            12,
+            12
+          ],
+          "mode": "enum",
+          "names": [
+            "MSK_SFALERT=0",
+            "MSK_SFALERT=1"
+          ]
+        },
+        {
+          "range": [
+            11,
+            11
+          ],
+          "mode": "enum",
+          "names": [
+            "MSK_PFALERT=0",
+            "MSK_PFALERT=1"
+          ]
+        },
+        {
+          "range": [
+            10,
+            10
+          ],
+          "mode": "enum",
+          "names": [
+            "INITSTART=0",
+            "INITSTART=1"
+          ]
+        },
+        {
+          "range": [
+            9,
+            9
+          ],
+          "mode": "enum",
+          "names": [
+            "INITCOMP=0",
+            "INITCOMP=1"
+          ]
+        },
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "FULLSCAN=0",
+            "FULLSCAN=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "XCHG=0",
+            "XCHG=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "XDSG=0",
+            "XDSG=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "SHUTV=0",
+            "SHUTV=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "FUSE=0",
+            "FUSE=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "CB=0",
+            "CB=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "ADSCAN=0",
+            "ADSCAN=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "WAKE=0",
+            "WAKE=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 127,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "FET Status",
+      "description": "Bits 3:0 per TRM SLUUCG7 (Apr 2024) (FET_CONTROL maps to them); ALRT_PIN BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "ALRT_PIN=0",
+            "ALRT_PIN=1"
+          ]
+        },
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "PDSG_FET=0",
+            "PDSG_FET=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "PCHG_FET=0",
+            "PCHG_FET=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "DSG_FET=0",
+            "DSG_FET=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "CHG_FET=0",
+            "CHG_FET=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 20,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X",
+      "unit": "mV",
+      "name": "Cell 1 Voltage",
+      "description": "16-bit, 1 mV units, per TRM SLUUCG7 (Apr 2024) Table 4-1.",
+      "access": "R",
+      "group": "Cell Voltages",
+      "group_order": 1
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 22,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X",
+      "unit": "mV",
+      "name": "Cell 2 Voltage",
+      "description": "16-bit, 1 mV units, per TRM SLUUCG7 (Apr 2024) Table 4-1.",
+      "access": "R",
+      "group": "Cell Voltages",
+      "group_order": 2
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 24,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X",
+      "unit": "mV",
+      "name": "Cell 3 Voltage",
+      "description": "16-bit, 1 mV units, per TRM SLUUCG7 (Apr 2024) Table 4-1.",
+      "access": "R",
+      "group": "Cell Voltages",
+      "group_order": 3
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 26,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X",
+      "unit": "mV",
+      "name": "Cell 4 Voltage",
+      "description": "16-bit, 1 mV units, per TRM SLUUCG7 (Apr 2024) Table 4-1.",
+      "access": "R",
+      "group": "Cell Voltages",
+      "group_order": 4
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 28,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X",
+      "unit": "mV",
+      "name": "Cell 5 Voltage",
+      "description": "16-bit, 1 mV units, per TRM SLUUCG7 (Apr 2024) Table 4-1.",
+      "access": "R",
+      "group": "Cell Voltages",
+      "group_order": 5
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 52,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X",
+      "unit": "userV",
+      "name": "Stack Voltage",
+      "description": "VC5 pin; userV (default 1 userV = 10 mV). TRM Table 4-1.",
+      "access": "R",
+      "group": "Pack Measurements",
+      "group_order": 1
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 54,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X",
+      "unit": "userV",
+      "name": "PACK Pin Voltage",
+      "description": "userV (default 10 mV). TRM Table 4-1.",
+      "access": "R",
+      "group": "Pack Measurements",
+      "group_order": 2
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 56,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "dec",
+      "function": "X",
+      "unit": "userV",
+      "name": "LD Pin Voltage",
+      "description": "userV (default 10 mV). TRM Table 4-1.",
+      "access": "R",
+      "group": "Pack Measurements",
+      "group_order": 3
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 58,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X",
+      "unit": "userA",
+      "name": "CC2 Current",
+      "description": "Signed; userA per DA Configuration (default 1 mA). TRM SLUUCG7 (Apr 2024) \u00a74.3.",
+      "access": "R",
+      "group": "Pack Measurements",
+      "group_order": 4
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 104,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X*0.1-273.15",
+      "unit": "degC",
+      "name": "Int Temperature",
+      "description": "Raw units 0.1 K, converted to degC. TRM SLUUCG7 (Apr 2024) Table 4-7. Pins configured for ADCIN report mV instead (then this conversion does not apply).",
+      "access": "R",
+      "group": "IC Measurements",
+      "group_order": 1
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 106,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X*0.1-273.15",
+      "unit": "degC",
+      "name": "CFETOFF Temperature",
+      "description": "Raw units 0.1 K, converted to degC. TRM SLUUCG7 (Apr 2024) Table 4-7. Pins configured for ADCIN report mV instead (then this conversion does not apply).",
+      "access": "R",
+      "group": "Temperatures",
+      "group_order": 1
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 108,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X*0.1-273.15",
+      "unit": "degC",
+      "name": "DFETOFF Temperature",
+      "description": "Raw units 0.1 K, converted to degC. TRM SLUUCG7 (Apr 2024) Table 4-7. Pins configured for ADCIN report mV instead (then this conversion does not apply).",
+      "access": "R",
+      "group": "Temperatures",
+      "group_order": 2
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 110,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X*0.1-273.15",
+      "unit": "degC",
+      "name": "ALERT Temperature",
+      "description": "Raw units 0.1 K, converted to degC. TRM SLUUCG7 (Apr 2024) Table 4-7. Pins configured for ADCIN report mV instead (then this conversion does not apply).",
+      "access": "R",
+      "group": "Temperatures",
+      "group_order": 3
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 112,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X*0.1-273.15",
+      "unit": "degC",
+      "name": "TS1 Temperature",
+      "description": "Raw units 0.1 K, converted to degC. TRM SLUUCG7 (Apr 2024) Table 4-7. Pins configured for ADCIN report mV instead (then this conversion does not apply).",
+      "access": "R",
+      "group": "Temperatures",
+      "group_order": 4
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 114,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": true,
+      "format": "dec",
+      "function": "X*0.1-273.15",
+      "unit": "degC",
+      "name": "TS2 Temperature",
+      "description": "Raw units 0.1 K, converted to degC. TRM SLUUCG7 (Apr 2024) Table 4-7. Pins configured for ADCIN report mV instead (then this conversion does not apply).",
+      "access": "R",
+      "group": "Temperatures",
+      "group_order": 5
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_read",
+      "register": 96,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "Checksum/Length",
+      "description": "0x60 checksum (bitwise-inverted 8-bit sum of subcommand bytes + buffer), 0x61 data length; written as a word. TRM SLUUCG7 (Apr 2024) \u00a73.1.",
+      "access": "R/W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_write",
+      "register": 64,
+      "data_bytes": 32,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "Transfer Buffer (set)",
+      "description": "Host write to Transfer Buffer.",
+      "access": "R/W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_write",
+      "register": 96,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "Checksum/Length (set)",
+      "description": "Host write to Checksum/Length.",
+      "access": "R/W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_write",
+      "register": 98,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "Alarm Status (set)",
+      "description": "Host write to Alarm Status.",
+      "access": "R/W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "indexed_write",
+      "register": 102,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "Alarm Enable (set)",
+      "description": "Host write to Alarm Enable.",
+      "access": "R/W"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 18,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "RESET",
+      "description": "Full device reset. TRM SLUUCG7 (Apr 2024).",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 28,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "PDSGTEST",
+      "description": "FET Test mode: toggle PDSG. TRM SLUUCG7 (Apr 2024) Table 5-7.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 30,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "PCHGTEST",
+      "description": "FET Test mode: toggle PCHG. TRM SLUUCG7 (Apr 2024) Table 5-7.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 31,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "CHGTEST",
+      "description": "FET Test mode: toggle CHG. TRM SLUUCG7 (Apr 2024) Table 5-7.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 32,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "DSGTEST",
+      "description": "FET Test mode: toggle DSG. TRM SLUUCG7 (Apr 2024) Table 5-7.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 34,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "FET_ENABLE",
+      "description": "Toggle Mfg Status [FET_EN]. TRM SLUUCG7 (Apr 2024) \u00a75.2.3.2.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 130,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "RESET_PASSQ",
+      "description": "Reset accumulated charge+time. TRM SLUUCG7 (Apr 2024) \u00a74.3.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 147,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "DSG_PDSG_OFF",
+      "description": "Disable DSG+PDSG. TRM SLUUCG7 (Apr 2024) Table 5-8.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 148,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "CHG_PCHG_OFF",
+      "description": "Disable CHG+PCHG. TRM SLUUCG7 (Apr 2024) Table 5-8.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 149,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ALL_FETS_OFF",
+      "description": "Disable all FETs. TRM SLUUCG7 (Apr 2024) Table 5-8.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 150,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "ALL_FETS_ON",
+      "description": "Release FET blocks. TRM SLUUCG7 (Apr 2024) Table 5-8.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 161,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "OTP_WRITE",
+      "description": "Program OTP (returns result). TRM SLUUCG7 (Apr 2024) \u00a73.2.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 160,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "OTP_WR_CHECK",
+      "description": "OTP write self-check. TRM SLUUCG7 (Apr 2024) Table 3-1.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 14,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "DEEPSLEEP",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2 (send twice within 4 s).",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 15,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "EXIT_DEEPSLEEP",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 16,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "SHUTDOWN",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 41,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "PF_RESET",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 48,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "SEAL",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 144,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "SET_CFGUPDATE",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 146,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "EXIT_CFGUPDATE",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 153,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "SLEEP_ENABLE",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 154,
+      "subcommand_reg": 62,
+      "data_bytes": 0,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "SLEEP_DISABLE",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 1,
+      "subcommand_reg": 62,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "DEVICE_NUMBER",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "group": "Device Info",
+      "group_order": 1
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 2,
+      "subcommand_reg": 62,
+      "data_bytes": 6,
+      "byte_order": "be",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "FW_VERSION",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2; device #, version, build.",
+      "access": "R",
+      "group": "Device Info",
+      "group_order": 2
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 3,
+      "subcommand_reg": 62,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "HW_VERSION",
+      "description": "BQ769x2-family standard; verify vs SLUUCG7 \u00a712.2",
+      "access": "R",
+      "group": "Device Info",
+      "group_order": 3
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 83,
+      "subcommand_reg": 62,
+      "data_bytes": 4,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "SAVED_PF_STATUS",
+      "description": "PF status saved to OTP. TRM SLUUCG7 (Apr 2024) \u00a73.2.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 87,
+      "subcommand_reg": 62,
+      "data_bytes": 2,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "MANUFACTURING_STATUS",
+      "description": "Per TRM SLUUCG7 (Apr 2024) Table 5-9.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            7,
+            7
+          ],
+          "mode": "enum",
+          "names": [
+            "OTPW_EN=0",
+            "OTPW_EN=1"
+          ]
+        },
+        {
+          "range": [
+            6,
+            6
+          ],
+          "mode": "enum",
+          "names": [
+            "PF_EN=0",
+            "PF_EN=1"
+          ]
+        },
+        {
+          "range": [
+            5,
+            5
+          ],
+          "mode": "enum",
+          "names": [
+            "PDSG_TEST=0",
+            "PDSG_TEST=1"
+          ]
+        },
+        {
+          "range": [
+            4,
+            4
+          ],
+          "mode": "enum",
+          "names": [
+            "FET_EN=0",
+            "FET_EN=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "DSG_TEST=0",
+            "DSG_TEST=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "CHG_TEST=0",
+            "CHG_TEST=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "PCHG_TEST=0",
+            "PCHG_TEST=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 112,
+      "subcommand_reg": 62,
+      "data_bytes": 32,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "MANU_DATA",
+      "description": "32-byte scratchpad manufacturing data. TRM SLUUCG7 (Apr 2024) \u00a76.2.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 113,
+      "subcommand_reg": 62,
+      "data_bytes": 32,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "DASTATUS1",
+      "description": "Cell 1-4 voltage+synchronized current raw counts. TRM SLUUCG7 (Apr 2024) Table 4-4.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 114,
+      "subcommand_reg": 62,
+      "data_bytes": 32,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "DASTATUS2",
+      "description": "Cell 5 voltage+current raw counts. TRM SLUUCG7 (Apr 2024) Table 4-4.",
+      "access": "R"
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 117,
+      "subcommand_reg": 62,
+      "data_bytes": 32,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "",
+      "unit": "",
+      "name": "DASTATUS5",
+      "description": "Derived measurements. TRM SLUUCG7 (Apr 2024) Table 4-5.",
+      "access": "R",
+      "fields": [
+        {
+          "name": "VREG18",
+          "offset": 0,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X",
+          "unit": "counts",
+          "description": "REG18 in 16-bit ADC counts"
+        },
+        {
+          "name": "VSS",
+          "offset": 2,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X",
+          "unit": "counts",
+          "description": "VSS diagnostic counts"
+        },
+        {
+          "name": "Max Cell Voltage",
+          "offset": 4,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X",
+          "unit": "mV",
+          "description": ""
+        },
+        {
+          "name": "Min Cell Voltage",
+          "offset": 6,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X",
+          "unit": "mV",
+          "description": ""
+        },
+        {
+          "name": "Battery Voltage Sum",
+          "offset": 8,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*10",
+          "unit": "mV",
+          "description": "reported in cV"
+        },
+        {
+          "name": "Cell Temperature",
+          "offset": 10,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*0.1-273.15",
+          "unit": "degC",
+          "description": "avg cell temp (0.1 K raw)"
+        },
+        {
+          "name": "FET Temperature",
+          "offset": 12,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*0.1-273.15",
+          "unit": "degC",
+          "description": ""
+        },
+        {
+          "name": "Max Cell Temperature",
+          "offset": 14,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*0.1-273.15",
+          "unit": "degC",
+          "description": ""
+        },
+        {
+          "name": "Min Cell Temperature",
+          "offset": 16,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*0.1-273.15",
+          "unit": "degC",
+          "description": ""
+        },
+        {
+          "name": "Avg Cell Temperature",
+          "offset": 18,
+          "size": 2,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X*0.1-273.15",
+          "unit": "degC",
+          "description": ""
+        },
+        {
+          "name": "CC3 Current",
+          "offset": 20,
+          "size": 2,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "userA",
+          "description": ""
+        },
+        {
+          "name": "CC1 Current",
+          "offset": 22,
+          "size": 2,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "userA",
+          "description": ""
+        },
+        {
+          "name": "CC2 Counts",
+          "offset": 24,
+          "size": 4,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "counts",
+          "description": ""
+        },
+        {
+          "name": "CC3 Counts",
+          "offset": 28,
+          "size": 4,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "counts",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 118,
+      "subcommand_reg": 62,
+      "data_bytes": 32,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "",
+      "unit": "",
+      "name": "DASTATUS6",
+      "description": "Accumulated charge + pin ADC counts. TRM SLUUCG7 (Apr 2024) Table 4-6.",
+      "access": "R",
+      "fields": [
+        {
+          "name": "Accum Charge",
+          "offset": 0,
+          "size": 4,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "userAh",
+          "description": "integer portion"
+        },
+        {
+          "name": "Accum Charge Fraction",
+          "offset": 4,
+          "size": 4,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X",
+          "unit": "",
+          "description": "fractional portion"
+        },
+        {
+          "name": "Accum Time",
+          "offset": 8,
+          "size": 4,
+          "byte_order": "le",
+          "signed": false,
+          "format": "dec",
+          "function": "X",
+          "unit": "s",
+          "description": ""
+        },
+        {
+          "name": "CFETOFF Counts",
+          "offset": 12,
+          "size": 4,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "counts",
+          "description": ""
+        },
+        {
+          "name": "DFETOFF Counts",
+          "offset": 16,
+          "size": 4,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "counts",
+          "description": ""
+        },
+        {
+          "name": "ALERT Counts",
+          "offset": 20,
+          "size": 4,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "counts",
+          "description": ""
+        },
+        {
+          "name": "TS1 Counts",
+          "offset": 24,
+          "size": 4,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "counts",
+          "description": ""
+        },
+        {
+          "name": "TS2 Counts",
+          "offset": 28,
+          "size": 4,
+          "byte_order": "le",
+          "signed": true,
+          "format": "dec",
+          "function": "X",
+          "unit": "counts",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 151,
+      "subcommand_reg": 62,
+      "data_bytes": 1,
+      "byte_order": "le",
+      "signed": false,
+      "format": "bits",
+      "function": "X",
+      "unit": "",
+      "name": "FET_CONTROL",
+      "description": "Block individual FETs; bits 3:0 match FET Status. TRM SLUUCG7 (Apr 2024) Table 5-8.",
+      "access": "R",
+      "bit_fields": [
+        {
+          "range": [
+            3,
+            3
+          ],
+          "mode": "enum",
+          "names": [
+            "PDSG_OFF=0",
+            "PDSG_OFF=1"
+          ]
+        },
+        {
+          "range": [
+            2,
+            2
+          ],
+          "mode": "enum",
+          "names": [
+            "PCHG_OFF=0",
+            "PCHG_OFF=1"
+          ]
+        },
+        {
+          "range": [
+            1,
+            1
+          ],
+          "mode": "enum",
+          "names": [
+            "DSG_OFF=0",
+            "DSG_OFF=1"
+          ]
+        },
+        {
+          "range": [
+            0,
+            0
+          ],
+          "mode": "enum",
+          "names": [
+            "CHG_OFF=0",
+            "CHG_OFF=1"
+          ]
+        }
+      ]
+    },
+    {
+      "address": 8,
+      "transaction_type": "subcommand",
+      "register": null,
+      "register_width_bytes": 1,
+      "subcommand": 61569,
+      "subcommand_reg": 62,
+      "data_bytes": 8,
+      "byte_order": "le",
+      "signed": false,
+      "format": "hex",
+      "function": "X",
+      "unit": "",
+      "name": "READ_CAL1",
+      "description": "16-bit counts for TOS/PACK/LD calibration. TRM SLUUCG7 (Apr 2024) \u00a74.10.",
+      "access": "R"
+    }
+  ]
+}

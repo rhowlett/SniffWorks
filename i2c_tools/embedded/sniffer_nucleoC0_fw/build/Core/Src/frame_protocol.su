@@ -1,0 +1,8 @@
+Core/Src/frame_protocol.c:57:9:frame_crc8_cont	8	static
+Core/Src/frame_protocol.c:66:9:frame_crc8	8	static
+Core/Src/frame_protocol.c:104:10:frame_encode_txn	16	static
+Core/Src/frame_protocol.c:138:10:frame_encode_status	12	static
+Core/Src/frame_protocol.c:168:10:frame_encode_error	12	static
+Core/Src/frame_protocol.c:179:10:frame_encode_hello	12	static
+Core/Src/frame_protocol.c:197:6:cmd_parser_init	0	static
+Core/Src/frame_protocol.c:204:13:cmd_parser_feed	12	static

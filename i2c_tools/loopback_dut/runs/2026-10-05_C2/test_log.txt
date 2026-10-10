@@ -1,0 +1,2 @@
+ion: pass 10 fail 0 xfail 5 xpass 0 not_exercisable 0  ledger EXACT  -> loopback_dut/runs/2026-10-05_C2/loopback_report_ion.md
+SKIPPED path ad2: loopback_dut/runs/2026-10-05_C2/ad2_capture.csv absent - NOT a pass

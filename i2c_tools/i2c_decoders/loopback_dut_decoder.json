@@ -1,0 +1,438 @@
+{
+ "version": 4,
+ "device": "Loopback DUT",
+ "description": "Synthetic register map served by the loopback DUT (NUCLEO-H533RE) responders; source: loopback_dut/docs/PROTOCOL.md §4 (DUT fw 0.2, protocol 1). Multi-address file: R1 = I2C2 at 0x6B (word base 0xA000), R2 = I2C3 at 0x55 (word base 0xB000); rules carry their own address and the Registers tab shows one tab per responder (address_names). Word region: word(p) = base + p, little-endian, so a read shows the responder base in the high byte (A0 = R1, B0 = R2; a wrong base means a mis-routed phase) and the pointer echo in the low byte (must equal the register). Writes are acknowledged and counted but NOT stored, so read values never change; the 'writes (last value)' panes show what the host last wrote. R1 has the TI BQ769x-style subcommand block at 0x3E..0x61 (echo, checksum and length are checked by the engine; a mismatch is flagged with a warning sign). Addresses are rig.toml defaults; if rig.toml changes them, this file must change too. Test fixture for the loopback harness, not a real device. 0x6B also belongs to bq25731_decoder.json: load only one of the two (same-address cross-talk is review B19). Layout v2 (2026-10-05): per-responder panes, word fields, write and block panes.",
+ "i2c_address": 107,
+ "i2c_address_hex": "0x6B",
+ "i2c_address_8bit": {
+  "write": "0xD6",
+  "read": "0xD7"
+ },
+ "byte_order": "le",
+ "byte_order_note": "Registers are 16-bit little-endian words (PROTOCOL.md §4).",
+ "display_groups": [
+  {
+   "name": "R1 reads",
+   "kind": "pane"
+  },
+  {
+   "name": "R1 block 0x3E",
+   "kind": "pane"
+  },
+  {
+   "name": "R1 writes (last value)",
+   "kind": "pane"
+  },
+  {
+   "name": "R2 reads",
+   "kind": "pane"
+  },
+  {
+   "name": "R2 writes (last value)",
+   "kind": "pane"
+  }
+ ],
+ "rules": [
+  {
+   "address": 107,
+   "transaction_type": "indexed_read",
+   "register": 0,
+   "data_bytes": 2,
+   "access": "R",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R1 word 0x00",
+   "description": "Word region: word(0x00) = 0xA000 + 0x00 = 0xA000, LE (loopback_dut/docs/PROTOCOL.md §4). Longer reads decode the first word only.",
+   "group": "R1 reads",
+   "group_order": 0,
+   "fields": [
+    {
+     "name": "word",
+     "offset": 0,
+     "size": 2,
+     "byte_order": "le",
+     "format": "hex",
+     "function": "X",
+     "description": "16-bit value = 0xA000 + pointer (little-endian)"
+    },
+    {
+     "name": "base",
+     "offset": 1,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "responder base: 0xA0 expected; another value means the phase reached the wrong responder"
+    },
+    {
+     "name": "pointer",
+     "offset": 0,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "pointer echo: must equal the register written just before the read"
+    }
+   ]
+  },
+  {
+   "address": 107,
+   "transaction_type": "indexed_read",
+   "register": 2,
+   "data_bytes": 2,
+   "access": "R",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R1 word 0x02",
+   "description": "Word region: word(0x02) = 0xA000 + 0x02 = 0xA002, LE (loopback_dut/docs/PROTOCOL.md §4). Longer reads decode the first word only.",
+   "group": "R1 reads",
+   "group_order": 1,
+   "fields": [
+    {
+     "name": "word",
+     "offset": 0,
+     "size": 2,
+     "byte_order": "le",
+     "format": "hex",
+     "function": "X",
+     "description": "16-bit value = 0xA000 + pointer (little-endian)"
+    },
+    {
+     "name": "base",
+     "offset": 1,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "responder base: 0xA0 expected; another value means the phase reached the wrong responder"
+    },
+    {
+     "name": "pointer",
+     "offset": 0,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "pointer echo: must equal the register written just before the read"
+    }
+   ]
+  },
+  {
+   "address": 107,
+   "transaction_type": "indexed_read",
+   "register": 4,
+   "data_bytes": 2,
+   "access": "R",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R1 word 0x04",
+   "description": "Word region: word(0x04) = 0xA000 + 0x04 = 0xA004, LE (loopback_dut/docs/PROTOCOL.md §4). Longer reads decode the first word only.",
+   "group": "R1 reads",
+   "group_order": 2,
+   "fields": [
+    {
+     "name": "word",
+     "offset": 0,
+     "size": 2,
+     "byte_order": "le",
+     "format": "hex",
+     "function": "X",
+     "description": "16-bit value = 0xA000 + pointer (little-endian)"
+    },
+    {
+     "name": "base",
+     "offset": 1,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "responder base: 0xA0 expected; another value means the phase reached the wrong responder"
+    },
+    {
+     "name": "pointer",
+     "offset": 0,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "pointer echo: must equal the register written just before the read"
+    }
+   ]
+  },
+  {
+   "address": 107,
+   "transaction_type": "indexed_read",
+   "register": 6,
+   "data_bytes": 2,
+   "access": "R",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R1 word 0x06",
+   "description": "Word region: word(0x06) = 0xA000 + 0x06 = 0xA006, LE (loopback_dut/docs/PROTOCOL.md §4). Longer reads decode the first word only.",
+   "group": "R1 reads",
+   "group_order": 3,
+   "fields": [
+    {
+     "name": "word",
+     "offset": 0,
+     "size": 2,
+     "byte_order": "le",
+     "format": "hex",
+     "function": "X",
+     "description": "16-bit value = 0xA000 + pointer (little-endian)"
+    },
+    {
+     "name": "base",
+     "offset": 1,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "responder base: 0xA0 expected; another value means the phase reached the wrong responder"
+    },
+    {
+     "name": "pointer",
+     "offset": 0,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "pointer echo: must equal the register written just before the read"
+    }
+   ]
+  },
+  {
+   "address": 107,
+   "transaction_type": "indexed_read",
+   "register": 8,
+   "data_bytes": 2,
+   "access": "R",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R1 word 0x08",
+   "description": "Word region: word(0x08) = 0xA000 + 0x08 = 0xA008, LE (loopback_dut/docs/PROTOCOL.md §4). Longer reads decode the first word only.",
+   "group": "R1 reads",
+   "group_order": 4,
+   "fields": [
+    {
+     "name": "word",
+     "offset": 0,
+     "size": 2,
+     "byte_order": "le",
+     "format": "hex",
+     "function": "X",
+     "description": "16-bit value = 0xA000 + pointer (little-endian)"
+    },
+    {
+     "name": "base",
+     "offset": 1,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "responder base: 0xA0 expected; another value means the phase reached the wrong responder"
+    },
+    {
+     "name": "pointer",
+     "offset": 0,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "pointer echo: must equal the register written just before the read"
+    }
+   ]
+  },
+  {
+   "address": 107,
+   "transaction_type": "indexed_write",
+   "register": 10,
+   "data_bytes": 1,
+   "access": "W",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R1 word 0x0A (set)",
+   "description": "Write to 0x0A: acknowledged and counted, not stored; reads stay 0xA000+reg (loopback_dut/docs/PROTOCOL.md §4).",
+   "group": "R1 writes (last value)",
+   "group_order": 0
+  },
+  {
+   "address": 107,
+   "transaction_type": "indexed_write",
+   "register": 16,
+   "data_bytes": 2,
+   "access": "W",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R1 word 0x10 (set)",
+   "description": "Write to 0x10: acknowledged and counted, not stored; reads stay 0xA000+reg (loopback_dut/docs/PROTOCOL.md §4).",
+   "group": "R1 writes (last value)",
+   "group_order": 1
+  },
+  {
+   "address": 107,
+   "transaction_type": "simple_write",
+   "data_bytes": 1,
+   "access": "W",
+   "format": "hex",
+   "function": "X",
+   "name": "LB simple write",
+   "description": "1-byte write with STOP and no read (pattern case LB-04, review B8). On the DUT this byte is the pointer (loopback_dut/docs/PROTOCOL.md §4); the rule exists so a correct stream decoder renders 'LB simple write = 0x20'. There is intentionally NO indexed rule at 0x20, the B8 fix condition."
+  },
+  {
+   "address": 107,
+   "transaction_type": "subcommand",
+   "subcommand": 1,
+   "subcommand_reg": 62,
+   "data_bytes": 32,
+   "access": "R",
+   "format": "hex",
+   "function": "X",
+   "name": "LB block 0x0001",
+   "description": "Subcommand 0x0001 written to 0x3E; block read from 0x3E returns echo 01 00, buf[i] = (0x40+i) XOR 0x01, checksum 0x0E, length 36 (loopback_dut/docs/PROTOCOL.md §4). Case LB-09.",
+   "fields": [
+    {
+     "name": "buf[0]",
+     "offset": 0,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "(0x40+0) XOR 0x01 = 0x41"
+    },
+    {
+     "name": "buf[1]",
+     "offset": 1,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "(0x40+1) XOR 0x01 = 0x40"
+    },
+    {
+     "name": "buf[30]",
+     "offset": 30,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "(0x40+30) XOR 0x01 = 0x5F"
+    },
+    {
+     "name": "buf[31]",
+     "offset": 31,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "(0x40+31) XOR 0x01 = 0x5E"
+    }
+   ],
+   "group": "R1 block 0x3E",
+   "group_order": 0
+  },
+  {
+   "address": 85,
+   "transaction_type": "indexed_read",
+   "register": 2,
+   "data_bytes": 2,
+   "access": "R",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R2 word 0x02",
+   "description": "Word region: word(0x02) = 0xB000 + 0x02 = 0xB002, LE (loopback_dut/docs/PROTOCOL.md §4). Longer reads decode the first word only.",
+   "group": "R2 reads",
+   "group_order": 0,
+   "fields": [
+    {
+     "name": "word",
+     "offset": 0,
+     "size": 2,
+     "byte_order": "le",
+     "format": "hex",
+     "function": "X",
+     "description": "16-bit value = 0xB000 + pointer (little-endian)"
+    },
+    {
+     "name": "base",
+     "offset": 1,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "responder base: 0xB0 expected; another value means the phase reached the wrong responder"
+    },
+    {
+     "name": "pointer",
+     "offset": 0,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "pointer echo: must equal the register written just before the read"
+    }
+   ]
+  },
+  {
+   "address": 85,
+   "transaction_type": "indexed_read",
+   "register": 16,
+   "data_bytes": 2,
+   "access": "R",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R2 word 0x10",
+   "description": "Word region: word(0x10) = 0xB000 + 0x10 = 0xB010, LE (loopback_dut/docs/PROTOCOL.md §4). Longer reads decode the first word only.",
+   "group": "R2 reads",
+   "group_order": 1,
+   "fields": [
+    {
+     "name": "word",
+     "offset": 0,
+     "size": 2,
+     "byte_order": "le",
+     "format": "hex",
+     "function": "X",
+     "description": "16-bit value = 0xB000 + pointer (little-endian)"
+    },
+    {
+     "name": "base",
+     "offset": 1,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "responder base: 0xB0 expected; another value means the phase reached the wrong responder"
+    },
+    {
+     "name": "pointer",
+     "offset": 0,
+     "size": 1,
+     "format": "hex",
+     "function": "X",
+     "description": "pointer echo: must equal the register written just before the read"
+    }
+   ]
+  },
+  {
+   "address": 85,
+   "transaction_type": "indexed_write",
+   "register": 16,
+   "data_bytes": 1,
+   "access": "W",
+   "byte_order": "le",
+   "signed": false,
+   "format": "hex",
+   "function": "X",
+   "name": "R2 word 0x10 (set)",
+   "description": "Write to 0x10: acknowledged and counted, not stored; reads stay 0xB000+reg (loopback_dut/docs/PROTOCOL.md §4).",
+   "group": "R2 writes (last value)",
+   "group_order": 0
+  }
+ ],
+ "address_names": {
+  "0x6B": "R1",
+  "0x55": "R2"
+ }
+}

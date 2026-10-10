@@ -1,0 +1,5 @@
+probe: fw 1.5, mode bit-bang
+stopped by 15 s: kept 432 of 432 transactions; FRAMING-flagged 22; device errors 1
+  device: device decoder overflow — transactions dropped
+STATUS: fw 1.5 mode bit-bang captured 432 errors 30 dropped 0 bus 100000 Hz
+wrote loopback_dut/runs/2026-10-05_C1/ion_capture.csv (432 rows)

@@ -1,0 +1,4 @@
+========================================================================
+SKIPPED (tier T2): no rig artefacts in loopback_dut/runs/ - this is NOT a pass.
+  need expected.json + ion_capture.csv and/or ad2_capture.csv (setup_guide §9-10)
+========================================================================

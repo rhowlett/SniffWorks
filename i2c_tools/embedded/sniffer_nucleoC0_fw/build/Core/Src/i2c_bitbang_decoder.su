@@ -1,0 +1,4 @@
+Core/Src/i2c_bitbang_decoder.c:80:6:i2c_dec_init	8	static
+Core/Src/i2c_bitbang_decoder.c:103:6:i2c_dec_pop	8	static
+Core/Src/i2c_bitbang_decoder.c:113:10:i2c_dec_bus_hz	8	static
+Core/Src/i2c_bitbang_decoder.c:163:17:i2c_dec_sample	40	static

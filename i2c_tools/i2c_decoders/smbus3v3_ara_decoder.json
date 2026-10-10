@@ -1,0 +1,53 @@
+{
+ "version": 4,
+ "device": "SMBus ARA",
+ "description": "SMBus Alert Response Address (SMBALERT#). Source: SMBus Specification v3.3 (12 May 2024, SMIF) App. A.2 (Figs 65-66), \u00a76.2.2.6, Table 17. Controller performs a modified Receive Byte; the lowest-address alerting device wins arbitration and returns its 7-bit address in [7:1] ([0] don't-care), optionally followed by PEC. A write to 0x0C is invalid per A.2/Table 17 (App. D states the opposite polarity; A.2 governs).",
+ "i2c_address": 12,
+ "i2c_address_hex": "0x0C",
+ "i2c_address_8bit": {
+  "write": "0x18",
+  "read": "0x19"
+ },
+ "byte_order": "be",
+ "byte_order_note": "Single-byte response; PEC byte (if any) trails and is ignored.",
+ "display_groups": [
+  {
+   "name": "SMBALERT#",
+   "kind": "banner"
+  }
+ ],
+ "rules": [
+  {
+   "address": 12,
+   "transaction_type": "simple_read",
+   "data_bytes": 1,
+   "access": "R",
+   "format": "hex",
+   "function": "X",
+   "name": "Alert Response",
+   "group": "SMBALERT#",
+   "group_order": 0,
+   "description": "Modified Receive Byte (Fig 65/66). Repeat while SMBALERT# stays low.",
+   "fields": [
+    {
+     "name": "Alerting Device",
+     "offset": 0,
+     "size": 1,
+     "format": "hex",
+     "function": "X>>1",
+     "description": "7-bit address from [7:1]; bit 0 is X (either value)."
+    }
+   ]
+  },
+  {
+   "address": 12,
+   "transaction_type": "simple_write",
+   "data_bytes": 0,
+   "access": "W",
+   "format": "hex",
+   "function": "X",
+   "name": "INVALID: write to ARA",
+   "description": "R/W#=0 to 0x0C is not permitted (A.2, Table 17 v3.3); targets should NACK. Also flags bus scans that probe 0x0C with a write."
+  }
+ ]
+}

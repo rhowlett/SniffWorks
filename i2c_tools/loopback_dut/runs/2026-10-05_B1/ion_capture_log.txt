@@ -1,0 +1,9 @@
+probe: fw 1.5, mode bit-bang
+stopped by 20 s: kept 1095 of 1095 transactions; FRAMING-flagged 1072; device errors 0
+STATUS: fw 1.5 mode bit-bang captured 1095 errors 1401 dropped 0 bus 56338 Hz
+  sampler diag (fw >= 1.4, transaction open):
+    longest sample gap   12.354 us   gaps > 2 us: 148697
+    narrowest SCL high   6.562 us   low: 3.375 us
+    FRAMING phases       1072   worst gap 12.354 us, narrowest high 6.562 us
+    upkeep deferred      0
+wrote loopback_dut/runs/2026-10-05_B1/ion_capture.csv (1095 rows)
