@@ -120,7 +120,7 @@ Only this CLAUDE.md applies to ion_i2c_tool; ignore any CLAUDE.md above this fol
 - Clock-stretch injection busy-waits in the responder ISR; acceptable for a test instrument, but UART receive can overrun during long stretches (counted as `uart_ovr`), so the host must wait for END.
 
 ## Gotchas
-- Always run tests inside `.venv` (`source .venv/bin/activate`, Python 3.12.13); `/usr/bin/python3` is 3.9.6 and breaks `test_ion_master.py` (PEP 604) and lacks jsonschema.
+- Always run tests inside the shared venv `$SHARED_VENV` (else `.venv`) (`source "${SHARED_VENV:-.venv}/bin/activate"`, Python 3.12.13); `/usr/bin/python3` is 3.9.6 and breaks `test_ion_master.py` (PEP 604) and lacks jsonschema.
 - The shell has no `timeout` command (macOS); do not wrap test runs in it.
 - zsh aborts a whole command when a glob matches nothing (e.g. `ls ~/.ion/venv*`); an earlier `.venv` check falsely reported it missing this way.
 - CubeMX regenerates `loopback_dut/firmware/`; version tags in generated files must sit inside USER CODE regions or they are lost.

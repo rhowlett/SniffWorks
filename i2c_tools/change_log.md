@@ -1604,3 +1604,21 @@ Evidence:
   tab lists `C031 sniffer — /dev/cu.usbmodem1203 …` first, with the Name devices… button.
 - **Tests:** project 20/20 (19 + test_device_names), smoke 8/9 (baseline), loopback T1 + lbdevnames
   pass. The tests use an isolated name file, and the real `~/.ion_i2c_tool` was not created.
+
+## 2026-10-19 — install.sh / run.sh use the shared venv `$SHARED_VENV` (owner request)
+
+| File | Change |
+|---|---|
+| install.sh | `VENV_DIR="${SHARED_VENV:-$SCRIPT_DIR/.venv}"`; a shared venv is reused and added to, never deleted and recreated; the embedded run.sh template matches |
+| run.sh | Activates `$SHARED_VENV` when set, otherwise `.venv` next to the script |
+| CLAUDE.md | Run tests in `$SHARED_VENV` (else `.venv`) |
+
+Why: one Python 3.12 venv beside the repos (`~/Documents/GitHub/.venv`) is shared by every
+project. It saves about 1 GB of PySide6 per project, keeps package versions in sync, and
+cannot be committed by accident. `SHARED_VENV` is exported by advanced_engineering
+`env/.bashrc` / `env/.zshenv`; the manifest, lock, and sync script are in
+advanced_engineering `tools/venv/`. Unset → behavior unchanged.
+
+Evidence: all tests/test_*.py and smoke_test.py run as scripts give the same exit codes on the old
+per-project venv and on the shared venv (Python 3.12.13, PySide6 6.11.1). All pass except
+test_neware_doc_conformance (known path issue) and smoke_test (baseline 8/9).

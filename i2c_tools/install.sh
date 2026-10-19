@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
 # install.sh — AD2 I2C Tool installer (macOS + Ubuntu 22.04+)
-# Creates a .venv in the script's directory and installs PySide6.
+# Installs into $SHARED_VENV when set (one venv shared by all projects),
+# otherwise creates a .venv in the script's directory. Installs PySide6.
 # =============================================================================
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VENV_DIR="$SCRIPT_DIR/.venv"
+VENV_DIR="${SHARED_VENV:-$SCRIPT_DIR/.venv}"
 PYTHON_MIN_MAJOR=3
 PYTHON_MIN_MINOR=10
 
@@ -219,13 +220,17 @@ fi
 echo ""
 info "Creating virtual environment at $VENV_DIR …"
 
-if [[ -d "$VENV_DIR" ]]; then
-    warn ".venv already exists — recreating…"
-    rm -rf "$VENV_DIR"
+if [[ -n "${SHARED_VENV:-}" && -x "$VENV_DIR/bin/python" ]]; then
+    # Shared venv is used by other projects — never delete it, just add to it.
+    ok "Re-using shared virtual environment"
+else
+    if [[ -d "$VENV_DIR" ]]; then
+        warn ".venv already exists — recreating…"
+        rm -rf "$VENV_DIR"
+    fi
+    "$PYTHON" -m venv "$VENV_DIR"
+    ok "Virtual environment created"
 fi
-
-"$PYTHON" -m venv "$VENV_DIR"
-ok "Virtual environment created"
 
 # Activate venv
 source "$VENV_DIR/bin/activate"
@@ -256,15 +261,17 @@ LAUNCH_SCRIPT="$SCRIPT_DIR/run.sh"
 cat > "$LAUNCH_SCRIPT" << 'LAUNCH_EOF'
 #!/usr/bin/env bash
 # run.sh — launch an ion_i2c_tool app inside the project venv.
+# Uses $SHARED_VENV when set, otherwise the .venv next to this script.
 # Usage: ./run.sh sniffer_ion.py [args...]      (default: sniffer_ion.py)
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENV_DIR="${SHARED_VENV:-$SCRIPT_DIR/.venv}"
 
-if [[ ! -f "$SCRIPT_DIR/.venv/bin/activate" ]]; then
-    echo "error: .venv not found — run ./install.sh first" >&2
+if [[ ! -f "$VENV_DIR/bin/activate" ]]; then
+    echo "error: $VENV_DIR not found — run ./install.sh first" >&2
     exit 1
 fi
-source "$SCRIPT_DIR/.venv/bin/activate"
+source "$VENV_DIR/bin/activate"
 
 APP="${1:-sniffer_ion.py}"
 if [[ $# -gt 0 ]]; then shift; fi
