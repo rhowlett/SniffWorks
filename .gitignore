@@ -131,3 +131,10 @@ tags
 
 ## LibreOffice locks
 .~lock.*#
+
+## SniffWorks build output (firmware and host-test builds, at any depth).
+# Only the shipped flash images stay tracked, so a board can be flashed
+# without a toolchain (i2c_tools CLAUDE.md: Phase 2 C8 keeps a flashable C031 image).
+**/build/*
+!i2c_tools/embedded/sniffer_nucleoC0_fw/build/sniffer_nucleoC0_fw.bin
+!i2c_tools/loopback_dut/firmware/build/firmware.bin
