@@ -1,7 +1,7 @@
 # ion_i2c_tool
-<!-- version: 1.11 -->
+<!-- version: 1.24 -->
 
-Only this CLAUDE.md applies to ion_i2c_tool; ignore any CLAUDE.md above this folder. Program plan: `plan_n_exe/00_MASTER_PLAN.md`; current phase: `plan_n_exe/PHASE_01_loopback_dut.md`; review source: `plan_n_exe/archive/ion_i2c_tool_review.md`.
+ion_i2c_tool is the I²C sub-project of SniffWorks; the root `../CLAUDE.md` (cross-project decisions SW-01..) also applies, and this file adds the I²C detail. The program plan is FROZEN (SniffWorks SW-08, 2026-10-19) until the SniffWorks restructure. Program plan: `plan_n_exe/00_MASTER_PLAN.md`; current phase: `plan_n_exe/PHASE_01_loopback_dut.md`; review source: `plan_n_exe/archive/ion_i2c_tool_review.md`.
 
 ## Findings
 - H533RE has 3 I2C peripherals (DS14539 §3.35 Table 8), all master/slave with stretching and SMBus PEC; one board can be master and responders, so the plan's separate "probe B driver + board C responder" topology is not needed.
@@ -52,7 +52,7 @@ Only this CLAUDE.md applies to ion_i2c_tool; ignore any CLAUDE.md above this fol
 - 400 kHz with the edge ISR (trace): ISR 0.58 us without push / 1.37 us with push (1.23 us from RAM, so time is in EXTI/TIM3 accesses), entry latency up to 0.9 us, edges every ~0.8 us, ~60 % of edges arrive mid-ISR; tHD;STA ~0.6 us < sampling delay, so every START is missed (LB-13: 0 rows, +5 errors, no garbage left for later cases). B31 is not reachable with an edge ISR on the 48 MHz M0+.
 - ~~Registers (dashboard) tab bug, proposed B33 (2026-10-05): `ui/widgets/registers_tabs_host.py` builds ONE tab per decoder file for `min(entry.addresses)` only, so multi-address decoders lose devices: loopback_dut shows R2 (0x55) and never R1 (0x6B); smbus1v1 (0x08/0x09/0x0B) gets NO tab at all because all 36 grouped rules are at 0x0B. Single-address decoders unaffected.~~ resolved v1.21: B33 FIXED (one tab per address, own-file rules; change_log Phase 1b).
 - `DecodeSchema.save()` keeps only version/rules/display_groups: device, description, address_names, i2c_address*, byte_order and byte_order_note are dropped on an editor save (Phase 4, B2 area; measured 2026-10-05).
-- The repo-wide .gitignore ignores *.csv: the 20 loopback rig captures and the replay fixture were never in git; the project .gitignore (v0.1) now un-ignores them (not yet committed).
+- ~~The repo-wide .gitignore ignores *.csv: the 20 loopback rig captures and the replay fixture were never in git; the project .gitignore (v0.1) now un-ignores them (not yet committed).~~ superseded v1.23: in SniffWorks all 20 loopback run CSVs and all 16 i2c_capture CSVs are tracked (commit 7799b55); the root .gitignore still ignores new *.csv.
 - The loopback DUT's dashboard values never change by design: responder reads are a pure function of the pointer (word = base + x) and writes are not stored.
 - Rig port names changed after re-enumeration (2026-10-05, same serial numbers): C031 `/dev/cu.usbmodem1203` (SER 066BFF54…), H533 `/dev/cu.usbmodem1403` (SER 00320027…), AD2 unchanged. Identify boards by serial number, not port name.
 ## Decisions
@@ -109,6 +109,10 @@ Only this CLAUDE.md applies to ion_i2c_tool; ignore any CLAUDE.md above this fol
 - Sniffer harmonization (2026-10-05): both apps share ConnectionSection (ui/widgets/connection_section.py) as the first Device-tab group, then device-specific groups, then a fixed-height Device Info / Log; the ion serial baud moved from Preferences to its Device tab; both Sniffer tabs show the SCL readout (AD2: n/a); status bars ordered backend/fw, device, bus/rate, spy.
 - Phase 1b (owner, 2026-10-05, exception to D-06): decoder dashboard work done before Phase 2: B33 fixed, file-level `address_names` names per-address tabs, repeated field names show as '<rule> · <field>', loopback decoder layout v2 (word/base/pointer fields, write and block panes), smbus1v1 address_names; skill updates delivered as drafts in plan_n_exe/skill_updates/ for the owner to upload to claude.ai.
 - USB device naming (owner, 2026-10-05): every USB app discovers devices by snapshot-then-plug-in and names them; identity = normalized USB serial (AD2: pyserial '210321AC1ED9' == DWF 'SN:210321AC1ED9'); names per user in ~/.ion_i2c_tool/device_names.json shared by all apps (core/device_names.py); GUI 'Name devices…' in the shared Device group, tools/device_names.py CLI, --port <name> in ion_capture/record_on_trigger/loopback_run (loopback via its own isolated reader lbdevnames.py); last-used device pre-selected by serial per app.
+- The project moved into the SniffWorks repo as `i2c_tools/` (commits 7799b55, 2ae032b); git history from the original repo is not carried over (owner, 2026-10-19).
+- Phase plan frozen (owner, 2026-10-19, SniffWorks SW-08): Phase 2 and later wait for the SniffWorks restructure; SniffWorks decisions SW-01..SW-10 take precedence where they overlap this plan.
+- install.sh / run.sh use the shared venv `$SHARED_VENV` when set, else `.venv` (owner, commit ae8a627, change_log 2026-10-19). From install.sh [v0.1] the shared venv is changed only through advanced_engineering `sync_venv.sh` (change_log 2026-10-19 cont.).
+- The AD2 path (`sniffer_ad2.py`, DWF code, install.sh WaveForms checks) stays in this tree until the restructure but is not carried into SniffWorks (owner, 2026-10-19; root SW-11).
 ## Tradeoffs
 - The edge ISR gives up the firmware's zero-interrupt rule and 2 KB of TX ring (6144 -> 4096 in edge mode); acceptable because sampling no longer depends on decode/upkeep timing (B30 fixed) and dropped frames stay counted.
 - Single-board DUT gives up physically separate driver/responder boards; acceptable because the three peripherals are independent and it removes the C031's one-I2C limit.
@@ -164,13 +168,14 @@ Only this CLAUDE.md applies to ion_i2c_tool; ignore any CLAUDE.md above this fol
 - pyserial sees all three rig instruments as USB serial devices (ST-LINK V2-1 0483:374B, ST-LINK V3 0483:374E, AD2 FTDI 0403:6014), so one scan covers serial and DWF apps; non-USB ports (Bluetooth, debug-console) have no vid and are skipped.
 - The AD2 can time the bus directly (scratch script pattern: DigitalIn 20-25 MS/s, trigger SCL high + SDA fall, 4096 samples); close sniffer_ad2 first.
 - A probe left capturing by the GUI keeps sending 1 Hz STATUS (`aa 02 2d 00 …` for fw 1.4) after the GUI closes; a raw read of the port shows whether the firmware is alive even when commands fail.
+- Tracked build output: `__pycache__/` and firmware `build/` folders are in git (added before the root .gitignore); keep only the two flashable .bin images when untracking (SniffWorks root CLAUDE.md, Gotchas).
 ## Current State
-- **Phase 1 closed (2026-10-05)**, PROJECT_VERSION 1.6.0: P1-T0..T7 done; `documents/phases/HANDOFF_PHASE_01.md` + `REVIEW_PHASE_01.md` written; bench docs `embedded/docs/build_and_flash.md` and `documents/loopback_dut_bringup.md`; zip `~/Downloads/ion_i2c_tool_phase01_v1.6.0.zip`. Awaiting the senior-designer verdict on the review.
+- **Phase 1 closed (2026-10-05)**, PROJECT_VERSION 1.6.0; `documents/phases/HANDOFF_PHASE_01.md` + `REVIEW_PHASE_01.md` written; zip `~/Downloads/ion_i2c_tool_phase01_v1.6.0.zip`. Senior-designer verdict on the review still awaited.
+- **Plan frozen (2026-10-19)**: moved into SniffWorks as `i2c_tools/` (7799b55, 2ae032b); shared venv in install.sh/run.sh (ae8a627). Next is the SniffWorks restructure (root CLAUDE.md), not Phase 2.
 - Rig: C031 fw 1.6 (edge interrupt; B30 fixed), H533 DUT fw 0.2; ion ledger EXACT (pass 11 / xfail 4); AD2 run 3 has one B32 xpass (intermittency, REVIEW §7.2).
 - Open: B31 (400 kHz) until the faster probe MCU (H723ZG/H743ZI2); intermittent-symptom ledger (owner); B12 evidence and B10 reproduction (Phase 5); smoke 8/9 (Phase 10); tag-position rule (Phase 2).
-- Trace jumpers C031 A0 -> AD2 DIO2, A1 -> DIO3 still fitted (harmless with the default image). Ports: C031 `/dev/cu.usbmodem1203`, H533 `/dev/cu.usbmodem1403`.
-- Tests (2026-10-05): project 19/19, smoke 8/9, DUT T1 + host 40, firmware host 86 + 92 + 22, decoders 10/10 valid.
-- Next: Phase 2 (repo foundations) per HANDOFF_PHASE_01 §8; note Phase 2's C8 must keep a tracked flashable C031 image.
+- Trace jumpers C031 A0 -> AD2 DIO2, A1 -> DIO3 still fitted (harmless with the default image). Ports (2026-10-05, may have changed): C031 `/dev/cu.usbmodem1203`, H533 `/dev/cu.usbmodem1403`.
+- Tests: 2026-10-05 project 20/20 (19 + test_device_names); 2026-10-19 on the shared venv every test passes except test_neware_doc_conformance (known path issue) and smoke 8/9 (change_log 2026-10-19); earlier: DUT T1 + host 40, firmware host 86 + 92 + 22, decoders 10/10 valid.
 
 ## Open Questions
 - ~~Add per-transaction SCL as a CSV column now?~~ Yes: moved to Decisions (resolved v1.1).
@@ -185,8 +190,10 @@ Only this CLAUDE.md applies to ion_i2c_tool; ignore any CLAUDE.md above this fol
 - ~~B30+B31 approach: EXTI edge ISR + RAM ring vs timer-paced DMA oversampling vs document 100 kHz only?~~ Option 1 chosen; moved to Decisions (resolved v1.15).
 - ~~Pursue B31 (400 kHz) with timer-paced DMA oversampling of GPIOA->IDR, or leave B31 open?~~ Left open: owner will move the probe to a faster MCU (resolved v1.16, see Decisions).
 - ~~Update the ledger: LB-12 ion expect_pass now that B30 is fixed?~~ Yes, done (resolved v1.16, change_log 2026-10-05 cont. 4).
-- ~~Next focus: decoder dashboard (B33, descriptive loopback decoder, skill rules)~~ done as Phase 1b (resolved v1.21). Owner to upload the skill drafts (plan_n_exe/skill_updates/datasheet-i2c-decoder/CHANGES.md) and commit the work since 11:37.
+- ~~Next focus: decoder dashboard (B33, descriptive loopback decoder, skill rules)~~ done as Phase 1b (resolved v1.21). Owner to upload the skill drafts (plan_n_exe/skill_updates/datasheet-i2c-decoder/CHANGES.md); ~~and commit the work since 11:37~~ committed into SniffWorks (7799b55, resolved v1.23).
 - USB device discovery/naming done (change_log 2026-10-05); owner can name the rig boards with any app's 'Name devices…' or tools/device_names.py discover.
+- ~~Does SniffWorks SW-02 replace the planned fork of the AD2 software into a general-purpose SPI/UART/ADC tool?~~ resolved v1.24: the AD2 is out of SniffWorks; the owner keeps a separate copy of the current tool for AD2 use (root SW-11).
+- ~~Where do `loopback_dut/` and its isolation rule go in the restructure?~~ resolved v1.24: to `system_emulation_testing/firmware/<mcu>-<board>` (root SW-13); not moved yet.
 
 ## Revision History
 - v1.0 (2026-09-30): Created; seeded with program decisions D-01..D-06, Phase 1 owner answers, H533 findings, baseline result.
@@ -212,3 +219,5 @@ Only this CLAUDE.md applies to ion_i2c_tool; ignore any CLAUDE.md above this fol
 - v1.20 (2026-10-05): B33 dashboard multi-address finding; loopback values-constant finding; confirm dialogs OK/Cancel (change_log); dashboard open question.
 - v1.21 (2026-10-05): Phase 1b decoder dashboard: B33 fixed and struck, address_names decision, editor-save metadata-loss and *.csv-ignore findings, dashboard design gotcha, open item closed.
 - v1.22 (2026-10-05): USB device naming decision, test-isolation and pyserial-identity gotchas, state.
+- v1.23 (2026-10-19): version tag fixed (line 2 said 1.11 while history was at 1.22); moved into SniffWorks: root CLAUDE.md now applies, plan frozen (SW-08), shared venv, tracked-build gotcha; CSV-tracking finding superseded; state rewritten (tests 20/20); commit item resolved; two open questions (AD2 fork, loopback_dut placement).
+- v1.24 (2026-10-19): two open questions resolved (AD2 out of SniffWorks, loopback_dut destination); install.sh sync_venv decision; AD2-path decision.

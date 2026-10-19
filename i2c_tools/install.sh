@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
+# [v0.1]
 # =============================================================================
-# install.sh — AD2 I2C Tool installer (macOS + Ubuntu 22.04+)
-# Installs into $SHARED_VENV when set (one venv shared by all projects),
-# otherwise creates a .venv in the script's directory. Installs PySide6.
+# install.sh — ion_i2c_tool installer (macOS + Ubuntu 22.04+)
+# With $SHARED_VENV set, the shared venv is created/updated only by
+# advanced_engineering/tools/venv/sync_venv.sh (one lock for every project);
+# this script never deletes it or pip-installs into it. Without it, a .venv is
+# (re)created in the script's directory and requirements.txt is installed.
 # =============================================================================
 set -euo pipefail
 
@@ -216,37 +219,69 @@ else
     fi
 fi
 
-# ─── Create virtual environment ───────────────────────────────────────────────
+# ─── Virtual environment ─────────────────────────────────────────────────────
 echo ""
-info "Creating virtual environment at $VENV_DIR …"
 
-if [[ -n "${SHARED_VENV:-}" && -x "$VENV_DIR/bin/python" ]]; then
-    # Shared venv is used by other projects — never delete it, just add to it.
-    ok "Re-using shared virtual environment"
+# Locate the shared-venv sync script: $SHARED_VENV_SYNC, then the
+# advanced_engineering repo named in ~/.git_path_ad, then a sibling checkout.
+find_sync_venv() {
+    local ad_repo=""
+    [[ -r "$HOME/.git_path_ad" ]] && ad_repo="$(cat "$HOME/.git_path_ad")"
+    for cand in "${SHARED_VENV_SYNC:-}" \
+                "${ad_repo:+$ad_repo/tools/venv/sync_venv.sh}" \
+                "$(dirname "$VENV_DIR")/advanced_engineering/tools/venv/sync_venv.sh"; do
+        if [[ -n "$cand" && -x "$cand" ]]; then echo "$cand"; return 0; fi
+    done
+    return 1
+}
+
+if [[ -n "${SHARED_VENV:-}" ]]; then
+    info "Shared virtual environment: $VENV_DIR"
+    SYNC_VENV="$(find_sync_venv || true)"
+    if [[ -n "$SYNC_VENV" ]]; then
+        if ! grep -q 'SniffWorks/i2c_tools/requirements.txt' \
+                "$(dirname "$SYNC_VENV")/shared_venv_projects.txt" 2>/dev/null; then
+            warn "SniffWorks/i2c_tools/requirements.txt is not in shared_venv_projects.txt — add it, then run: $SYNC_VENV --upgrade"
+        fi
+        info "Syncing it with $SYNC_VENV (constrained by the shared lock)…"
+        "$SYNC_VENV"
+        ok "Shared virtual environment synced"
+    elif [[ -x "$VENV_DIR/bin/python" ]]; then
+        # No sync script on this machine: use the venv as it is, never modify it.
+        if ! grep -qF "$VENV_DIR" "$VENV_DIR/bin/activate" 2>/dev/null; then
+            error "$VENV_DIR was moved from another location (bin/activate points elsewhere).
+  Recreate it with advanced_engineering/tools/venv/sync_venv.sh, or unset SHARED_VENV to use a local .venv."
+        fi
+        warn "sync_venv.sh not found — using the shared venv as is (no packages installed)"
+    else
+        error "SHARED_VENV=$VENV_DIR does not hold a working venv, and sync_venv.sh was not found.
+  Create it with advanced_engineering/tools/venv/sync_venv.sh (or set SHARED_VENV_SYNC to its path),
+  or unset SHARED_VENV to install into a local .venv."
+    fi
+    source "$VENV_DIR/bin/activate"
 else
+    info "Creating virtual environment at $VENV_DIR …"
     if [[ -d "$VENV_DIR" ]]; then
         warn ".venv already exists — recreating…"
         rm -rf "$VENV_DIR"
     fi
     "$PYTHON" -m venv "$VENV_DIR"
     ok "Virtual environment created"
+    source "$VENV_DIR/bin/activate"
+
+    # ─── Upgrade pip ──────────────────────────────────────────────────────────
+    info "Upgrading pip…"
+    pip install --upgrade pip --quiet
+
+    # ─── Install dependencies ─────────────────────────────────────────────────
+    info "Installing Python dependencies from requirements.txt…"
+    # --no-compile: PySide6 wheels bundle Jinja2 template files (*.tmpl.py) that are
+    # NOT valid Python. pip's post-install byte-compile step chokes on them (and on
+    # Python 3.9 the error handler itself crashes). Skipping compile avoids this
+    # entirely; .pyc files are generated lazily at runtime with no downside.
+    pip install --no-compile -r "$SCRIPT_DIR/requirements.txt"
+    ok "Dependencies installed"
 fi
-
-# Activate venv
-source "$VENV_DIR/bin/activate"
-
-# ─── Upgrade pip ──────────────────────────────────────────────────────────────
-info "Upgrading pip…"
-pip install --upgrade pip --quiet
-
-# ─── Install dependencies ─────────────────────────────────────────────────────
-info "Installing Python dependencies from requirements.txt…"
-# --no-compile: PySide6 wheels bundle Jinja2 template files (*.tmpl.py) that are
-# NOT valid Python. pip's post-install byte-compile step chokes on them (and on
-# Python 3.9 the error handler itself crashes). Skipping compile avoids this
-# entirely; .pyc files are generated lazily at runtime with no downside.
-pip install --no-compile -r "$SCRIPT_DIR/requirements.txt"
-ok "Dependencies installed"
 
 # ─── Verify the install actually imports ──────────────────────────────────────
 info "Verifying PySide6 import…"

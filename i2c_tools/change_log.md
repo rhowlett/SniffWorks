@@ -1622,3 +1622,18 @@ advanced_engineering `tools/venv/`. Unset → behavior unchanged.
 Evidence: all tests/test_*.py and smoke_test.py run as scripts give the same exit codes on the old
 per-project venv and on the shared venv (Python 3.12.13, PySide6 6.11.1). All pass except
 test_neware_doc_conformance (known path issue) and smoke_test (baseline 8/9).
+
+## 2026-10-19 (cont.) — install.sh never modifies the shared venv itself (owner request)
+
+| File | Change |
+|---|---|
+| install.sh | `[v0.1]` tag added on line 2 (file was untagged). With `$SHARED_VENV` set, the venv is created/updated only by advanced_engineering `tools/venv/sync_venv.sh` (found via `$SHARED_VENV_SYNC`, `~/.git_path_ad`, or a sibling `advanced_engineering/` checkout), so installs stay on `shared_venv.lock.txt`; warns if `SniffWorks/i2c_tools/requirements.txt` is missing from the manifest. Without the sync script: a working shared venv is used as is, and a moved or broken one is an error. The `rm -rf` + pip path now runs only for the local `.venv`. Header renamed from "AD2 I2C Tool installer" |
+
+Why: the previous version deleted and recreated `$VENV_DIR` whenever `bin/python` was missing, even when
+it was the shared venv, and installed loose `>=` requirements into it, bypassing the shared lock.
+
+Evidence: scratch harness on the extracted venv section (stub sync script, fake venvs, pip stubbed):
+sync stub called and an existing folder kept; broken shared venv with no sync → error, folder kept;
+working shared venv with no sync → used as is; moved venv → error; unset → local `.venv` recreated
+and pip run; `find_sync_venv` finds the real script through `~/.git_path_ad`. The real shared venv
+was not touched.
