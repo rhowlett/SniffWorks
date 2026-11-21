@@ -1,5 +1,5 @@
 # SniffWorks
-<!-- version: 1.4 -->
+<!-- version: 1.5 -->
 
 SniffWorks is a family of bus sniffers built on one shared framework: I²C, GPIO, SPI, UART, CAN, USB PD and Ethernet. Each protocol has a standalone app, and a master multi-sniffer app shows several buses and several hardware sniffers at once on one timeline. The goal is debugging a system with many communication schemes: the user knows the expected cross-bus sequence (e.g. an I²C write raises a GPIO, which starts an SPI or UART transfer), and a missing, late or out-of-order event shows where to start looking. The software must stay highly configurable so new hardware and tools can be added.
 
@@ -33,6 +33,7 @@ This file holds the cross-project decisions. Each sub-project has its own CLAUDE
 - SW-13 Emulator and loopback boards live apart from the sniffers because normal use excludes them: `system_emulation_testing/firmware/[common|<mcu>-<board>|<other>]`; i2c_tools' `loopback_dut/` moves there (owner, 2026-10-19).
 - SW-14 Repo layout (owner chose, 2026-10-19): `protocols/<bus>/` for each protocol's host code, `firmware/common/` + `firmware/targets/<mcu>-<board>/` + `firmware/docs/`, `system_emulation_testing/`; `i2c_tools/` stays until migrated. GPIO is the first sub-project created this way.
 - SW-15 Exception to SW-08 (owner, 2026-11-20): i2c_tools test hygiene done before the restructure: C9 test paths, R9 single runner (`i2c_tools/conftest.py`, `python -m pytest`), a test exit-crash fix, smoke TODO for the gateway, and repo CI (`.github/workflows/ci.yml`, Ubuntu + macOS); detail in i2c_tools/CLAUDE.md v1.25 and i2c_tools/change_log.md 2026-11-20.
+- SW-16 SniffWorks is licensed under PolyForm Noncommercial 1.0.0 with an explicit no-warranty / no-liability statement: root `LICENSE` and the README Copyright & License section; ST's HAL/CMSIS `Drivers/` and CubeMX-generated files keep their own licenses, listed in the README's Third-party code section (owner, 2026-11-20).
 ## Tradeoffs
 - Freezing the i2c_tools plan delays its open fixes (B31 400 kHz, Phases 2-13) until after the restructure (rationale not recorded).
 
@@ -44,12 +45,14 @@ This file holds the cross-project decisions. Each sub-project has its own CLAUDE
 - The root `.gitignore` ignores every `*.csv`; capture fixtures and multi-stream CSV test data must be un-ignored explicitly (as `i2c_tools/.gitignore` does).
 - Claude Code loads every CLAUDE.md from the working folder up to the repo root, so a sub-project CLAUDE.md must not tell Claude to ignore this one.
 - CI runs only i2c_tools today; each new sub-project (protocols/gpio first) needs its own job in `.github/workflows/ci.yml` when it gets tests, or its tests never run on GitHub.
+- Never put a brickChip header on files under `Drivers/` or on CubeMX-generated files outside `App/` and the `USER CODE` regions: they are ST/Arm code under their own licenses, and CubeMX regeneration would drop it anyway.
 
 ## Current State
 - `i2c_tools/` (plan frozen, SW-08); `protocols/gpio/` created with CLAUDE.md, README, requirements draft (GPIO-R01..R11, owner vs proposed marked) and change log; `firmware/` and `system_emulation_testing/` hold READMEs, docs and empty folders. No new code yet.
 - install.sh shared-venv fix done and tested in a scratch harness (not yet run end to end against the real shared venv).
 - Build/cache files untracked (80600a1). Not yet done: migrate code out of i2c_tools.
 - CI added (SW-15): i2c_tools `python -m pytest` = 27 passed, 1 skipped (exit 77); the Neware test now loads `dcDaughterCard_decoder.json` (the renamed Neware decoder).
+- Licensed (SW-16): LICENSE + README section done; per-file brickChip headers not yet added (see Open Questions).
 - Next: owner review of the GPIO requirements; settle the event model, wire protocol and multi-stream CSV (Open Questions); then the first GPIO code.
 
 ## Open Questions
@@ -61,6 +64,7 @@ This file holds the cross-project decisions. Each sub-project has its own CLAUDE
 - ~~Scope of the SW-06 test tool~~ resolved v1.1: it lives in `system_emulation_testing/` with the loopback DUT, excluded from normal use (SW-13). Still open: does the loopback DUT's isolation rule (never imports sniffer code) apply to the whole folder?
 - Link bandwidth: several busy buses can exceed a full-speed USB link, so how much filtering or triggering runs on the device?
 - Device identification (SW-12): what must a probe report so discovery names it (board type, target, build configuration, firmware version, serial)? In the USB descriptors (bridge product/serial strings), in a firmware HELLO, or both? Blocks the hardware spec and the discovery code.
+- Per-file brickChip headers: add them as each file moves out of `i2c_tools/` in the restructure (every file is touched then anyway), or before? Most i2c_tools Python files keep the version tag inside the module docstring, where a header cannot sit directly below it; that tag-position rule is an open Phase 2 item, frozen by SW-08 (rationale for deferring: Claude proposal, 2026-11-20).
 - USB bridge choice (SW-12): XR21V1410 vs CP2102N vs FTDI on throughput, cost, custom USB descriptors and driver support on macOS/Linux/Windows. Check against the datasheets before choosing.
 
 ## Revision History
@@ -69,3 +73,4 @@ This file holds the cross-project decisions. Each sub-project has its own CLAUDE
 - v1.2 (2026-10-19): tracked build/cache gotcha fixed (80600a1); state updated.
 - v1.3 (2026-11-20): SW-15 test-hygiene exception to SW-08 and repo CI; CI-per-sub-project gotcha; state updated.
 - v1.4 (2026-11-20): CI state updated (Neware decoder found under its new name; no expected failures).
+- v1.5 (2026-11-20): SW-16 PolyForm license with no-warranty wording; third-party header gotcha; state; per-file header timing question.
