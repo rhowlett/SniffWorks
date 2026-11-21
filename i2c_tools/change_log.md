@@ -1682,3 +1682,16 @@ Evidence (fresh Python 3.12.3 venv, `pip install -r requirements-dev.txt -c ci-c
   a listed suite that passes is reported as XPASS(strict) and fails; an unlisted failing
   suite fails.
 - C host suites through the runner: firmware 86 + 92 + 22 checks, DUT 40 checks, 0 failures.
+
+## 2026-11-20 (cont.) — Neware conformance test loads the renamed decoder
+
+| File | Version | Change |
+|---|---|---|
+| tests/test_neware_doc_conformance.py | [v1.2] | Loads `i2c_decoders/dcDaughterCard_decoder.json` instead of the absent `neware_decoder.json` |
+| conftest.py | [v0.2] | `EXPECTED_FAIL` is now empty |
+
+Why: `neware_decoder.json` was never missing, only renamed. `dcDaughterCard_decoder.json`
+is the same decoder (device "Smart Battery (SBDS v1.1) via Neware BTS", 0x10, 44 rules,
+built from SBDS v1.1 and the Neware register file), with its description extended to the
+Iontra DC daughter card. Against it the test passes 50/50 with 0 failures, so the strict
+expected-fail entry is removed. `python -m pytest`: 27 passed, 1 skipped (exit 77).

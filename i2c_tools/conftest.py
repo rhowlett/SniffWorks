@@ -1,5 +1,5 @@
 """
-conftest.py — one pytest runner for every i2c_tools test suite (R9).  [v0.1]
+conftest.py — one pytest runner for every i2c_tools test suite (R9).  [v0.2]
 
 The tests are scripts: each is run as `python <file>` and judged by its exit
 code, exactly as before, so nothing in the scripts changes and they still run
@@ -37,10 +37,7 @@ SCRIPT_TIMEOUT_S = 300
 SKIP_EXIT = 77
 
 # suite file name -> reason it is expected to fail today
-EXPECTED_FAIL = {
-    "test_neware_doc_conformance.py":
-        "i2c_decoders/neware_decoder.json is not committed (owner to add)",
-}
+EXPECTED_FAIL: dict[str, str] = {}
 
 
 def pytest_collect_file(file_path: Path, parent):

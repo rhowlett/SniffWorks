@@ -1,5 +1,5 @@
 # SniffWorks
-<!-- version: 1.3 -->
+<!-- version: 1.4 -->
 
 SniffWorks is a family of bus sniffers built on one shared framework: I²C, GPIO, SPI, UART, CAN, USB PD and Ethernet. Each protocol has a standalone app, and a master multi-sniffer app shows several buses and several hardware sniffers at once on one timeline. The goal is debugging a system with many communication schemes: the user knows the expected cross-bus sequence (e.g. an I²C write raises a GPIO, which starts an SPI or UART transfer), and a missing, late or out-of-order event shows where to start looking. The software must stay highly configurable so new hardware and tools can be added.
 
@@ -49,7 +49,7 @@ This file holds the cross-project decisions. Each sub-project has its own CLAUDE
 - `i2c_tools/` (plan frozen, SW-08); `protocols/gpio/` created with CLAUDE.md, README, requirements draft (GPIO-R01..R11, owner vs proposed marked) and change log; `firmware/` and `system_emulation_testing/` hold READMEs, docs and empty folders. No new code yet.
 - install.sh shared-venv fix done and tested in a scratch harness (not yet run end to end against the real shared venv).
 - Build/cache files untracked (80600a1). Not yet done: migrate code out of i2c_tools.
-- CI added (SW-15): i2c_tools `python -m pytest` = 26 passed, 1 skipped (exit 77), 1 xfailed (`neware_decoder.json` not committed; owner to commit it).
+- CI added (SW-15): i2c_tools `python -m pytest` = 27 passed, 1 skipped (exit 77); the Neware test now loads `dcDaughterCard_decoder.json` (the renamed Neware decoder).
 - Next: owner review of the GPIO requirements; settle the event model, wire protocol and multi-stream CSV (Open Questions); then the first GPIO code.
 
 ## Open Questions
@@ -68,3 +68,4 @@ This file holds the cross-project decisions. Each sub-project has its own CLAUDE
 - v1.1 (2026-10-19): owner answers: AD2 out of SniffWorks (SW-11), device-identification and USB-bridge direction (SW-12), system_emulation_testing (SW-13), repo layout (SW-14); install.sh gotchas fixed and struck, shared-venv rule; GPIO, firmware and emulation folders in the sub-project table; layout, naming and SW-06 questions partly resolved; two new open questions; state rewritten.
 - v1.2 (2026-10-19): tracked build/cache gotcha fixed (80600a1); state updated.
 - v1.3 (2026-11-20): SW-15 test-hygiene exception to SW-08 and repo CI; CI-per-sub-project gotcha; state updated.
+- v1.4 (2026-11-20): CI state updated (Neware decoder found under its new name; no expected failures).
