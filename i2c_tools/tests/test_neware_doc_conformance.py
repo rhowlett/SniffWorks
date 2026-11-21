@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-# [v1.1]
+# [v1.2]
 """
-test_neware_doc_conformance.py — check i2c_decoders/neware_decoder.json and
+test_neware_doc_conformance.py — check i2c_decoders/dcDaughterCard_decoder.json
+(the Neware BTS / DC daughter card SBDS decoder, formerly neware_decoder.json) and
 i2c_decoders/smbus1v1_decoder.json (the SBDS v1.1 decoder, reported as "SBDS1v1")
 against the Neware-supplied reference "documents/decoders/Smart Battery Registers.txt". Parses the file itself, so a
 revised Neware file is re-checked automatically. Intentional deviations are asserted
@@ -49,7 +50,8 @@ def load(name, addr):
     return d, rd, wr
 
 
-NW, NRD, NWR = load("neware_decoder.json", 0x10)
+# The Neware decoder was renamed dcDaughterCard_decoder.json (same 44 rules at 0x10).
+NW, NRD, NWR = load("dcDaughterCard_decoder.json", 0x10)
 SB, SRD, SWR = load("smbus1v1_decoder.json", 0x0B)
 size = lambda r: -1 if r.get("data_bytes") is None else r["data_bytes"]
 
