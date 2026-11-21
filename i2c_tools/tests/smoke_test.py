@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# [v0.1]
 """
 tests/smoke_test.py — headless smoke test for every AD2 I2C Tool application.
 
@@ -8,7 +9,8 @@ Usage:
 What it does (no hardware, no WaveForms SDK, no serial port required):
   1. Builds the QApplication once via ui.common.build_application.
   2. Constructs, shows, pumps events for, and closes each app window:
-     SnifferWindow, DecoderEditorWindow, ReplayWindow, BQ76905GatewayTool.
+     SnifferWindow, DecoderEditorWindow, ReplayWindow, SnifferIonWindow.
+     Apps listed in NOT_IN_TREE are reported as TODO, never as PASS or FAIL.
   3. Applies every theme in ui.theme.THEME_CHOICES and asserts the palette
      resolves to a non-empty dict.
   4. Prints PASS/FAIL per app and per theme; exits non-zero if anything failed.
@@ -45,7 +47,15 @@ APPS = [
     ("decoder_editor.py  → DecoderEditorWindow", "ui.decoder_editor_window", "DecoderEditorWindow", {}),
     ("i2c_replay.py      → ReplayWindow",        "ui.replay_window",         "ReplayWindow",        {}),
     ("sniffer_ion.py → SnifferIonWindow",       "ui.sniffer_ion_window", "SnifferIonWindow", {}),
-    ("bq76905_gateway.py → BQ76905GatewayTool",  "bq76905_gateway_tool",     "BQ76905GatewayTool",  {}),
+]
+
+# Apps the plan expects but the tree does not contain yet. Printed as TODO so
+# the gap stays visible without failing every run. bq76905_gateway_tool.py was
+# never in the uploaded tree; its first slice became the Registers tab
+# (change_log 2026-07-09) and the gateway app is its own phase (D-04, M3,
+# Phase 10). Move it back into APPS when it exists.
+NOT_IN_TREE = [
+    ("bq76905_gateway.py → BQ76905GatewayTool", "Phase 10 (D-04, M3)"),
 ]
 
 
@@ -108,6 +118,9 @@ def main() -> int:
         if not ok:
             line += f"   -> {msg}"
         print(line)
+
+    for label, where in NOT_IN_TREE:
+        print(f"  TODO  {label}   -> not in the tree yet, {where}")
 
     print("== Themes ==")
     for name, ok, msg in theme_results:

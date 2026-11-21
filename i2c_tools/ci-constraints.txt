@@ -1,0 +1,9 @@
+# [v0.1]
+# Exact versions CI installs (.github/workflows/ci.yml uses -c). They match the
+# shared venv recorded in the root CLAUDE.md (Python 3.12, PySide6 6.11.1), so
+# CI tests what the owner runs. Change a pin deliberately, in its own commit,
+# after `python -m pytest` passes on the new version.
+PySide6==6.11.1
+pyserial==3.5
+jsonschema==4.26.0
+pytest==9.2.0

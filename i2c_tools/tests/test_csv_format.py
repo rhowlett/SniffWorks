@@ -1,7 +1,7 @@
 """
-tests/test_csv_format.py — capture CSV v2 spec conformance.  [v0.1]
+tests/test_csv_format.py — capture CSV v2 spec conformance.  [v0.2]
 [XREF: csv-format] Pins: a fresh model export is v2 and validates strict;
-the user's real capture validates strict (skipped when absent); corrupted
+the committed bq25731 smoke capture validates strict; corrupted
 rows are rejected; loader round-trip preserves canonical fields incl. the
 v2 SCL column; v1 files (no SCL column) still validate and load.
 """
@@ -58,13 +58,11 @@ def main():
           and m.data(m.index(2, col), Qt.DisplayRole) == "",
           "table shows kHz, blank when unknown")
 
-    cap = "/mnt/user-data/uploads/POC_i2c_sys_bq25731_smoke_v0_4.csv"
-    if os.path.isfile(cap):
-        r = run(cap, "--strict")
-        check(r.returncode == 0 and "1231 rows" in r.stdout,
-              "real v0_4 capture: 1231 rows VALID (strict)")
-    else:
-        print("  SKIP  real capture not present")
+    # Committed fixture (C9: was read from a chat-upload path and skipped).
+    cap = os.path.join(ROOT, "i2c_capture", "POC_i2c_sys_bq25731_smoke_v0.4.csv")
+    r = run(cap, "--strict")
+    check(r.returncode == 0 and "1231 rows" in r.stdout,
+          "real v0.4 capture: 1231 rows VALID (strict)")
 
     bad = out + ".bad.csv"
     txt = open(out, encoding="utf-8").read().replace("0x6B,R", "0x6B,X") \

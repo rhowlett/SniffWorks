@@ -1,5 +1,5 @@
 # ion_i2c_tool
-<!-- version: 1.24 -->
+<!-- version: 1.25 -->
 
 ion_i2c_tool is the I²C sub-project of SniffWorks; the root `../CLAUDE.md` (cross-project decisions SW-01..) also applies, and this file adds the I²C detail. The program plan is FROZEN (SniffWorks SW-08, 2026-10-19) until the SniffWorks restructure. Program plan: `plan_n_exe/00_MASTER_PLAN.md`; current phase: `plan_n_exe/PHASE_01_loopback_dut.md`; review source: `plan_n_exe/archive/ion_i2c_tool_review.md`.
 
@@ -16,7 +16,7 @@ ion_i2c_tool is the I²C sub-project of SniffWorks; the root `../CLAUDE.md` (cro
 - Old C031 SCL estimate (1e6 / shortest period since capture start) stayed stuck after a speed step down and quantised 400 kHz to 333/500 kHz; replaced in fw 1.3 (change_log 2026-09-30).
 - ~~fw 1.3 per-phase SCL mean of periods ≤ 1.5× the phase minimum reads 100 kHz within 0.5 % and 400 kHz within 2 % (402 985 Hz) in host simulation with 1 µs timestamps; not yet measured on hardware.~~ superseded v1.10: now measured on hardware (entry below); the simulation figures still hold as the design target.
 - `i2c_capture/EVM_Handshake.csv` and `EVM_long_capture.csv` use an 11-column legacy layout (no Int/Decode) that fails both v1 and v2 validation; the other 13 captures validate (legacy reader is M1, Phase 6).
-- `i2c_capture/POC_i2c_sys_bq25731_smoke_v0.4.csv` exists in the tree while `test_csv_format.py` looks for it under `/mnt/user-data/uploads/` and skips (C9, Phase 2).
+- ~~`i2c_capture/POC_i2c_sys_bq25731_smoke_v0.4.csv` exists in the tree while `test_csv_format.py` looks for it under `/mnt/user-data/uploads/` and skips (C9, Phase 2).~~ superseded v1.25: C9 fixed; test_csv_format and both test_bq25731_decoder replay tests read the committed capture (13 checks no longer skipped; change_log 2026-11-20).
 - Timing model t_SCL = (SCLL+1+SCLH+1)·t_PRESC + t_r + t_f + 2·t_AF + 6·t_I2CCLK predicts CubeMX's own 100 kHz TIMINGR values at 99 453 / 99 763 Hz; the 10–400 kHz sweep lands within 2 % (loopback_dut/tests/host).
 - In the H5 HAL (7-bit mode), `HAL_I2C_AddrCallback` runs before ADDR is cleared, and the Seq transmit/receive calls clear it, so a delay in the callback stretches SCL; a slave AF error keeps LISTEN state; STOP ends in `ListenCpltCallback`.
 - A hardware I2C slave can only clock-stretch at byte boundaries; LB-14 is redefined as a byte-boundary stretch (plan said mid-byte).
@@ -55,6 +55,8 @@ ion_i2c_tool is the I²C sub-project of SniffWorks; the root `../CLAUDE.md` (cro
 - ~~The repo-wide .gitignore ignores *.csv: the 20 loopback rig captures and the replay fixture were never in git; the project .gitignore (v0.1) now un-ignores them (not yet committed).~~ superseded v1.23: in SniffWorks all 20 loopback run CSVs and all 16 i2c_capture CSVs are tracked (commit 7799b55); the root .gitignore still ignores new *.csv.
 - The loopback DUT's dashboard values never change by design: responder reads are a pure function of the pointer (word = base + x) and writes are not stored.
 - Rig port names changed after re-enumeration (2026-10-05, same serial numbers): C031 `/dev/cu.usbmodem1203` (SER 066BFF54…), H533 `/dev/cu.usbmodem1403` (SER 00320027…), AD2 unchanged. Identify boards by serial number, not port name.
+- `test_device_names.py` crashed at interpreter exit (139/134) after ALL TESTS PASSED in ~60 % of Linux offscreen runs (PySide6 6.11.1 and 6.12.0): the parentless AD2 `DevicePanel` lives in a lambda reference cycle and is destroyed after the QApplication; fixed in the test, 0/40 runs after (change_log 2026-11-20).
+- `i2c_decoders/neware_decoder.json` is not in git (never committed), so `test_neware_doc_conformance.py` fails on a clean checkout although its content passes against the owner's copy; listed in conftest.py `EXPECTED_FAIL` until committed.
 ## Decisions
 - D-01 Master launcher starts each app as a subprocess, for crash isolation from DWF/ctypes faults.
 - D-02 Sniffer apps may run as multiple instances (one per probe); all other apps are single-instance and focus the existing window.
@@ -113,6 +115,9 @@ ion_i2c_tool is the I²C sub-project of SniffWorks; the root `../CLAUDE.md` (cro
 - Phase plan frozen (owner, 2026-10-19, SniffWorks SW-08): Phase 2 and later wait for the SniffWorks restructure; SniffWorks decisions SW-01..SW-10 take precedence where they overlap this plan.
 - install.sh / run.sh use the shared venv `$SHARED_VENV` when set, else `.venv` (owner, commit ae8a627, change_log 2026-10-19). From install.sh [v0.1] the shared venv is changed only through advanced_engineering `sync_venv.sh` (change_log 2026-10-19 cont.).
 - The AD2 path (`sniffer_ad2.py`, DWF code, install.sh WaveForms checks) stays in this tree until the restructure but is not carried into SniffWorks (owner, 2026-10-19; root SW-11).
+- Test-hygiene exception (owner, 2026-11-20; exception to SW-08 and D-06, root SW-15): C9 repoint, the R9 single runner, the test_device_names exit fix, smoke reporting the gateway as TODO (Phase 10), and CI, done now so the baseline is clean before the restructure; R9's missing tests stay open.
+- The suites stay scripts; pytest is only the runner (`conftest.py`): one item per script or C host folder, judged by exit code (0 pass, 77 loud skip, else fail), with a strict `EXPECTED_FAIL` list that fails on xpass, like the D-05 ledger (design chosen this session within the owner-approved exception, 2026-11-20; owner may revisit).
+- CI (`../.github/workflows/ci.yml`) runs `python -m pytest` on Ubuntu and macOS with Python 3.12 and the shared venv's PySide6 6.11.1, pinned in `ci-constraints.txt`, so CI tests what the owner runs.
 ## Tradeoffs
 - The edge ISR gives up the firmware's zero-interrupt rule and 2 KB of TX ring (6144 -> 4096 in edge mode); acceptable because sampling no longer depends on decode/upkeep timing (B30 fixed) and dropped frames stay counted.
 - Single-board DUT gives up physically separate driver/responder boards; acceptable because the three peripherals are independent and it removes the C031's one-I2C limit.
@@ -122,6 +127,7 @@ ion_i2c_tool is the I²C sub-project of SniffWorks; the root `../CLAUDE.md` (cro
 - Running-minimum gating can keep a few early periods that a later, smaller minimum would reject (+0.75 % at 400 kHz in simulation); acceptable against the 2 % target without buffering periods in 12 KB RAM.
 - ASCII line protocol costs ~3 characters per byte on the UART (80-byte read ≈ 250 chars ≈ 22 ms at 115200); acceptable because the PC paces cases and waits for END.
 - Clock-stretch injection busy-waits in the responder ISR; acceptable for a test instrument, but UART receive can overrun during long stretches (counted as `uart_ovr`), so the host must wait for END.
+- The runner reports one result per suite, not per check; acceptable because each script already prints per-check PASS/FAIL and a failing item shows the last 40 output lines.
 
 ## Gotchas
 - Always run tests inside the shared venv `$SHARED_VENV` (else `.venv`) (`source "${SHARED_VENV:-.venv}/bin/activate"`, Python 3.12.13); `/usr/bin/python3` is 3.9.6 and breaks `test_ion_master.py` (PEP 604) and lacks jsonschema.
@@ -168,14 +174,17 @@ ion_i2c_tool is the I²C sub-project of SniffWorks; the root `../CLAUDE.md` (cro
 - pyserial sees all three rig instruments as USB serial devices (ST-LINK V2-1 0483:374B, ST-LINK V3 0483:374E, AD2 FTDI 0403:6014), so one scan covers serial and DWF apps; non-USB ports (Bluetooth, debug-console) have no vid and are skipped.
 - The AD2 can time the bus directly (scratch script pattern: DigitalIn 20-25 MS/s, trigger SCL high + SDA fall, 4096 samples); close sniffer_ad2 first.
 - A probe left capturing by the GUI keeps sending 1 Hz STATUS (`aa 02 2d 00 …` for fw 1.4) after the GUI closes; a raw read of the port shows whether the firmware is alive even when commands fail.
-- Tracked build output: `__pycache__/` and firmware `build/` folders are in git (added before the root .gitignore); keep only the two flashable .bin images when untracking (SniffWorks root CLAUDE.md, Gotchas).
+- ~~Tracked build output: `__pycache__/` and firmware `build/` folders are in git (added before the root .gitignore); keep only the two flashable .bin images when untracking (SniffWorks root CLAUDE.md, Gotchas).~~ superseded v1.25: untracked in 80600a1 (root CLAUDE.md v1.2).
+- Run every suite with `python -m pytest` from `i2c_tools/` (needs pytest in the venv: requirements-dev.txt); scripts still run alone. A new suite is picked up automatically if it is `tests/test_*.py` or `*/tests/host/Makefile`.
+- Tests must destroy parentless widgets before exit (`deleteLater()` then `QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)`); widgets kept alive by lambda cycles are destroyed after the QApplication and crash intermittently.
+- A test fixture must be a committed file found from `ROOT`, never a chat-upload or home path; a missing fixture is a FAIL, not a SKIP (C9).
 ## Current State
 - **Phase 1 closed (2026-10-05)**, PROJECT_VERSION 1.6.0; `documents/phases/HANDOFF_PHASE_01.md` + `REVIEW_PHASE_01.md` written; zip `~/Downloads/ion_i2c_tool_phase01_v1.6.0.zip`. Senior-designer verdict on the review still awaited.
 - **Plan frozen (2026-10-19)**: moved into SniffWorks as `i2c_tools/` (7799b55, 2ae032b); shared venv in install.sh/run.sh (ae8a627). Next is the SniffWorks restructure (root CLAUDE.md), not Phase 2.
 - Rig: C031 fw 1.6 (edge interrupt; B30 fixed), H533 DUT fw 0.2; ion ledger EXACT (pass 11 / xfail 4); AD2 run 3 has one B32 xpass (intermittency, REVIEW §7.2).
-- Open: B31 (400 kHz) until the faster probe MCU (H723ZG/H743ZI2); intermittent-symptom ledger (owner); B12 evidence and B10 reproduction (Phase 5); smoke 8/9 (Phase 10); tag-position rule (Phase 2).
+- Open: B31 (400 kHz) until the faster probe MCU (H723ZG/H743ZI2); intermittent-symptom ledger (owner); B12 evidence and B10 reproduction (Phase 5); gateway app (Phase 10, smoke shows it as TODO); R9's missing tests; tag-position rule (Phase 2); commit `neware_decoder.json`.
 - Trace jumpers C031 A0 -> AD2 DIO2, A1 -> DIO3 still fitted (harmless with the default image). Ports (2026-10-05, may have changed): C031 `/dev/cu.usbmodem1203`, H533 `/dev/cu.usbmodem1403`.
-- Tests: 2026-10-05 project 20/20 (19 + test_device_names); 2026-10-19 on the shared venv every test passes except test_neware_doc_conformance (known path issue) and smoke 8/9 (change_log 2026-10-19); earlier: DUT T1 + host 40, firmware host 86 + 92 + 22, decoders 10/10 valid.
+- Tests (2026-11-20, `python -m pytest`, Python 3.12 + PySide6 6.11.1): 26 passed, 1 skipped (loopback capture, exit 77), 1 xfailed (neware, file not committed); CI on GitHub runs the same on Ubuntu and macOS. Earlier: decoders 10/10 valid.
 
 ## Open Questions
 - ~~Add per-transaction SCL as a CSV column now?~~ Yes: moved to Decisions (resolved v1.1).
@@ -194,6 +203,7 @@ ion_i2c_tool is the I²C sub-project of SniffWorks; the root `../CLAUDE.md` (cro
 - USB device discovery/naming done (change_log 2026-10-05); owner can name the rig boards with any app's 'Name devices…' or tools/device_names.py discover.
 - ~~Does SniffWorks SW-02 replace the planned fork of the AD2 software into a general-purpose SPI/UART/ADC tool?~~ resolved v1.24: the AD2 is out of SniffWorks; the owner keeps a separate copy of the current tool for AD2 use (root SW-11).
 - ~~Where do `loopback_dut/` and its isolation rule go in the restructure?~~ resolved v1.24: to `system_emulation_testing/firmware/<mcu>-<board>` (root SW-13); not moved yet.
+- Is pytest in the shared venv manifest (advanced_engineering `shared_venv_projects.txt`)? If not, add `SniffWorks/i2c_tools/requirements-dev.txt` so `python -m pytest` works locally; CI installs it itself.
 
 ## Revision History
 - v1.0 (2026-09-30): Created; seeded with program decisions D-01..D-06, Phase 1 owner answers, H533 findings, baseline result.
@@ -221,3 +231,4 @@ ion_i2c_tool is the I²C sub-project of SniffWorks; the root `../CLAUDE.md` (cro
 - v1.22 (2026-10-05): USB device naming decision, test-isolation and pyserial-identity gotchas, state.
 - v1.23 (2026-10-19): version tag fixed (line 2 said 1.11 while history was at 1.22); moved into SniffWorks: root CLAUDE.md now applies, plan frozen (SW-08), shared venv, tracked-build gotcha; CSV-tracking finding superseded; state rewritten (tests 20/20); commit item resolved; two open questions (AD2 fork, loopback_dut placement).
 - v1.24 (2026-10-19): two open questions resolved (AD2 out of SniffWorks, loopback_dut destination); install.sh sync_venv decision; AD2-path decision.
+- v1.25 (2026-11-20): test-hygiene exception (C9, R9 runner, exit-crash fix, smoke TODO, CI): C9 finding and tracked-build gotcha struck; exit-crash and uncommitted-neware findings; runner, exception and CI decisions; runner tradeoff; three test gotchas; state rewritten; shared-venv pytest question.

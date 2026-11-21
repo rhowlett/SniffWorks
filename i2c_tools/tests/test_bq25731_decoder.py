@@ -1,5 +1,5 @@
 """
-tests/test_bq25731_decoder.py — the full BQ25731 decoder (SLUSE66A,
+tests/test_bq25731_decoder.py — the full BQ25731 decoder (SLUSE66A,  [v0.1]
 10 mOhm RSR/RAC) pinned to datasheet-derived vectors so future edits can't
 silently break scalings.
 
@@ -29,6 +29,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 DECODER = os.path.join(ROOT, "i2c_decoders", "bq25731_decoder.json")
+# Committed smoke capture (C9: was read from a chat-upload path and skipped).
+SMOKE_CAPTURE = os.path.join(ROOT, "i2c_capture", "POC_i2c_sys_bq25731_smoke_v0.4.csv")
 FAILURES = []
 
 
@@ -248,9 +250,9 @@ def test_replay_window_registers(app):
     from ui.replay_window import ReplayWindow
     from ui import theme
 
-    cap = "/mnt/user-data/uploads/POC_i2c_sys_bq25731_smoke_v0_4.csv"
+    cap = SMOKE_CAPTURE
     if not os.path.isfile(cap):
-        print("  SKIP  capture not present in this environment")
+        check(False, f"committed capture fixture present ({cap})")
         return
     win = ReplayWindow()
     win.show(); app.processEvents()
@@ -290,9 +292,9 @@ def test_replay_scrub(app):
     from ui import theme
     from ui.widgets.registers_view import NO_VALUE
 
-    cap = "/mnt/user-data/uploads/POC_i2c_sys_bq25731_smoke_v0_4.csv"
+    cap = SMOKE_CAPTURE
     if not os.path.isfile(cap):
-        print("  SKIP  capture not present in this environment")
+        check(False, f"committed capture fixture present ({cap})")
         return
     win = ReplayWindow()
     win.show(); app.processEvents()

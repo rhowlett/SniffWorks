@@ -1,5 +1,5 @@
 # SniffWorks
-<!-- version: 1.2 -->
+<!-- version: 1.3 -->
 
 SniffWorks is a family of bus sniffers built on one shared framework: I²C, GPIO, SPI, UART, CAN, USB PD and Ethernet. Each protocol has a standalone app, and a master multi-sniffer app shows several buses and several hardware sniffers at once on one timeline. The goal is debugging a system with many communication schemes: the user knows the expected cross-bus sequence (e.g. an I²C write raises a GPIO, which starts an SPI or UART transfer), and a missing, late or out-of-order event shows where to start looking. The software must stay highly configurable so new hardware and tools can be added.
 
@@ -32,6 +32,7 @@ This file holds the cross-project decisions. Each sub-project has its own CLAUDE
 - SW-12 Hardware specs must let the app's discovery identify each connected device correctly; a NUCLEO does not give enough information for that today. Dedicated hardware replaces the ST-LINK interface with a lower-cost USB bridge; candidates MaxLinear XR21V1410 and Silicon Labs CP2102N, FTDI less likely (owner, 2026-10-19).
 - SW-13 Emulator and loopback boards live apart from the sniffers because normal use excludes them: `system_emulation_testing/firmware/[common|<mcu>-<board>|<other>]`; i2c_tools' `loopback_dut/` moves there (owner, 2026-10-19).
 - SW-14 Repo layout (owner chose, 2026-10-19): `protocols/<bus>/` for each protocol's host code, `firmware/common/` + `firmware/targets/<mcu>-<board>/` + `firmware/docs/`, `system_emulation_testing/`; `i2c_tools/` stays until migrated. GPIO is the first sub-project created this way.
+- SW-15 Exception to SW-08 (owner, 2026-11-20): i2c_tools test hygiene done before the restructure: C9 test paths, R9 single runner (`i2c_tools/conftest.py`, `python -m pytest`), a test exit-crash fix, smoke TODO for the gateway, and repo CI (`.github/workflows/ci.yml`, Ubuntu + macOS); detail in i2c_tools/CLAUDE.md v1.25 and i2c_tools/change_log.md 2026-11-20.
 ## Tradeoffs
 - Freezing the i2c_tools plan delays its open fixes (B31 400 kHz, Phases 2-13) until after the restructure (rationale not recorded).
 
@@ -42,11 +43,13 @@ This file holds the cross-project decisions. Each sub-project has its own CLAUDE
 - ~~Commit 7799b55 added i2c_tools before the root `.gitignore` existed (62d5fcd): 257 `__pycache__/` and firmware `build/` files and 11 `.DS_Store` are tracked. Untrack with `git rm -r --cached`, but keep the two flashable images (`embedded/sniffer_nucleoC0_fw/build/sniffer_nucleoC0_fw.bin`, `loopback_dut/firmware/build/firmware.bin`).~~ fixed v1.2: untracked in 80600a1; root `.gitignore` rule `**/build/*` keeps only the two .bin images.
 - The root `.gitignore` ignores every `*.csv`; capture fixtures and multi-stream CSV test data must be un-ignored explicitly (as `i2c_tools/.gitignore` does).
 - Claude Code loads every CLAUDE.md from the working folder up to the repo root, so a sub-project CLAUDE.md must not tell Claude to ignore this one.
+- CI runs only i2c_tools today; each new sub-project (protocols/gpio first) needs its own job in `.github/workflows/ci.yml` when it gets tests, or its tests never run on GitHub.
 
 ## Current State
 - `i2c_tools/` (plan frozen, SW-08); `protocols/gpio/` created with CLAUDE.md, README, requirements draft (GPIO-R01..R11, owner vs proposed marked) and change log; `firmware/` and `system_emulation_testing/` hold READMEs, docs and empty folders. No new code yet.
 - install.sh shared-venv fix done and tested in a scratch harness (not yet run end to end against the real shared venv).
 - Build/cache files untracked (80600a1). Not yet done: migrate code out of i2c_tools.
+- CI added (SW-15): i2c_tools `python -m pytest` = 26 passed, 1 skipped (exit 77), 1 xfailed (`neware_decoder.json` not committed; owner to commit it).
 - Next: owner review of the GPIO requirements; settle the event model, wire protocol and multi-stream CSV (Open Questions); then the first GPIO code.
 
 ## Open Questions
@@ -64,3 +67,4 @@ This file holds the cross-project decisions. Each sub-project has its own CLAUDE
 - v1.0 (2026-10-19): Created; overview and sub-project table, decisions SW-01..SW-10 from the owner's answers, shared-venv and repo-hygiene gotchas, open questions for the restructure.
 - v1.1 (2026-10-19): owner answers: AD2 out of SniffWorks (SW-11), device-identification and USB-bridge direction (SW-12), system_emulation_testing (SW-13), repo layout (SW-14); install.sh gotchas fixed and struck, shared-venv rule; GPIO, firmware and emulation folders in the sub-project table; layout, naming and SW-06 questions partly resolved; two new open questions; state rewritten.
 - v1.2 (2026-10-19): tracked build/cache gotcha fixed (80600a1); state updated.
+- v1.3 (2026-11-20): SW-15 test-hygiene exception to SW-08 and repo CI; CI-per-sub-project gotcha; state updated.
