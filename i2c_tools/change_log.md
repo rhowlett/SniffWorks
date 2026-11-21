@@ -1637,3 +1637,61 @@ sync stub called and an existing folder kept; broken shared venv with no sync �
 working shared venv with no sync → used as is; moved venv → error; unset → local `.venv` recreated
 and pip run; `find_sync_venv` finds the real script through `~/.git_path_ad`. The real shared venv
 was not touched.
+
+## 2026-11-20 — Test hygiene: committed capture paths (C9), one pytest runner (R9), exit-crash fix, CI (owner-approved exception to SW-08 / D-06)
+
+| File | Version | Change |
+|---|---|---|
+| tests/test_bq25731_decoder.py | [v0.1] | Tag added (file was untagged). Both replay tests read the committed `i2c_capture/POC_i2c_sys_bq25731_smoke_v0.4.csv` (`SMOKE_CAPTURE`) instead of `/mnt/user-data/uploads/…_v0_4.csv`; a missing fixture is now a FAIL, not a SKIP |
+| tests/test_csv_format.py | [v0.2] | The strict real-capture check reads the same committed fixture and always runs |
+| tests/test_device_names.py | [v0.2] | Destroys its three parentless widgets (`deleteLater` + DeferredDelete) while the QApplication is alive |
+| tests/smoke_test.py | [v0.1] | Tag added. `bq76905_gateway_tool` moved from APPS to `NOT_IN_TREE`, printed as TODO (Phase 10, D-04 M3), so smoke is 8/8 instead of a permanent 8/9 |
+| conftest.py | [v0.1] | New. Single runner: each script suite and each `*/tests/host/Makefile` is one pytest item, run in a subprocess with temporary `ION_TOOL_SETTINGS` / `ION_TOOL_DEVICE_NAMES`; exit 0 pass, 77 loud skip, else fail; strict `EXPECTED_FAIL` list |
+| pytest.ini | [v0.1] | New. Test paths: tests, loopback_dut/tests, both C host folders |
+| requirements-dev.txt | [v0.1] | New. requirements.txt + pytest |
+| ci-constraints.txt | [v0.1] | New. CI pins: PySide6 6.11.1, pyserial 3.5, jsonschema 4.26.0, pytest 9.2.0 (the shared venv's Python/PySide6) |
+| ../.github/workflows/ci.yml | v0.1 | New. SniffWorks CI: `python -m pytest` in i2c_tools on Ubuntu and macOS, Python 3.12, Qt system libraries on Ubuntu, Qt offscreen |
+
+Why: owner-approved exception to the SW-08 freeze and D-06 (2026-11-20), so the test
+baseline is clean and machine-checked before the restructure moves code out of i2c_tools.
+C9 and the runner half of R9 are done here; R9's missing tests (CSV round trip, editor
+round trip, simple write, combined PEC, schema check on every decoder) stay open.
+
+- **C9:** three checks read a chat-upload path that only existed in a claude.ai session,
+  so they always printed SKIP and their suites still reported ALL TESTS PASSED. The capture
+  has been in the tree all along.
+- **Exit crash (new finding):** `test_device_names.py` printed ALL TESTS PASSED, then
+  segfaulted or aborted at interpreter exit (exit 139/134) in about 60 % of runs on Linux
+  offscreen, with PySide6 6.11.1 and 6.12.0. Narrowed by removing parts of `test_gui`:
+  0/10 crashes without the AD2 `DevicePanel`, 6/10 with it. Its preset-button lambdas
+  capture `self`, so the parentless panel lives in a reference cycle until exit and is
+  destroyed after the QApplication. Test-only: in the apps the panel has a parent window.
+- **Neware:** `test_neware_doc_conformance.py` still fails because
+  `i2c_decoders/neware_decoder.json` was never committed. It is listed in
+  `EXPECTED_FAIL`; commit the file and delete the entry (strict, so CI says when).
+
+Evidence (fresh Python 3.12.3 venv, `pip install -r requirements-dev.txt -c ci-constraints.txt`,
+`QT_QPA_PLATFORM=offscreen`):
+- `python -m pytest` in i2c_tools: **26 passed, 1 skipped (test_loopback_capture, exit 77),
+  1 xfailed (neware)**, identical in 6 consecutive runs, ~19 s.
+- test_bq25731_decoder: 49 PASS + 2 SKIP before → 61 PASS, 0 SKIP after.
+  test_csv_format: 14 PASS + 1 SKIP → 15 PASS ("real v0.4 capture: 1231 rows VALID (strict)").
+- test_device_names: 0/25 crashes (PySide6 6.11.1, Python 3.12) and 0/15 (6.12.0, 3.13) after the fix.
+- smoke_test: 8/8, gateway shown as TODO.
+- Runner rules checked on a scratch copy: a suite exiting 1 fails with its output tail;
+  a listed suite that passes is reported as XPASS(strict) and fails; an unlisted failing
+  suite fails.
+- C host suites through the runner: firmware 86 + 92 + 22 checks, DUT 40 checks, 0 failures.
+
+## 2026-11-20 (cont.) — Neware conformance test loads the renamed decoder
+
+| File | Version | Change |
+|---|---|---|
+| tests/test_neware_doc_conformance.py | [v1.2] | Loads `i2c_decoders/dcDaughterCard_decoder.json` instead of the absent `neware_decoder.json` |
+| conftest.py | [v0.2] | `EXPECTED_FAIL` is now empty |
+
+Why: `neware_decoder.json` was never missing, only renamed. `dcDaughterCard_decoder.json`
+is the same decoder (device "Smart Battery (SBDS v1.1) via Neware BTS", 0x10, 44 rules,
+built from SBDS v1.1 and the Neware register file), with its description extended to the
+Iontra DC daughter card. Against it the test passes 50/50 with 0 failures, so the strict
+expected-fail entry is removed. `python -m pytest`: 27 passed, 1 skipped (exit 77).

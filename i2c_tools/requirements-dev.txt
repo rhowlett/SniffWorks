@@ -1,0 +1,5 @@
+# [v0.1]
+# ion_i2c_tool test-only dependencies (the runtime ones are in requirements.txt).
+# `python -m pytest` in i2c_tools/ runs every suite through conftest.py (R9).
+-r requirements.txt
+pytest>=8           # runner only; the suites are scripts judged by exit code

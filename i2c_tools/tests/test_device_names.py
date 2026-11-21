@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# [v0.1]
+# [v0.2]
 """
 tests/test_device_names.py — USB device discovery and naming (core/device_names.py)
 and its GUI/CLI integration, no hardware needed (fake port lists).
@@ -199,6 +199,16 @@ def test_gui(app):
     ok, msg = dlg.set_row_name(AD2.device, "C031 sniffer")
     check(not ok and "already" in msg, "dialog: a duplicate name is refused with a message")
     dlg.close()
+
+    # Destroy the parentless widgets while the QApplication is alive. The
+    # panels' button lambdas capture self, so without this the widgets live on
+    # in reference cycles until interpreter exit, where they are destroyed
+    # after the QApplication: an intermittent segfault/abort (exit 139/134)
+    # after "ALL TESTS PASSED" (measured 2026-11-20, Linux offscreen).
+    from PySide6.QtCore import QCoreApplication, QEvent
+    for w in (panel, dp, dlg):
+        w.deleteLater()
+    QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
 
 
 def main():
